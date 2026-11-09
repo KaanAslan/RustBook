@@ -1,15 +1,26 @@
-.. Template documentation master file, created by
-   sphinx-quickstart on Mon May 25 02:03:24 2026.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. Rust Programlama Dili 
 
-Template documentation
-======================
+#########################
+**Rust Programlama Dili**
+#########################
 
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
+.. rst-class:: lead
 
+   Bu kitap **Kaan ASLAN** ve **Sebahat ERSOY** tarafından *C ve Sistem Programcıları Derneği*'ndeki **Kaan ASLAN** tarafından verilen 
+   **Rust Programlama Dili** kursundaki kurs notları temel alınarak oluşturulmuştur. 
+   
+   Kitaptaki içerik belli bir kaynak referans alınarak oluşturulmamıştır ve içeriğin oluşturulmasında yapay zeka araçlarından 
+   faydalanılmamıştır. Bu bakımdan içerik tamamen özgündür. 
+   
+   Kitabımızı diğer kaynaklardan ayıran en önemli farklılıkları şunlardır:
+
+   - Daha kapsamlı ve ayrıntılı olması
+   - Daha pedagojik olması
+
+   Bu kitap oluşturulma aşamasındadır, içerik sürekli güncellenmektedir. Dokümanın kurs formatındaki saf metin haline 
+   aşağıdaki bağlantıdan erişebilirsiniz:
+
+   https://github.com/CSD-1993/KursNotlari
 
 .. toctree::
    :maxdepth: 2

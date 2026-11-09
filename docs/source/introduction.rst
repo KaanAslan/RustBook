@@ -1,9 +1,11 @@
-=============================
-Rust Programlama Diline Giriş
-=============================
+=====
+Giriş
+=====
 
-Rust Nedir?
-===========
+Bu bölümde Rust'ın nasıl bir programlama dili olduğu üzerinde duracağız ve bazı temel bilgiler vereceğiz. 
+
+Rust Nasıl Bir Dildir?
+======================
 
 Kursumuzda önce Rust'ın nasıl bir programlama dili olduğunu açıklayacağız.
 
