@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rust Programlama Diline Giriş &mdash; Rust Book 1.0.0 belgelendirmesi</title>
+  <title>Giriş &mdash; Rust Programlama Dİli 1.0.0 belgelendirmesi</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -23,7 +23,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Dizin" href="genindex.html" />
     <link rel="search" title="Ara" href="search.html" />
-    <link rel="prev" title="Template documentation" href="index.html" />
+    <link rel="next" title="Rust’ta Deyimler" href="statements.html" />
+    <link rel="prev" title="Rust Programlama Dili" href="index.html" />
  
 <meta name="google-site-verification" content="qCV0klq_rTsY0SpTDQPrChYgFW3rocLbe0u42QsA54E" />
 
@@ -38,7 +39,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            Rust Book
+            Rust Programlama Dİli
               <img src="_static/logo.jpeg" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -51,8 +52,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Rust Programlama Diline Giriş</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#rust-nedir">Rust Nedir?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Giriş</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rust-nasil-bir-dildir">Rust Nasıl Bir Dildir?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rust-in-tarihcesi">Rust’ın Tarihçesi</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#rust-in-versiyon-tarihi">Rust’ın Versiyon Tarihi</a></li>
 </ul>
@@ -63,6 +64,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#cargo-ile-proje-yonetimi">Cargo ile Proje Yönetimi</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="statements.html">Rust’ta Deyimler</a></li>
 </ul>
 
         </div>
@@ -71,7 +73,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Rust Book</a>
+          <a href="index.html">Rust Programlama Dİli</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -79,7 +81,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Rust Programlama Diline Giriş</li>
+      <li class="breadcrumb-item active">Giriş</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/introduction.rst.txt" rel="nofollow"> Sayfa kaynağını görüntüle</a>
       </li>
@@ -89,10 +91,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="rust-programlama-diline-giris">
-<h1>Rust Programlama Diline Giriş<a class="headerlink" href="#rust-programlama-diline-giris" title="Link to this heading"></a></h1>
-<section id="rust-nedir">
-<h2>Rust Nedir?<a class="headerlink" href="#rust-nedir" title="Link to this heading"></a></h2>
+  <section id="giris">
+<h1>Giriş<a class="headerlink" href="#giris" title="Link to this heading"></a></h1>
+<p>Bu bölümde Rust’ın nasıl bir programlama dili olduğu üzerinde duracağız ve bazı temel bilgiler vereceğiz.</p>
+<section id="rust-nasil-bir-dildir">
+<h2>Rust Nasıl Bir Dildir?<a class="headerlink" href="#rust-nasil-bir-dildir" title="Link to this heading"></a></h2>
 <p>Kursumuzda önce Rust’ın nasıl bir programlama dili olduğunu açıklayacağız.</p>
 <p>Rust genel amaçlı, yapısal, prosedürel ve fonksiyonel programlama modellerini destekleyen çok modelli
 (multi-paradigm), statik tür sistemine sahip modern bir programlama dilidir. Tasarımında özellikle
@@ -320,13 +323,14 @@ bir grup modül anlaşılmaktadır.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Template documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Önceki</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Rust Programlama Dili" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Önceki</a>
+        <a href="statements.html" class="btn btn-neutral float-right" title="Rust’ta Deyimler" accesskey="n" rel="next">Sonraki <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Kaan Aslan.</p>
+    <p>&#169; Copyright 2026, C ve Sistem Programcıları Derneği.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
