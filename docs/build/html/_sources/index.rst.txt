@@ -11,6 +11,8 @@
    
    Kitaptaki içerik belli bir kaynak referans alınarak oluşturulmamıştır ve içeriğin oluşturulmasında yapay zeka araçlarından 
    faydalanılmamıştır. Bu bakımdan içerik tamamen özgündür. 
+
+   Kurs notlarının kitap haline getirilmesinde önemli katkılarda bulunan **Ahmet CEFAKAR**'a teşekkür ederiz.
    
    Kitabımızı diğer kaynaklardan ayıran en önemli farklılıkları şunlardır:
 
