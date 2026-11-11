@@ -23,7 +23,6 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Dizin" href="genindex.html" />
     <link rel="search" title="Ara" href="search.html" />
-    <link rel="next" title="2. Rust’ta Deyimler" href="statements.html" />
     <link rel="prev" title="Rust Programlama Dili" href="index.html" />
  
 <meta name="google-site-verification" content="qCV0klq_rTsY0SpTDQPrChYgFW3rocLbe0u42QsA54E" />
@@ -59,7 +58,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#kurulum">1.4. Kurulum</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="statements.html">2. Rust’ta Deyimler</a></li>
 </ul>
 
         </div>
@@ -184,6 +182,24 @@ basılı biçimde de satılmaktadır.</p>
 </section>
 <section id="kurulum">
 <h2><span class="section-number">1.4. </span>Kurulum<a class="headerlink" href="#kurulum" title="Link to this heading"></a></h2>
+<p>Şüphesiz Rust’ı öğrenirken ilk yapılması gereken şey Rust derleyicisinin ve gerekli birtakım araçların bilgisayara
+yüklenmesidir. Bu işlem <em>rustup</em> isimli program tarafından yapılmaktadır. Bu rustup programı güncelleme amacıyla da
+kullanılmaktadır. rustup programını aşağıdaki bağlantıdan indirebilirsiniz:</p>
+<p><a class="reference external" href="https://rust-lang.org/tools/install/">https://rust-lang.org/tools/install/</a></p>
+<p>Windows sistemlerinde <em>rustup</em> gerçekten <em>çalıştırılabilir (executable)</em> bir programdır. Unix/Linux ve macOS
+sistemlerinde kurulum işlemi <em>sh.rustup.rs</em> isimli bir <em>kabuk betiği (shell script)</em> tarafından yapılmaktadır. Bu
+sistemlerde tek yapılacak şey komut satırında aşağıdaki kabuk komutunu çalıştırmaktır:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>--proto<span class="w"> </span><span class="s1">&#39;=https&#39;</span><span class="w"> </span>--tlsv1.2<span class="w"> </span>-sSf<span class="w"> </span>https://sh.rustup.rs<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</pre></div>
+</div>
+<p>Bu komut çalıştırıldığında <em>rustup</em> programı kurulmuş olacaktır.</p>
+<p><em>rustup</em> programı ile Rust derleyicisini ve diğer araçları şöyle kurabilirsiniz:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rustup<span class="w"> </span>default<span class="w"> </span>stable
+</pre></div>
+</div>
+<p><em>rustup</em> bir konsol programı gibi çalışmaktadır. Program çalıştırıldığında bir seçenek menüsü çıkartır. Kurulumu
+kendisi yapar. Bu kurulum yapıldığında <code class="docutils literal notranslate"><span class="pre">PATH</span></code> çevre değişkeni otomatik olarak güncellenmektedir. Dolayısıyla bir
+terminal açıldığında Rust derleyicisi ve <em>cargo</em> gibi araçlar çalıştırılabilmektedir.</p>
 </section>
 </section>
 
@@ -192,7 +208,6 @@ basılı biçimde de satılmaktadır.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Rust Programlama Dili" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Önceki</a>
-        <a href="statements.html" class="btn btn-neutral float-right" title="2. Rust’ta Deyimler" accesskey="n" rel="next">Sonraki <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

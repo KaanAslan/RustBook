@@ -113,3 +113,29 @@ basılı biçimde de satılmaktadır.
 Kurulum
 =======
 
+Şüphesiz Rust'ı öğrenirken ilk yapılması gereken şey Rust derleyicisinin ve gerekli birtakım araçların bilgisayara
+yüklenmesidir. Bu işlem *rustup* isimli program tarafından yapılmaktadır. Bu rustup programı güncelleme amacıyla da
+kullanılmaktadır. rustup programını aşağıdaki bağlantıdan indirebilirsiniz:
+
+https://rust-lang.org/tools/install/
+
+Windows sistemlerinde *rustup* gerçekten *çalıştırılabilir (executable)* bir programdır. Unix/Linux ve macOS
+sistemlerinde kurulum işlemi *sh.rustup.rs* isimli bir *kabuk betiği (shell script)* tarafından yapılmaktadır. Bu
+sistemlerde tek yapılacak şey komut satırında aşağıdaki kabuk komutunu çalıştırmaktır:
+
+.. code-block:: bash
+
+   $ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+Bu komut çalıştırıldığında *rustup* programı kurulmuş olacaktır.
+
+*rustup* programı ile Rust derleyicisini ve diğer araçları şöyle kurabilirsiniz:
+
+.. code-block:: bash
+
+   rustup default stable
+
+*rustup* bir konsol programı gibi çalışmaktadır. Program çalıştırıldığında bir seçenek menüsü çıkartır. Kurulumu
+kendisi yapar. Bu kurulum yapıldığında ``PATH`` çevre değişkeni otomatik olarak güncellenmektedir. Dolayısıyla bir
+terminal açıldığında Rust derleyicisi ve *cargo* gibi araçlar çalıştırılabilmektedir. 
+
