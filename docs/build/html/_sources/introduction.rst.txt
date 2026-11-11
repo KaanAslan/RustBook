@@ -104,7 +104,7 @@ Rust'ın üç önemli resmi (formal) dokümanı vardır.
 
 *The Rust Reference* dokümanı programlama dilinin resmi (formal) belirlemelerini içermektedir. Yani bu doküman adeta
 Rust Programlama Dilinin standart dokümanı gibi düşünülebilir. Ancak bu tür referans dokümanlarını oluşturmak kolay
-değildir. Dolayısıyla kursun yapıldığı tarihlerde bu dokümanda da eksiklikler de vardır. *The Rust Standard Library*
+değildir. Dolayısıyla kitabın yazıldığı tarihlerde bu dokümanda da eksiklikler de vardır. *The Rust Standard Library*
 dokümanları Rust'ın standart kütüphanesini açıklamaktadır. *The Rustonomicon* dokümanları ise Rust'ta unsafe
 özellikler ve unsafe kodların oluşturulmasına ilişkin bilgileri içermektedir. Ayrıca Rust'ın resmi sitesinde
 *tutorial* biçiminde *The Rust Programming Language* isimli bir kitap da bulunmaktadır. Bu kitap aynı zamanda kağıda
@@ -204,7 +204,7 @@ UNIX/Linux ve macOS sistemlerinde çalıştırılabilen dosyaların belli bir uz
    rustc -o project sample.rs
 
 Sandık ve Paket Kavramları
---------------------------
+==========================
 
 Rust dünyasında derleyicinin tek parça olarak ele aldığı derleme birimine *sandık (crate)* denilmektedir.
 Bir sandık (crate) derlendiğinde ya çalıştırılabilir bir dosya ya da bir kütüphane dosyası elde edilir. Birinci
@@ -232,6 +232,6 @@ Aslında Rust programcıları kaynak dosyaları komut satırından doğrudan *ru
 genellikle *cargo* isimli bir araçla derleme işlemini yaparlar. *cargo* hem bir paket yöneticisi hem de bir build
 otomasyon aracıdır. Yani *cargo* programı hem depolardan çeşitli kütüphaneleri (crates) indirip projeye dahil
 edebilmekte hem de birden fazla kaynak dosyayı derleyerek bağlama işlemini yapabilmektedir. Rust paket olarak
-yüklendiğinde zaten *cargo* aracı da bilgisayarınıza yüklenmiş olmaktadır. Biz kursumuzda *cargo* programının ayrıntılı
+yüklendiğinde zaten *cargo* aracı da bilgisayarınıza yüklenmiş olmaktadır. Biz kitabımızda *cargo* programının ayrıntılı
 kullanımını ileride ele alacağız. Ancak burada bu programın bir proje (paket) oluşturup onu derlemek ve çalıştırmak
 için yalın bir biçimde nasıl kullanılacağını göreceğiz.

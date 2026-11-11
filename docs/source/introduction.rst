@@ -204,7 +204,7 @@ UNIX/Linux ve macOS sistemlerinde çalıştırılabilen dosyaların belli bir uz
    rustc -o project sample.rs
 
 Sandık ve Paket Kavramları
---------------------------
+==========================
 
 Rust dünyasında derleyicinin tek parça olarak ele aldığı derleme birimine *sandık (crate)* denilmektedir.
 Bir sandık (crate) derlendiğinde ya çalıştırılabilir bir dosya ya da bir kütüphane dosyası elde edilir. Birinci

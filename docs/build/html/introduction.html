@@ -56,11 +56,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#rust-in-tarihsel-gelisimi">1.2. Rust’ın Tarihsel Gelişimi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rust-in-resmi-dokumanlari">1.3. Rust’ın Resmi Dokümanları</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#kurulum">1.4. Kurulum</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#merhaba-dunya-programinin-derlenerek-calistirilmasi">1.5. Merhaba Dünya Programının Derlenerek Çalıştırılması</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#sandik-ve-paket-kavramlari">1.5.1. Sandık ve Paket Kavramları</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#cargo-araci">1.6. cargo Aracı</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#merhaba-dunya-programinin-derlenerek-calistirilmasi">1.5. Merhaba Dünya Programının Derlenerek Çalıştırılması</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sandik-ve-paket-kavramlari">1.6. Sandık ve Paket Kavramları</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cargo-araci">1.7. cargo Aracı</a></li>
 </ul>
 </li>
 </ul>
@@ -179,7 +177,7 @@ bağlantıdan erişebilirsiniz:</p>
 </ol>
 <p><em>The Rust Reference</em> dokümanı programlama dilinin resmi (formal) belirlemelerini içermektedir. Yani bu doküman adeta
 Rust Programlama Dilinin standart dokümanı gibi düşünülebilir. Ancak bu tür referans dokümanlarını oluşturmak kolay
-değildir. Dolayısıyla kursun yapıldığı tarihlerde bu dokümanda da eksiklikler de vardır. <em>The Rust Standard Library</em>
+değildir. Dolayısıyla kitabın yazıldığı tarihlerde bu dokümanda da eksiklikler de vardır. <em>The Rust Standard Library</em>
 dokümanları Rust’ın standart kütüphanesini açıklamaktadır. <em>The Rustonomicon</em> dokümanları ise Rust’ta unsafe
 özellikler ve unsafe kodların oluşturulmasına ilişkin bilgileri içermektedir. Ayrıca Rust’ın resmi sitesinde
 <em>tutorial</em> biçiminde <em>The Rust Programming Language</em> isimli bir kitap da bulunmaktadır. Bu kitap aynı zamanda kağıda
@@ -253,8 +251,9 @@ UNIX/Linux ve macOS sistemlerinde çalıştırılabilen dosyaların belli bir uz
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rustc<span class="w"> </span>-o<span class="w"> </span>project<span class="w"> </span>sample.rs
 </pre></div>
 </div>
+</section>
 <section id="sandik-ve-paket-kavramlari">
-<h3><span class="section-number">1.5.1. </span>Sandık ve Paket Kavramları<a class="headerlink" href="#sandik-ve-paket-kavramlari" title="Link to this heading"></a></h3>
+<h2><span class="section-number">1.6. </span>Sandık ve Paket Kavramları<a class="headerlink" href="#sandik-ve-paket-kavramlari" title="Link to this heading"></a></h2>
 <p>Rust dünyasında derleyicinin tek parça olarak ele aldığı derleme birimine <em>sandık (crate)</em> denilmektedir.
 Bir sandık (crate) derlendiğinde ya çalıştırılabilir bir dosya ya da bir kütüphane dosyası elde edilir. Birinci
 durumda <em>ikili sandık (binary crate)</em>, ikinci durumda <em>kütüphane sandığı (library crate)</em> terimleri
@@ -274,14 +273,13 @@ sayısında ise bir sınır yoktur. Örneğin <em>Visual Studio</em> IDE’sinde
 Paket sözcüğü aslında diğer başka programlama dillerinde de benzer anlamda kullanılabilmektedir. Örneğin Python
 dünyasında paket denildiğinde bir grup modül anlaşılmaktadır.</p>
 </section>
-</section>
 <section id="cargo-araci">
-<h2><span class="section-number">1.6. </span>cargo Aracı<a class="headerlink" href="#cargo-araci" title="Link to this heading"></a></h2>
+<h2><span class="section-number">1.7. </span>cargo Aracı<a class="headerlink" href="#cargo-araci" title="Link to this heading"></a></h2>
 <p>Aslında Rust programcıları kaynak dosyaları komut satırından doğrudan <em>rustc</em> derleyicisi ile derlemek yerine
 genellikle <em>cargo</em> isimli bir araçla derleme işlemini yaparlar. <em>cargo</em> hem bir paket yöneticisi hem de bir build
 otomasyon aracıdır. Yani <em>cargo</em> programı hem depolardan çeşitli kütüphaneleri (crates) indirip projeye dahil
 edebilmekte hem de birden fazla kaynak dosyayı derleyerek bağlama işlemini yapabilmektedir. Rust paket olarak
-yüklendiğinde zaten <em>cargo</em> aracı da bilgisayarınıza yüklenmiş olmaktadır. Biz kursumuzda <em>cargo</em> programının ayrıntılı
+yüklendiğinde zaten <em>cargo</em> aracı da bilgisayarınıza yüklenmiş olmaktadır. Biz kitabımızda <em>cargo</em> programının ayrıntılı
 kullanımını ileride ele alacağız. Ancak burada bu programın bir proje (paket) oluşturup onu derlemek ve çalıştırmak
 için yalın bir biçimde nasıl kullanılacağını göreceğiz.</p>
 </section>
