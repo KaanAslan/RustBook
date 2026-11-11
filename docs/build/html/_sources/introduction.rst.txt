@@ -89,7 +89,7 @@ Rust'ın versiyonlarının tarihsel gelişimi şöyledir:
 - Ekim 2026: 1.99 sürümü yayımlandı.
 
 Rust'ın Resmi Dokümanları
--------------------------
+=========================
 
 *Rust Foundation* Rust Programlama Dilinin geliştirilmesinden ve sürdürümünden sorumludur. Resmi sitesine aşağıdaki
 bağlantıdan erişebilirsiniz:
@@ -109,3 +109,7 @@ dokümanları Rust'ın standart kütüphanesini açıklamaktadır. *The Rustonom
 özellikler ve unsafe kodların oluşturulmasına ilişkin bilgileri içermektedir. Ayrıca Rust'ın resmi sitesinde
 *tutorial* biçiminde *The Rust Programming Language* isimli bir kitap da bulunmaktadır. Bu kitap aynı zamanda kağıda
 basılı biçimde de satılmaktadır.
+
+Kurulum
+=======
+
