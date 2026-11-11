@@ -1,6 +1,12 @@
 # Sphinx build dosyaları
 source/build/
+source/_build/
 
+# Dökümantasyonun derlenmiş halleri
+docs/build/
+
+# MacOS tarafında oluşturulan dosyalar
+.DS_Store
 
 # Python
 __pycache__/
