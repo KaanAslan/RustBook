@@ -333,7 +333,7 @@ oluşturabiliriz:
 
 Her ne kadar böyle bir serbestlik varsa da diğer pek çok dilde olduğu gibi değişken isimlendirmesinde yoğun olarak
 İngilizce karakterler tercih edilmektedir. Birden fazla sözcük içeren değişkenlerin harflendirilmesi (capitalization)
-için Rust'ta genel olarak C'deki gibi *yılan notasyonu (snake casting)* tercih edilmektedir. Ancak yapı, enum, trait
+için Rust'ta genel olarak C'deki gibi *yılan notasyonu (snake case)* tercih edilmektedir. Ancak yapı, enum, trait
 gibi *tür isimleri (items)* genellikle Pascal tarzı, sembolik sabitler ise genellikle Pascal tarzı ya da tüm harfleri
 büyük olacak biçimde harflendirilmektedir. Biz de kursumuzda Rust'taki bu geleneğe uyacağız.
 
