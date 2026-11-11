@@ -56,6 +56,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#rust-in-tarihsel-gelisimi">1.2. Rust’ın Tarihsel Gelişimi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rust-in-resmi-dokumanlari">1.3. Rust’ın Resmi Dokümanları</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#kurulum">1.4. Kurulum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#merhaba-dunya-programinin-derlenerek-calistirilmasi">1.5. Merhaba Dünya Programının Derlenerek Çalıştırılması</a></li>
 </ul>
 </li>
 </ul>
@@ -200,6 +201,54 @@ sistemlerde tek yapılacak şey komut satırında aşağıdaki kabuk komutunu ç
 <p><em>rustup</em> bir konsol programı gibi çalışmaktadır. Program çalıştırıldığında bir seçenek menüsü çıkartır. Kurulumu
 kendisi yapar. Bu kurulum yapıldığında <code class="docutils literal notranslate"><span class="pre">PATH</span></code> çevre değişkeni otomatik olarak güncellenmektedir. Dolayısıyla bir
 terminal açıldığında Rust derleyicisi ve <em>cargo</em> gibi araçlar çalıştırılabilmektedir.</p>
+</section>
+<section id="merhaba-dunya-programinin-derlenerek-calistirilmasi">
+<h2><span class="section-number">1.5. </span>Merhaba Dünya Programının Derlenerek Çalıştırılması<a class="headerlink" href="#merhaba-dunya-programinin-derlenerek-calistirilmasi" title="Link to this heading"></a></h2>
+<p>Şimdi de <em>Merhaba dünya (hello world)</em> programının nasıl derlenerek çalıştırılacağını görelim. Rust’ın derleyicisi
+diğer derleyicilerde olduğu gibi bir konsol uygulaması biçiminde yazılmıştır. Derleyici programın ismi <em>rustc</em>
+biçimindedir. Diğer dillerde olduğu gibi önce herhangi bir editörde <em>Merhaba dünya</em> programı yazılır ve dosya
+uzantısı <em>.rs</em> olacak biçimde save edilir. Rust kaynak dosyalarının doğal uzantıları <em>.rs</em> biçimindedir. Aşağıdaki
+programı herhangi bir text editörde yazarak <em>sample.rs</em> biçiminde save edelim:</p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="k">fn</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;Merhaba dünya&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Rust kaynak dosyalarının Unicode UTF-8 kodlamasıyla oluşturulmuş olması gerekmektedir. Yani Rust derleyicisi kaynak
+kodun bu kodlama biçimine sahip olduğunu varsaymaktadır.</p>
+<p>Derleme oldukça basittir. Derlenecek program dosyası <em>rustc</em> derleyicisine komut satırı argümanı olarak verilir:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rustc<span class="w"> </span>sample.rs
+</pre></div>
+</div>
+<p>Bu işlemle önce kaynak dosya derlenecek sonra bağlanarak (<em>link</em> edilerek) çalıştırılabilen dosya oluşturulacaktır.
+Windows sistemlerinde komut satırında doğrudan dosya ismini yazarak programı çalıştırabilirsiniz. UNIX/Linux ve macOS
+sistemlerinde çalıştırma aşağıdaki gibi yapılmalıdır:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./sample
+</pre></div>
+</div>
+<p>Rust’ı Windows’a yüklediğimizde <em>rustc</em> default durumda linbağlama (<em>link</em>) işlemi için Microsoft’un <em>link.exe</em> programını
+kullanmaktadır. Dolayısıyla Windows sistemlerinde MSVC araçlarının yüklü olması gerekir. Kurulum sırasında <em>rustup</em>
+programı bu kontrolü yapmakta ve eğer MSVC aracı yoksa bunu kullanıcıya sorarak yüklemektedir. Ancak Windows
+sistemlerinde <em>GNU Araç Zinciriyle (GNU Toolchain)</em> çalışılabilmektedir.</p>
+<p>Tıpkı <strong>gcc</strong> ve <em>clang</em> derleyicilerinde olduğu gibi <em>rustc</em> derleyicisi de bağlama işleminden sonra
+<em>amaç dosyayı (object file)</em> silmektedir. Dolayısıyla <em>rustc</em> programını çalıştırdıktan sonra bir amaç dosya
+göremezseniz şaşırmayınız.</p>
+<p>Link işlemini yapmadan yalnızca amaç dosya oluşturmak için <em>–emit=obj</em> seçeneği kullanılmaktadır. Örneğin:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rustc<span class="w"> </span>--emit<span class="o">=</span>obj<span class="w"> </span>sample.rs
+</pre></div>
+</div>
+<p>Bu işlemle <em>sample.o</em> isminde bir amaç dosya oluşturulacaktır. Ancak bağlama işlemi yapılmayacaktır.</p>
+<p>Tıpkı <em>gcc</em> ve <em>clang</em> derleyicilerinde olduğu gibi <em>“-o &lt;hedef_dosya_ismi&gt;”</em> seçeneği ile hedef dosyaya istenilen bir
+isim verilebilmektedir. Örneğin:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rustc<span class="w"> </span>-o<span class="w"> </span>project.exe<span class="w"> </span>sample.rs
+</pre></div>
+</div>
+<p>Burada artık Windows’ta çalıştırılabilen dosya <em>sample.exe</em> isminde değil <em>project.exe</em> isminde olacaktır. Tabii
+UNIX/Linux ve macOS sistemlerinde çalıştırılabilen dosyaların belli bir uzantısı yoktur. Aynı işlem bu sistemlerde
+şöyle yapılabilir:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rustc<span class="w"> </span>-o<span class="w"> </span>project<span class="w"> </span>sample.rs
+</pre></div>
+</div>
 </section>
 </section>
 

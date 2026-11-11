@@ -139,3 +139,66 @@ Bu komut çalıştırıldığında *rustup* programı kurulmuş olacaktır.
 kendisi yapar. Bu kurulum yapıldığında ``PATH`` çevre değişkeni otomatik olarak güncellenmektedir. Dolayısıyla bir
 terminal açıldığında Rust derleyicisi ve *cargo* gibi araçlar çalıştırılabilmektedir. 
 
+Merhaba Dünya Programının Derlenerek Çalıştırılması
+===================================================
+
+Şimdi de *Merhaba dünya (hello world)* programının nasıl derlenerek çalıştırılacağını görelim. Rust'ın derleyicisi
+diğer derleyicilerde olduğu gibi bir konsol uygulaması biçiminde yazılmıştır. Derleyici programın ismi *rustc*
+biçimindedir. Diğer dillerde olduğu gibi önce herhangi bir editörde *Merhaba dünya* programı yazılır ve dosya
+uzantısı *.rs* olacak biçimde save edilir. Rust kaynak dosyalarının doğal uzantıları *.rs* biçimindedir. Aşağıdaki
+programı herhangi bir text editörde yazarak *sample.rs* biçiminde save edelim:
+
+.. code-block:: rust
+
+   fn main() {
+       println!("Merhaba dünya");
+   }
+
+Rust kaynak dosyalarının Unicode UTF-8 kodlamasıyla oluşturulmuş olması gerekmektedir. Yani Rust derleyicisi kaynak
+kodun bu kodlama biçimine sahip olduğunu varsaymaktadır.
+
+Derleme oldukça basittir. Derlenecek program dosyası *rustc* derleyicisine komut satırı argümanı olarak verilir:
+
+.. code-block:: bash
+
+   rustc sample.rs
+
+Bu işlemle önce kaynak dosya derlenecek sonra bağlanarak (*link* edilerek) çalıştırılabilen dosya oluşturulacaktır. 
+Windows sistemlerinde komut satırında doğrudan dosya ismini yazarak programı çalıştırabilirsiniz. UNIX/Linux ve macOS
+sistemlerinde çalıştırma aşağıdaki gibi yapılmalıdır:
+
+.. code-block:: bash
+
+   $ ./sample
+
+Rust'ı Windows'a yüklediğimizde *rustc* default durumda linbağlama (*link*) işlemi için Microsoft'un *link.exe* programını
+kullanmaktadır. Dolayısıyla Windows sistemlerinde MSVC araçlarının yüklü olması gerekir. Kurulum sırasında *rustup*
+programı bu kontrolü yapmakta ve eğer MSVC aracı yoksa bunu kullanıcıya sorarak yüklemektedir. Ancak Windows
+sistemlerinde *GNU Araç Zinciriyle (GNU Toolchain)* çalışılabilmektedir.
+
+Tıpkı **gcc** ve *clang* derleyicilerinde olduğu gibi *rustc* derleyicisi de bağlama işleminden sonra
+*amaç dosyayı (object file)* silmektedir. Dolayısıyla *rustc* programını çalıştırdıktan sonra bir amaç dosya
+göremezseniz şaşırmayınız.
+
+Link işlemini yapmadan yalnızca amaç dosya oluşturmak için *--emit=obj* seçeneği kullanılmaktadır. Örneğin:
+
+.. code-block:: bash
+
+   rustc --emit=obj sample.rs
+
+Bu işlemle *sample.o* isminde bir amaç dosya oluşturulacaktır. Ancak bağlama işlemi yapılmayacaktır.
+
+Tıpkı *gcc* ve *clang* derleyicilerinde olduğu gibi *"-o <hedef_dosya_ismi>"* seçeneği ile hedef dosyaya istenilen bir
+isim verilebilmektedir. Örneğin:
+
+.. code-block:: bash
+
+   rustc -o project.exe sample.rs
+
+Burada artık Windows'ta çalıştırılabilen dosya *sample.exe* isminde değil *project.exe* isminde olacaktır. Tabii
+UNIX/Linux ve macOS sistemlerinde çalıştırılabilen dosyaların belli bir uzantısı yoktur. Aynı işlem bu sistemlerde
+şöyle yapılabilir:
+
+.. code-block:: bash
+
+   rustc -o project sample.rs
