@@ -30,3 +30,4 @@
    :caption: Contents:
 
    introduction
+   basictypes
