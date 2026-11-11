@@ -202,3 +202,36 @@ UNIX/Linux ve macOS sistemlerinde çalıştırılabilen dosyaların belli bir uz
 .. code-block:: bash
 
    rustc -o project sample.rs
+
+Sandık ve Paket Kavramları
+--------------------------
+
+Rust dünyasında derleyicinin tek parça olarak ele aldığı derleme birimine *sandık (crate)* denilmektedir.
+Bir sandık (crate) derlendiğinde ya çalıştırılabilir bir dosya ya da bir kütüphane dosyası elde edilir. Birinci
+durumda *ikili sandık (binary crate)*, ikinci durumda *kütüphane sandığı (library crate)* terimleri
+kullanılmaktadır. Sandık tek bir kaynak dosyadan oluşabileceği gibi birden fazla kaynak dosyadan da oluşabilir.
+Ancak derleyiciye yalnızca *sandığın kökü (crate root)* denilen tek bir kaynak dosya verilir (tipik olarak
+*main.rs* ya da *lib.rs*). Diğer kaynak dosyalar bu dosyadan başlayarak *mod* bildirimleriyle sandığın modül
+ağacına dahil edilir. Crate kavramı diğer programlama ortamlarındaki *proje* kavramına benzemektedir. Örneğin biz
+C++'ta çalışırken bir proje yaratıp o projenin içerisine birden fazla kaynak dosya yerleştirip projeyi build
+edebiliriz. İşte aynı biçimde Rust dünyasında da bir sandığın içerisinde birden fazla kaynak dosya
+bulunabilmektedir. Yalnız C++'ta her kaynak dosya ayrı ayrı derlenip sonra bağlanırken (link edilirken), Rust'ta
+sandığın (crate) tamamı tek bir derleme birimidir. *Paket (package)* ise Rust dilinin değil Cargo'nun bir
+kavramıdır. Paket bir *Cargo.toml* dosyası ile tanımlanan ve sandıkları tutan mantıksal bir kap gibidir. Bir pakette
+birden fazla sandık olabilir. Ancak bir pakette en fazla bir tane kütüphane sandığı bulunabilir, ikili sandıkların
+sayısında ise bir sınır yoktur. Örneğin *Visual Studio* IDE'sinde projeleri tutan mantıksal kaba
+*çözüm (solution)* denilmektedir. Rust'taki paket Visual Studio'daki çözüm kavramına kabaca benzetilebilir. Fakat
+çözüm kavramının daha yakın karşılığı birden fazla paketi bir araya getiren *çalışma alanı (workspace)* kavramıdır.
+Paket sözcüğü aslında diğer başka programlama dillerinde de benzer anlamda kullanılabilmektedir. Örneğin Python
+dünyasında paket denildiğinde bir grup modül anlaşılmaktadır.
+
+cargo Aracı
+===========
+
+Aslında Rust programcıları kaynak dosyaları komut satırından doğrudan *rustc* derleyicisi ile derlemek yerine
+genellikle *cargo* isimli bir araçla derleme işlemini yaparlar. *cargo* hem bir paket yöneticisi hem de bir build
+otomasyon aracıdır. Yani *cargo* programı hem depolardan çeşitli kütüphaneleri (crates) indirip projeye dahil
+edebilmekte hem de birden fazla kaynak dosyayı derleyerek bağlama işlemini yapabilmektedir. Rust paket olarak
+yüklendiğinde zaten *cargo* aracı da bilgisayarınıza yüklenmiş olmaktadır. Biz kursumuzda *cargo* programının ayrıntılı
+kullanımını ileride ele alacağız. Ancak burada bu programın bir proje (paket) oluşturup onu derlemek ve çalıştırmak
+için yalın bir biçimde nasıl kullanılacağını göreceğiz.
