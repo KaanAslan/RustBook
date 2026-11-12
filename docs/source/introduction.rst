@@ -237,21 +237,8 @@ yüklendiğinde zaten *cargo* aracı da bilgisayarınıza yüklenmiş olmaktadı
 kullanımını ileride ele alacağız. Ancak burada bu programın bir proje (paket) oluşturup onu derlemek ve çalıştırmak
 için yalın bir biçimde nasıl kullanılacağını göreceğiz.
 
-
-Rust dünyasında çalıştırılabilir bir dosya ya da bir kütüphane dosyası elde etmek için oluşturulmuş olan bir ya da
-birden fazla Rust kaynak dosyasına *crate* denilmektedir. Crate *derlendiğinde çalıştırılabilir dosya elde edilecek olan
-bir ya da birden fazla Rust kaynak dosyasını* belirtebileceği gibi *derlendiğinde bir kütüphane oluşturan bir ya da
-birden fazla Rust kaynak dosyasını* da belirtebilmektedir. Crate kavramı diğer programlama ortamlarındaki *proje*
-kavramına benzemektedir. Örneğin biz C++'ta çalışırken bir proje yaratıp o projenin içerisine birden fazla kaynak dosya
-yerleştirip projeyi build edebiliriz. İşte aynı biçimde Rust dünyasında da bir crate'in içerisinde birden fazla kaynak
-dosya bulunabilmektedir. Rust dünyasında *paket (package)* crate'leri tutan mantıksal bir kap gibidir. Bir pakette
-birden fazla crate olabilir. Örneğin *Visual Studio* IDE'sinde projeleri tutan mantıksal kaba *çözüm (solution)*
-denilmektedir. Rust'taki paket Visual Studio'daki çözüm kavramına benzetilebilir. Paket sözcüğü aslında diğer başka
-programlama dillerinde de benzer anlamda kullanılabilmektedir. Örneğin Python dünyasında paket denildiğinde bir grup
-modül anlaşılmaktadır.
-
 cargo ile Paket Oluşturma, Derleme ve Çalıştırma
-================================================
+------------------------------------------------
 
 cargo ile yeni bir paket (proje de diyebiliriz) oluşturmak için "*cargo new*" komutu kullanılmaktadır. Komutun genel
 biçimi şöyledir:
@@ -260,7 +247,7 @@ biçimi şöyledir:
 
    cargo new <paket_ismi>
 
-Bu işlemden sonra ismi paket_ismi olan bir dizin yaratılır. Yaratılan dizinin içeriği şöyle olacaktır:
+Bu işlemden sonra ismi "paket_ismi" olan bir dizin yaratılır. Yaratılan dizinin içeriği şöyle olacaktır:
 
 .. code-block:: text
 
@@ -284,7 +271,8 @@ tutulmaktadır. Yeni yaratılmış olan minimal bir projede bu dosyanın içeri�
 
    [dependencies]
 
-``src`` dizininin altında ``main.rs`` isminde aşağıdaki gibi bir *Hello World* programı oluşturulmaktadır:
+İkili bir sandık söz konusu ise ``src`` dizininin altında ``main.rs`` isminde aşağıdaki gibi bir *Hello World* programı 
+oluşturulmaktadır:
 
 .. code-block:: rust
 
@@ -292,9 +280,10 @@ tutulmaktadır. Yeni yaratılmış olan minimal bir projede bu dosyanın içeri�
        println!("Hello, world!");
    }
 
-Burada paketin ana crate'i bu ``main.rs`` dosyasından oluşan binary bir crate'tir. Aslında paket yaratımı sırasında
-*--bin* ya da *--lib* seçenekleri de kullanılabilmektedir. Bu durumda çalıştırılabilir ya da kütüphane projeleri
-oluşturulmaktadır. Default durum eskiden *--lib* biçimindeydi ancak sonraları sürümlerde *--bin* haline getirildi.
+Burada paketin ana sandığı ``main.rs`` dosyasından oluşan ikili bir sandıktır. Aslında paket yaratımı sırasında
+*--bin* ya da *--lib* seçenekleri de kullanılabilmektedir. Bu durumda paketin ana sandığı ikili (*binary*) ya da
+kütüphane (*library*) olmaktadır. Default durum eskiden *--lib* biçimindeydi ancak sonraları sürümlerde *--bin* 
+haline getirildi.
 
 Projeyi build etmek için proje dizinine geçilip "*cargo build*" komutu uygulanır. Örneğin:
 
