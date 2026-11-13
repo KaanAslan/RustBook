@@ -325,7 +325,7 @@ olduğu gibi sonraki aşama önceki aşamaların yapılmasına da yol açmaktad�
 VSCode Editöründe Rust ile Çalışmak
 ===================================
 
-VSCode editöründe Rust ile çalışmak için pek çok plugin (*extension*) bulunmaktadır. Önemli Rust plugin'leri şunlardır:
+VSCode editöründe Rust ile çalışmak için pek çok eklenti (*extension*) bulunmaktadır. Önemli Rust eklentileri şunlardır:
 
 * Rust Analyzer
 * crates
@@ -333,12 +333,12 @@ VSCode editöründe Rust ile çalışmak için pek çok plugin (*extension*) bul
 * CodeLLDB
 * cargo
 
-*Rust Extension Pack* isimli plugin'ler zaten yukarıdaki plugin'lerin çoğunu yüklemektedir.
+*Rust Extension Pack* isimli eklenti zaten yukarıdaki eklentilerin çoğunu yüklemektedir.
 
 VSCode editöründe program çalıştırmak için bazı JSON dosyaları üzerinde değişiklikler yapmak gerekebilir. Ancak pratik
-bir biçimde program çalıştırmak için de plugin'ler vardır. *Code Runner* isimli plugin bu amaçla yaygın biçimde
-kullanılmaktadır. Bu plugin tek bir tuşla (Ctrl+Alt+N) pek çok programlama dilinde yazılmış programı derleyerek
-çalıştırmaktadır. Biz kursumuzda VSCode'da bu *Code Runner* plugin'ini kullanacağız.
+bir biçimde program çalıştırmak için de eklentiler vardır. *Code Runner* isimli eklenti bu amaçla yaygın biçimde
+kullanılmaktadır. Bu eklenti tek bir tuşla (*Ctrl+Alt+N*) pek çok programlama dilinde yazılmış programı derleyerek
+çalıştırmaktadır. 
 
 Code Runner plugin'i kurulduğunda Rust için derleme default biçimde *rustc* derleyicisi ile yapılmaktadır. Yani *cargo*
 ile yapılmamaktadır. Eğer derleme ve çalıştırmada cargo'yu kullanmak istiyorsanız bunun için ``settings.json`` dosyasını
@@ -348,7 +348,7 @@ uygun biçimde güncellemeniz gerekir. VSCode'ta üç önemli JSON dosyası vard
 * User Settings JSON dosyası
 * Workspace Settings JSON dosyası
 
-Belirlemeyi hangi JSON dosyasında yaparsanız yukarıdakileri geçersiz hale getirecektir. Burada *User Settings JSON*
+Belirlemeler hangi JSON dosyasında yapılırsa onun yukarısındakiler etkisiz hale gelmektedir. Burada *User Settings JSON*
 dosyasını kullanabilirsiniz. Bu dosyayı edit ederek dosyada *code-runner.executorMap* kısmına gelip *rust* satırında şu
 değişikliği yapabilirsiniz:
 
@@ -360,7 +360,7 @@ değişikliği yapabilirsiniz:
        ...
    }
 
-Code Runner plugin'inin default *rust* satırı aşağıdaki gibidir:
+Code Runner eklentisinin varsayılan durumdaki *rust* satırı aşağıdaki gibidir:
 
 .. code-block:: text
 
@@ -379,11 +379,11 @@ değiştirdiğinizin bir önemi yoktur. Örneğin:
    }
 
 Şimdi artık *Ctrl+Alt+N* tuşlarına bastığınızda "*cargo run*" komutu çalıştırılacak dolayısıyla derleme ve çalıştırma
-cargo tarafından yapılacaktır. Tabii cargo bir paket (proje de diyebiliriz) dizinini kullandığı için sizin daha önce
+*cargo* tarafından yapılacaktır. Tabii *cargo* bir paket (proje de diyebiliriz) dizinini kullandığı için sizin daha önce
 "*cargo new*" ile yeni bir paket dizini oluşturmuş olmanız gerekir. Bunu oluşturduktan sonra editöre ``src`` dizini
-içerisindeki ``main.rs`` dosyasını çekip *Ctrl+Alt+N* tuşlarına basarsanız programınız cargo ile program sorunsuz
+içerisindeki ``main.rs`` dosyasını çekip *Ctrl+Alt+N* tuşlarına basarsanız programınız *cargo* ile program sorunsuz
 derlenip çalıştırılacaktır. Aslında VSCode bir klasörü de *File/Open Folder* menüsü ile açabilmektedir. Dolayısıyla
-editöre tek bir dosyayı çekmek yerine dizini açıp dosyayı oradan seçmek daha kolay bir kullanım sunacaktır.
+editöre tek bir dosyayı çekmek yerine dizini açıp dosyayı oradan seçmek daha kolay bir kullanım sunmaktadır.
 
 VSCode'da *Code Runner* ile çalışırken edit ettiğiniz kaynak dosyanın *Ctrl+Alt+N* tuşlarıyla çalıştırma sırasında save
 edilmiş olduğuna emin olunuz. Bu tuşlara basmadan önce kaynak dosyanın otomatik save edilmesi *Code Runner* plugin'inin
@@ -407,3 +407,5 @@ Burada yeni bir proje yarattıktan sonra ana editör penceresine geçeceksiniz:
 .. figure:: _static/rustrover-ide2.png
    :align: center
    :width: 85%
+
+Artık tek tuşla programı derleyip çalıştırabilrsiniz.
