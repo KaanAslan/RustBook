@@ -1,12 +1,12 @@
-=============
-Temel Türler
-=============
+=====================
+Rust'ın Temel Türleri
+=====================
 
 Bir programlama dili öğrenilirken ilk öğrenilecek şeylerden biri o programlama dilinin temel türleridir. Biz de bu bölümde
 Rust'ın temel türlerini açıklayacağız.
 
-Rust'taki Tür Kategorileri
-==========================
+Rust'ın Tür Kategorileri
+========================
 
 *The Rust Reference* dokümanlarına göre Rust'taki türler şu kategorilerden oluşmaktadır:
 
@@ -45,34 +45,108 @@ Rust'taki Tür Kategorileri
   * Trait objects
   * Impl trait
 
-Biz burada önce temel türleri (primitive types) sonra ilerleyen bölümlerde de demet (tuple), dizi (array) ve dilim
-(slice) gibi dizilim türlerini (sequence types) ve kullanıcı tanımlı türleri göreceğiz.
+Biz burada önce *temel türleri (primitive type)* sonra ilerleyen bölümlerde de *demet (tuple)*, *dizi (array)* ve *dilim
+(slice)* gibi *dizilim türlerini (sequence types)* ve kullanıcı tanımlı türleri göreceğiz.
 
 Tamsayı Türleri
 ===============
 
-Rust'ta nümerik türler kendi aralarında tamsayı türleri ve gerçek sayı türleri biçiminde ikiye ayrılmaktadır. Tamsayı
-türleri de kendi aralarında *işaretli tamsayı türleri*, *işaretsiz tamsayı türleri* ve *makine bağımlı tamsayı türleri*
-olmak üzere üçe ayrılmaktadır. Rust'ta işaretli tamsayılar 2'ye tümleyen aritmetiği ile tutulmaktadır. (Halbuki örneğin
-C ve C++ standartlarında her ne kadar tüm derleyiciler 2'ye tümleyen aritmetiğini kullanıyor olsa da işaretli
-tamsayıların 2'ye tümleyen aritmetiği ile tutulacağı konusunda bir garanti verilmemiştir.) Rust'ta tamsayı türlerinin
-isimleri oldukça kısa bir biçimde oluşturulmuştur. N bit sayısını belirtmek üzere işaretli tamsayı türlerinin isimleri
-iN biçiminde, işaretsiz tamsayı türlerinin isimleri de uN biçimindedir. Rust'ın tüm tamsayı türlerinin isimleri aşağıda
-verilmiştir:
+Rust'ta **sayısal türler (numeric types)** kendi aralarında **tamsayı türleri integer types)**, **gerçek sayı türleri (floating-point types)** 
+ve **makine bağımlı tamsayı türleri (machine-dependent integer types)** olmak üzere üçe ayrılmaktadır: biçiminde üçe ayrılmaktadır. 
+Tamsayı türleri de kendi aralarında **işaretli tamsayı türleri (signed integer types)** ve **işaretsiz tamsayı türleri (unsigned integer types)** 
+olmak üzere ikiye ayrılmaktadır:
 
-========================== =========================== ==============================
-İşaretli Tamsayı Türleri   İşaretsiz Tamsayı Türleri   Makine Bağımlı Tamsayı Türleri
-========================== =========================== ==============================
-``i8``                     ``u8``                      ``isize``
-``i16``                    ``u16``                     ``usize``
-``i32``                    ``u32``
-``i64``                    ``u64``
-``i128``                   ``u128``
-========================== =========================== ==============================
+.. figure:: _static/rust-numeric-type-categories.png
+   :align: center
+   :width: 75%
 
-Anımsanacağı gibi 2'ye tümleyen aritmetiğinde N bitlik bir işaretli tamsayının sınır değerleri [-2^N, +2^N - 1]
-aralığındadır. Rust'ta 128 bitlik tamsayı türünün de olduğuna dikkat ediniz. Henüz 128 bitlik işlemciler kullanılmıyor
-olsa da bazı durumlarda (özellikle bit işlemlerinde) 128 bitlik tamsayılar daha verimli kod yazımını sağlayabilmektedir.
+Rust'ta işaretli tamsayılar ikiye tümleyen aritmetiği ile tutulmaktadır. (Halbuki örneğin C ve C++ standartlarında her 
+ne kadar tüm derleyiciler ikiye tümleyen aritmetiğini kullanıyor olsa da işaretli tamsayıların ikiye tümleyen aritmetiği 
+ile tutulacağı konusunda bir garanti verilmemiştir.) Rust'ta tamsayı türlerinin isimleri oldukça kısa bir biçimde oluşturulmuştur. 
+*N* bit sayısını belirtmek üzere işaretli tamsayı türlerinin isimleri *iN* biçiminde, işaretsiz tamsayı türlerinin isimleri de 
+*uN* biçimindedir. Rust'ın tüm tamsayı türlerinin isimleri aşağıda verilmiştir:
+
+**İşaretli Tamsayı Türleri**
+
+- ``i8``
+- ``i16``
+- ``i32``
+- ``i64``
+- ``i128``
+
+**İşaretsiz Tamsayı Türleri**
+
+- ``u8``
+- ``u16``
+- ``u32``
+- ``u64``
+- ``u128``
+
+**Makine Bağımlı Tamsayı Türleri**
+
+- ``isize``
+- ``usize``
+
+Anımsanacağı gibi 2'ye tümleyen aritmetiğinde N bitlik bir işaretli tamsayının sınır değerleri [-2\ :sup:`N-1`, +2\ :sup:`N-1` - 1] 
+aralığındadır. Rust'ta 128 bitlik tamsayı türünün de olduğuna dikkat ediniz. Henüz 128 bitlik işlemciler kullanılmıyor olsa da 
+bazı durumlarda (özellikle bit işlemlerinde) 128 bitlik tamsayılar daha verimli kod yazımını sağlayabilmektedir. 
+Aşağıda tansayı türlerinin sınır değerlerini bir tablo halinde veriyoruz:
+
+.. list-table:: 
+   :header-rows: 1
+
+   * - Tür
+     - Bit
+     - En Küçük Değer
+     - En Büyük Değer
+   * - ``i8``
+     - 8
+     - ``-128``
+     - ``127``
+   * - ``i16`` 
+     - 16
+     - ``-32768``
+     - ``32767``
+   * - ``i32``
+     - 32
+     - ``-2147483648``
+     - ``2147483647``
+   * - ``i64``
+     - 64
+     - ``-9223372036854775808``
+     - ``9223372036854775807``
+   * - ``i128``
+     - 128
+     - ``-170141183460469231731687303715884105728``
+     - ``170141183460469231731687303715884105727``
+   * - ``u8``
+     - 8
+     - ``0``
+     - ``255``
+   * - ``u16``
+     - 16
+     - ``0``
+     - ``65535``
+   * - ``u32``
+     - 32
+     - ``0``
+     - ``4294967295``
+   * - ``u64``
+     - 64
+     - ``0``
+     - ``18446744073709551615``
+   * - ``u128``
+     - 128
+     - ``0``
+     - ``340282366920938463463374607431768211455``
+   * - ``isize``
+     - 32/64
+     - ``i32`` ya da ``i64`` ile aynı
+     - ``i32`` ya da ``i64`` ile aynı
+   * - ``usize``
+     - 32/64
+     - ``0``
+     - ``u32`` ya da ``u64`` ile aynı
 
 Rust'ta ayrıca çalışılan sisteme bağlı uzunlukta olan isize ve usize isimli iki tamsayı türü de vardır. Bu tamsayı
 türleri çalışılan sistemdeki teorik bellek büyüklüğüne hizalanmış olan bir uzunluğa sahiptir. Dolayısıyla bu türler 32
@@ -108,12 +182,8 @@ Rust'ta bool türünün 1 byte yer kaplayacağı garanti edilmiştir. (C ve C++'
 Ayrıca false değerinin bitsel olarak 0 ve true değerinin de bitsel olarak 1 olduğu da *The Rust Reference*
 dokümanlarında açıkça belirtilmiştir. C ve C++ standartlarında böyle bir belirlemede bulunulmamıştır.
 
-==========================================
-Yazısal Türler ve Değişkenlerin Bağlanması
-==========================================
-
-Yazısal Türler (char ve str)
-============================
+Yazısal Türler 
+==============
 
 Rust'ta iki yazısal tür (textual type) vardır:
 
