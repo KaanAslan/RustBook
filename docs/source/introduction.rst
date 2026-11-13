@@ -231,7 +231,7 @@ cargo Aracı
 
 Aslında Rust programcıları kaynak dosyaları komut satırından doğrudan *rustc* derleyicisi ile derlemek yerine
 genellikle *cargo* isimli bir araçla derleme işlemini yaparlar. *cargo* hem bir paket yöneticisi hem de bir build
-otomasyon aracıdır. Yani *cargo* programı hem depolardan çeşitli kütüphaneleri (crates) indirip projeye dahil
+otomasyon aracıdır. Yani *cargo* programı hem depolardan çeşitli kütüphaneleri (*crates*) indirip projeye dahil
 edebilmekte hem de birden fazla kaynak dosyayı derleyerek bağlama işlemini yapabilmektedir. Rust paket olarak
 yüklendiğinde zaten *cargo* aracı da bilgisayarınıza yüklenmiş olmaktadır. Biz kitabımızda *cargo* programının ayrıntılı
 kullanımını ileride ele alacağız. Ancak burada bu programın bir proje (paket) oluşturup onu derlemek ve çalıştırmak
@@ -240,7 +240,7 @@ için yalın bir biçimde nasıl kullanılacağını göreceğiz.
 cargo ile Paket Oluşturma, Derleme ve Çalıştırma
 ------------------------------------------------
 
-cargo ile yeni bir paket (proje de diyebiliriz) oluşturmak için "*cargo new*" komutu kullanılmaktadır. Komutun genel
+*cargo* ile yeni bir paket (proje de diyebiliriz) oluşturmak için *cargo new* komutu kullanılmaktadır. Komutun genel
 biçimi şöyledir:
 
 .. code-block:: shell
@@ -292,23 +292,31 @@ Projeyi build etmek için proje dizinine geçilip "*cargo build*" komutu uygulan
    cargo build
 
 Build işleminden sonra ``target`` isimli bir dizin ve onun içerisinde de ``debug`` isimli bir dizin oluşturulacaktır.
-"*cargo build*" komutu proje dizininde ya da onun alt dizinlerinde uygulanabilir. Ancak proje dizini dışından
-uygulanamaz. Build işlemi sonucunda çalıştırılabilen dosya ya da kütüphane dosyası default durumda ``target/debug``
-dizininde paket ismiyle oluşturulacaktır.
+*cargo build* komutu proje dizininde ya da onun alt dizinlerinde uygulanabilir. Ancak proje dizini dışından
+uygulanamaz. Build işlemi sonucunda çalıştırılabilen dosya ya da kütüphane dosyası varsayılan durumda ``target/debug``
+dizininde paket ismiyle oluşturulacaktır. 
 
-Build işleminden sonra oluşturulan çalıştırılabilir dosyayı çalıştırmak için doğrudan "*cargo run*" komutu
+*cargo* varsaylan durumda *debug derlemesi* yapmaktadır. *release* derlemesi için *--release* seçeneğinin kullanılaması gerekir:
+
+.. code-block:: shell
+
+   cargo build --release
+
+Bu durumda çalıştırılabilir dosya ya da kütüphane dosyası ``target/release`` dizininde oluşturulacaktır.
+
+Build işleminden sonra oluşturulan çalıştırılabilir dosyayı çalıştırmak için doğrudan *cargo run* komutu
 kullanılabilir. Örneğin:
 
 .. code-block:: shell
 
    cargo run
 
-Bu komut da proje dizininde ya da projenin bir alt dizininde uygulanabilmektedir. Tabii pek çok benzer build sisteminde
-de olduğu gibi sonraki aşama önceki aşamaların yapılmasına da yol açmaktadır. Yani biz "*cargo build*" komutundan önce
-"*cargo run*" komutunu kullanırsak zaten önce build işlemi yapılıp sonra oluşturulan çalıştırılabilir dosya
+Bu komut da proje dizininde ya da projenin bir alt dizininde uygulanabilmektedir. Tabii pek çok benzer build aracında
+olduğu gibi sonraki aşama önceki aşamaların yapılmasına da yol açmaktadır. Yani biz *cargo build* komutundan önce
+*cargo run* komutunu kullanırsak zaten önce build işlemi yapılıp sonra oluşturulan çalıştırılabilir dosya
 çalıştırılacaktır.
 
-"*cargo build*" komutuyla yapılan işlemlerin ortadan kaldırılması için "*cargo clean*" komutu kullanılmaktadır. Örneğin:
+*cargo build* komutuyla yapılan işlemlerin ortadan kaldırılması için *cargo clean* komutu kullanılmaktadır. Örneğin:
 
 .. code-block:: shell
 
@@ -317,7 +325,7 @@ de olduğu gibi sonraki aşama önceki aşamaların yapılmasına da yol açmakt
 VSCode Editöründe Rust ile Çalışmak
 ===================================
 
-VSCode editöründe Rust ile çalışmak için pek çok plugin bulunmaktadır. Önemli Rust plugin'leri şunlardır:
+VSCode editöründe Rust ile çalışmak için pek çok plugin (*extension*) bulunmaktadır. Önemli Rust plugin'leri şunlardır:
 
 * Rust Analyzer
 * crates
