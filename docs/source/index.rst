@@ -31,3 +31,5 @@
 
    introduction
    basictypes
+   declaration
+   literals
