@@ -114,10 +114,6 @@ Rust'ta bu işlem tipik olarak *demet (tuple) kalıbı* ile yapılmaktadır. Ör
 
    let (a, b) = (10, 20);      // geçerli
 
-=============================================
-Değişkenler, Değiştirilebilirlik ve Gölgeleme
-=============================================
-
 Değişken İsimlendirme Kuralları
 ===============================
 
