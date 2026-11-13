@@ -409,3 +409,29 @@ Burada yeni bir proje yarattıktan sonra ana editör penceresine geçeceksiniz:
    :width: 85%
 
 Artık tek tuşla programı derleyip çalıştırabilrsiniz.
+
+Sentaks Notasyonu
+=================
+
+Sentaks Açıklama Notasyonu
+--------------------------
+
+Programlama dillerinin sentakslarını betimlemek için pek çok meta dil oluşturulmuştur. Bunlardan en bilineni ve çok
+kullanılanı BNF (Backus-Naur Form) denilen dildir. Gerçekten de bugün programlama dillerinin resmi standartlarında
+ya da referanslarında hep BNF notasyonu ya da bunun türevleri kullanılmaktadır. The Rust Reference dokümanlarında
+da bu notasyon tercih edilmiştir. BNF notasyonu ISO tarafından da standardize edilmiştir. Bunun ismine EBNF
+denilmektedir. Ancak BNF notasyonunun anlaşılması biraz zordur ve ek çalışma gerektirmektedir.
+
+Kitabımızda sentaks açıklamak için BNF ya da EBNF yerine *açısal parantez köşeli parantez tekniği* kullanılacaktır.
+Bu teknikte köşeli parantez içerisindekiler isteğe bağlı (optional) öğeleri açısal parantez içerisindekiler zorunlu
+öğeleri belirtmektedir. Diğer tüm atomlar aynı pozisyonda bulunmak zorundadır. Örneğin C dilindeki if deyimi bu
+notasyonla şöyle belirtilir:
+
+.. code-block:: text
+
+   if (<ifade>)
+       <deyim>
+   [
+   else
+       <deyim>
+   ]
