@@ -389,3 +389,21 @@ VSCode'da *Code Runner* ile çalışırken edit ettiğiniz kaynak dosyanın *Ctr
 edilmiş olduğuna emin olunuz. Bu tuşlara basmadan önce kaynak dosyanın otomatik save edilmesi *Code Runner* plugin'inin
 kendi ayar menüsünden *Save File Before Run* ile yapılmaktadır.
 
+RustRover IDE'si İle Çalışma
+============================
+
+Rust için dikkate değer IDE'lerden biri de JetBrains firmasının RustRover isimli IDE'sidir. RustRover IDE'sinin
+kullanımı diğer JetBrains IDE'leri ile (IntelliJ IDEA, CLion, PyCharm, RubyMine gibi) benzerdir. Bu IDE'de bir dizin
+içerisinde proje yaratılıp tek tuşla ya da fare tıklamasıyla program çalıştırılabilmektedir.
+
+RustRover IDE'sini çalıştırdığınzda aşağıdaki gibi bir proje penceresi açılmaktadır:
+
+.. figure:: _static/rustrover-ide1.png
+   :align: center
+   :width: 70%
+
+Burada yeni bir proje yarattıktan sonra ana editör penceresine geçeceksiniz:
+
+.. figure:: _static/rustrover-ide2.png
+   :align: center
+   :width: 85%
