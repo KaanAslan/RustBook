@@ -442,3 +442,315 @@ içerisinde Unicode kod numarası girilmelidir. Örneğin:
    let c = '\u{6728}';
 
    println!("{}", c);      // 木
+
+==================================
+Byte Sabitleri ve String Sabitleri
+==================================
+
+Byte Sabitleri (Byte Literals)
+==============================
+
+Tek tırnak içerisine bir ASCII karakteri yerleştirilip başına da bununla yapışık b karakteri getirilirse bu biçimdeki
+sabitlere Rust'ta *byte sabitleri (byte literals)* denilmektedir. Byte sabitleri ``u8`` türündendir. Byte sabitleri tek
+tırnak içerisindeki ASCII karakterinin kod numarasına ilişkin bir sayı belirtirler. Örneğin:
+
+.. code-block:: rust
+
+   let b: u8;
+
+   b = b'a';       // geçerli, b'a' u8 türünden
+
+Burada ``b'a'`` sabiti bir byte sabitidir. Byte sabitler ``u8`` türünden kabul edildikleri için biz onları ancak ``u8`` türünden bir
+değişkene atayabiliriz. Byte sabitlerinde tek tırnak içerisine yalnızca standart ASCII karakterlerinden biri
+yerleştirilebilir. Yani tek tırnak içine yerleştirilecek karakterin Unicode kod numarasının [0, 127] aralığında olması
+gerekir. Örneğin:
+
+.. code-block:: rust
+
+   let b: u8 = b'ş';                // error!
+
+Burada ``'ş'`` karakteri bir ASCII karakter olmadığı için byte sabit geçersiz bir biçimde oluşturulmuştur. Tabii Rust'ın
+yukarıda belirtmiş olduğumuz ters bölü karakter sabitleri aynı zamanda ASCII karakterleri olduğu için byte sabit olarak
+kullanılabilir. Örneğin:
+
+.. code-block:: rust
+
+   let b: u8 = b'\n';               // geçerli
+
+Byte sabitleri oluştururken tek tırnak içerisine ``\u {...}`` biçiminde Unicode kod numarası belirtilerek karakterler
+yerleştirilemez. Örneğin:
+
+.. code-block:: rust
+
+   let b: u8 = b'\u{61}';           // error!
+
+``'a'`` gibi bir sabitin char türden olduğuna ama ``b'a'`` biçiminde bir sabitin ``u8`` türünden olduğuna dikkat ediniz.
+
+Aşağıdaki bağlamaya dikkat ediniz:
+
+.. code-block:: rust
+
+   let b: u8 = b'a';
+
+Burada aslında b'nin içerisinde 97 sayısı vardır. Biz b'yi yazdırırsak 97 görürüz. Örneğin:
+
+.. code-block:: rust
+
+   println!("{}", b);      // 97
+
+Peki o halde yukarıdaki bağlamanın aşağıdakinden ne farkı vardır?
+
+.. code-block:: rust
+
+   let b: u8 = 97;
+
+Aslında bu iki bağlama arasında işlevsel bir farklılık yoktur. Ancak byte sabitler özellikle standart ASCII
+karakterlerin kod numaralarının oluşturulması için tercih edilmektedir. Yani bağlamına göre ``b'a'`` gibi bir sabit
+amaçlanan şeyi daha iyi ifade edebilecektir.
+
+Byte sabitlerini oluştururken tek tırnak içerisine yalnızca ASCII karakterlerinin yazılabileceğini belirtmiştik. Ancak
+eğer istenirse [128, 255] arasındaki kod numaraları ``'\xHH'`` (Burada HH iki hex digit belirtmektedir) biçiminde de
+belirtilebilir. Örneğin:
+
+.. code-block:: rust
+
+   let b: u8 = b'\xFC';        // geçerli
+
+Byte sabitleri Python'da uzun süredir bulunmaktadır. Tabii Python'da bir byte'lık başka bir tür olmadığı için oradaki
+byte türü ve byte sabitlerinin yeri başka biçimde doldurulamamaktadır. Python'da byte sabitlerin öneki ``'b'`` ya da ``'B'``
+olabilmektedir. Halbuki Rust'ta bu önek yalnızca ``'b'`` biçimindedir.
+
+String Sabitleri (String Literals)
+==================================
+
+Rust'ta iki tırnak içerisine yazılmış olan karakterlere iki tırnaklarıyla birlikte *string sabiti (string literal)*
+denilmektedir. Daha önceden de belirttiğimiz gibi Rust iki tırnak içerisindeki karakterleri Unicode UTF-8 kodlamasıyla
+tutmaktadır. Bu nedenle biz iki tırnak içerisinde tüm Unicode karakterleri, Rust'ın ters bölü karakterlerini ``\u{...}``
+biçiminde Unicode kod numarasıyla belirttiğimiz karakterleri kullanabiliriz. Rust'ın stringlerinin sonuna null karakter
+yerleştirilmediğini de daha önce belirtmiştik. C'den geçen kişiler özellikle şu iki noktaya dikkat etmelidirler:
+
+1) Rust'taki string'lerin içerisindeki karakterler Unicode UTF-8 kodlamasıyla tutulmaktadır.
+2) Rust'ta string'lerin sonunda null karakter yoktur.
+
+C'de string'ler ifade içerisinde kullanıldığında ``char *`` türünden, C++'te ``const char *`` türünden kabul
+edilmektedir. Java, C# ve Python gibi dillerde string'ler o dillerin ``String`` sınıfı türünden (Python'da ``str`` sınıfı
+türünden) değişken referansı belirtmektedir. Örneğin Java ve C#'ta iki tırnak ifadeleri o dillerin ``String`` sınıfı
+türünden bir değişkene atanabilmektedir.
+
+Rust'ta iki tırnak içerisindeki string'ler ``&str`` türündendir. str türüne string dilimi (string slice) denilmektedir.
+Ancak bu tür hemen hep referanslı bir biçimde kullanılır. Dolayısıyla Rust'ta biz bir string'i ``&str`` türünden bir
+değişkene atayabiliriz. ``&str`` türüne *string dilim referansı* denilmektedir. Referanslar ve dilimler ilerideki bölümlerde
+ele alınacaktır. Örneğin:
+
+.. code-block:: rust
+
+   let s: &str;
+
+   s = "ağrı dağı";            // geçerli
+
+Unicode UTF-8 kodlamasıyla oluşturulan bir yazının n'inci karakterine tek hamlede (tek makine komutuyla)
+erişilememektedir. Çünkü bu kodlamada daha önce belirttiğimiz gibi her karakter farklı byte uzunluklarında
+olabilmektedir. Dolayısıyla biz böyle bir string'in n'inci karakterini ancak string'in başından itibaren ilerleyerek
+bulabiliriz. Programlama dillerinde ``[]`` operatörü rastgele erişimlerde (O(1) erişim de denilmektedir)
+kullanılmaktadır. Bu nedenle Rust'ın string'lerinin karakterlerine bu operatörle erişilemez. Örneğin:
+
+.. code-block:: rust
+
+   let s: &str = "ağrı dağı";
+   let c = s[4];               // error!
+
+Rust string'lerinde ``s[4]`` biçiminde bir erişim yoktur.
+
+Rust'ta string'ler tek satıra yazılmak zorunda değildir. Yani biz string'leri birden fazla satıra yazabiliriz. Tabii
+istersek \\ karakteri ve hemen ardından ``\n`` karakteri ile (yani editörde \\ karakterine bastıktan sonra ENTER tuşuna
+basıp) *aşağı satırdan devam et* diyerek de aynı şeyi yapabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   let s: &str;
+
+   s = "Ankara Türkiye'nin         // geçerli
+   başkentidir";
+
+Ancak örneğin:
+
+.. code-block:: rust
+
+   s = "Ankara Türkiye'nin \       // geçerli
+   başkentidir";
+
+\\ karakteri ile farklı satırların sanki tek bir satırmış gibi birleştirilmesi özelliği C'de ve diğer bazı dillerde de
+bulunmaktadır.
+
+Saf String Sabitleri (Raw String Literals)
+==========================================
+
+Rust'ta *saf string sabitleri (raw string literals)* adında string sabitleri de vardır. Aslında Rust'taki bu saf string
+sabitleri farklı isimlerle pek çok programlama dilinde de bulunmaktadır. Örneğin C#'ta bu tür string'lere *verbatim
+string*, Python'da *regular string* denilmektedir. C++'a da C++11 ile birlikte bu özellik eklenmiştir. Rust gibi
+nispeten yeni tasarlanan dillerde de artık doğuştan itibaren bu biçimde string sabitleri bulunmaktadır.
+
+Rust'ta saf string sabitleri (kısaca *saf string'ler* de diyebiliriz) içerisindeki ``'\'`` karakterleri gerçekten
+``'\'`` karakteri anlamına gelmektedir. Yani bu string'ler içerisindeki ters bölü karakterleri ters bölü karakter sabiti
+oluşturma anlamında ele alınmamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let s: &str = "ali\nveli";
+
+Buradaki string'te ``\n`` tek bir karakterdir. Bu yazı ekrana yazdırıldığında bu ``\n`` karakteri imlecin aşağı satırın
+başına geçirilmesine yol açacaktır. Eğer buradaki string saf string olsaydı bu ``\n`` karakterleri *new line* karakteri
+yerine ayrı ayrı ``'\'`` karakteri ve 'n' karakteri anlamına gelecekti.
+
+Rust'ta saf string'ler iki tırnağın başına onunla yapışık r öneki getirilerek oluşturulmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let s: &str = r"ali\nveli";
+
+   println!("{}", s);          // ali\nveli
+
+Saf string sabitleri ters bölü karakteri içeren yazıların daha kolay ve okunabilir bir biçimde oluşturulmasına olanak
+sağlamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let path: &str = r"c:\temp\test.txt";
+
+Eğer saf string sabitleri olmasaydı biz bu yazıyı şöyle oluşturmak zorunda kalırdık:
+
+.. code-block:: rust
+
+   let path: &str = "c:\\temp\\test.txt";
+
+Peki biz iki tırnak içerisinde iki tırnak karakteri içeren bir yazıyı nasıl oluşturabiliriz? Bu Rust'ta diğer dillerde
+olduğu gibi ``\"`` kullanılarak yapılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let s = "\"ankara\"";
+
+   println!("{}",s);       // "ankara"
+
+Tabii iki tırnak içerisinde tek tırnak karakteri kullanmanın, tek tırnak içerisinde de iki tırnak karakteri kullanmanın
+bir sakıncası olmadığını biliyorsunuz.
+
+Rust'ta saf string'ler ayrıca r önekinin yanında bir ya da birden fazla ``#`` ile de oluşturulabilmektedir. Ancak bu
+durumda kapanış iki tırnak karakterinden sonra açılış iki tırnak karakterinin önündeki sayıda ``#`` karakterinin
+bulundurulması gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let s: &str = r#"ankara"#;
+   println!("{}", s);          // ankara
+
+Burada r önekinden sonra iki tırnağın başına ve sonuna ``#`` karakterinin getirildiğine dikkat ediniz. ``#``'lerin
+sayısı birden fazla olabilir ancak kapanışta da aynı sayıda ``#`` karakterinin bulundurulması gerekir. Örneğin:
+
+.. code-block:: rust
+
+   let s: &str = r###"ankara"###;
+   println!("{}", s);      // ankara
+
+Burada açılış iki tırnak karakterinin solunda üç tane ``#`` karakteri olduğu için sağında da üç tane ``#`` karakteri
+bulunmak zorundadır. Peki saf string'lerde ``#`` karakterlerini bulundurmanın anlamı nedir? İşte bunun amacı iki tırnak
+içerisindeki iki tırnak karakterlerinin kolay yazılmasını sağlamaktır. Örneğin biz JSON formatına benzer bir formatta
+anahtar değer çiftlerini bir yazı biçiminde oluşturmak isteyelim. Ancak anahtarların da iki tırnaklı yazılardan
+oluştuğunu varsayalım. Bu durumda aşağıdaki gibi bir string geçersiz olacaktır:
+
+.. code-block:: rust
+
+   let s: &str = "{"ali": 123, "veli": 234}";      // error!
+
+Çünkü burada iki tırnak içerisindeki iki tırnak karakteri iki tırnağı kapatmak anlamına gelmektedir. Bu string'in başına
+r öneki getirerek de bunu geçerli yapamayız:
+
+.. code-block:: rust
+
+   let s: &str = r"{"ali": 123, "veli": 234}";         // error!
+
+Tabii bu string'i geçerli bir biçimde şöyle belirtebilirdik:
+
+.. code-block:: rust
+
+   let s: &str = "{\"ali\": 123, \"veli\": 234}";      // geçerli
+
+Fakat bu durumda da yazı okunabilir olmaktan çıkmaktadır. İşte ``#``'li saf string'ler bu kolaylığı sağlamaktadır:
+
+.. code-block:: rust
+
+   let s: &str = r#"{"ali": 123, "veli": 234}"#;      // geçerli
+
+Peki neden artık bu string geçerli olmuştur? Çünkü string ``#"`` ile başlatıldığı ve bitimi de ``"#`` biçiminde olacağı
+için bunun içerisindeki çift tırnak karakteri artık string'i bitirmek anlamına gelmemektedir. Şimdi de aşağıdaki
+string'e dikkat ediniz:
+
+.. code-block:: rust
+
+   let s: &str = r#"ben "#" karakterini çok seviyorum"#;      // error!
+
+Bu string geçersizdir. Çünkü burada yazı içerisinde tesadüfen bulunan ``"#`` karakterleri saf string'i bitiren
+karakterler olarak ele alınacaktır. İşte bu tür durumlarda ``#``'lerin sayısını artırabiliriz:
+
+.. code-block:: rust
+
+   let s: &str = r##"ben "#" karakterini çok seviyorum"##;     // geçerli
+
+Burada artık string ``##"`` ile başlatıldığı için bitimi de ``"##`` ile yapılmaktadır.
+
+Saf string'lerin farklı bir tür belirtmediğine yalnızca yazının içeriği konusunda etkili olduğuna dikkat ediniz. Normal
+string'ler de saf string'ler de &str türündendir.
+
+Byte String Sabitleri (Byte String Literals)
+============================================
+
+Rust'ta diğer bir string sabiti de *byte string sabiti (byte string literals)* denilen sabittir. Bu sabitlere kısaca
+*byte string'ler* de denilmektedir. Byte string'ler iki tırnağın önünde ona yapışık bir biçimde b öneki ile
+oluşturulmaktadır. byte string'ler ``u8`` türünden bir dizi dilimi (ya da kısaca dilim de diyebiliriz) belirtmektedir.
+Dolayısıyla ``&[u8]`` türünden bir değişkene atanabilirler. Örneğin:
+
+.. code-block:: rust
+
+   let bs: &[u8] = b"ankara";
+
+   println!("{:?}",bs);        // [97, 110, 107, 97, 114, 97]
+
+Tabii byte string'lerin içerisindeki karakterlerin de yine byte sabitlerde olduğu gibi yalnızca ASCII karakterlerinden
+oluşturulması gerekir. Örneğin:
+
+.. code-block:: rust
+
+   let bs: &[u8] = b"ağrı dağı";       // error!
+
+Burada byte string'in içerisinde Türkçe karakterler bulundurulmuştur. Ancak byte sabitlerinde olduğu gibi byte string
+sabitlerinde de [128, 255] arasındaki karakterler ``\xHH`` (Burada HH iki hex digit belirtmektedir) biçiminde ifade
+edilebilir. Örneğin:
+
+.. code-block:: rust
+
+   let bs: &[u8] = b"abc\xFF\xFCdef";       // geçerli
+
+Saf Byte String Sabitleri (Raw Byte String Literals)
+====================================================
+
+Byte string sabitleri de *saf (raw)* biçimde oluşturulabilmektedir. Bunlara *saf byte string sabitleri (raw byte string
+literals)* denilmektedir. Bunun için iki tırnağa yapışık br öneki bulundurulmaktadır. Buradaki semantik saf string
+sabitlerinde olduğu gibidir. Yani iki tırnağın içerisindeki ters bölü karakterleri ters bölü karakter sabitleri olarak
+değil gerçekten ters bölü karakterleri olarak ele alınmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let bs: &[u8] = br"a\nb";
+
+Burada ``\n`` *new line* karakterini değil \\ ve n karakterlerini belirtmektedir. Dolayısıyla burada byte string'i 3
+uzunlukta değil 4 uzunluktadır.
+
+Yine saf byte string sabitlerinde br önekinden sonra bunlara yapışık bir ya da birden fazla ``#`` karakteri
+bulundurulabilir. Saf string sabitlerinde olduğu gibi bu da iki tırnak içerisinde iki tırnak karakterinin daha kolay
+kullanılmasını sağlamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let bs: &[u8] = br#"ankara""#;
+   let bs: &[u8] = br##""#"##;
+
