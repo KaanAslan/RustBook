@@ -193,87 +193,88 @@ dokümanlarında açıkça belirtilmiştir. C ve C++ standartlarında böyle bir
 Yazısal Türler 
 ==============
 
-Rust'ta iki yazısal tür (textual type) vardır:
+Rust'ta iki yazısal tür (*textual type*) vardır:
 
 * ``char``
 * ``str``
 
-char türü bir karakterin Unicode UTF-32 kod numarasını (code point) tutmaktadır. Dolayısıyla char türü 4 byte
-uzunluğundadır. Biz char türden bir değişkene tek tırnak içerisine aldığımız bir Unicode karakteri atayabiliriz.
+``char`` türü bir karakterin Unicode UTF-32 kod numarasını (*code point*) tutmaktadır. Dolayısıyla ``char`` türü ``4`` byte
+uzunluğundadır. Biz ``char`` türden bir değişkene tek tırnak içerisine aldığımız bir Unicode karakteri atayabiliriz.
 Buradaki *Unicode UTF-32* teriminin anlaşılmasını sağlamak için karakter tablolama sistemleri hakkında bazı temel
 bilgiler üzerinde durmak istiyoruz.
 
 Karakterlerin bilgisayardaki temsili için oluşturulan tablolara *karakter tabloları (character sets)* denilmektedir.
-Dünyanın bilgisayar alanında kullanılan ilk karakter tablosu ASCII (American Standard Code Information Interchange)
-denilen tablodur. Bu tablo 60'ların başlarında tasarlanmaya başlamış ve 1963 yılında ANSI (American National Standard
-Institute) tarafından standardize edilmiştir. ASCII tablosunun dışında EBCDIC gibi WISCII gibi başka karakter tabloları
-da geliştirilmiştir. Bunlar arasında en yaygın kullanılanı ASCII tablosu olmuştur. ASCII tablosu 7 bitlik bir tabloydu.
-Yani 128 karakter içeriyordu. Sonra zamanla 8'inci bit değişik ülkeler tarafından değişik biçimlerde organize edildi ve
-*code page* varyasyonları ortaya çıkmaya başladı. Örneğin bugün Türkçe için ilk yarısı standart ASCII tablosunun aynısı
-olan ikinci yarısı değişik düzenlenmiş olan üç farklı code page varyasyonu bulunmaktadır: IBM 857 (eski DOS
-sistemlerinde kullanılıyordu), Microsoft 1254 (Windows'ta kullanılıyor) ve ISO 8859-9 (ISO standardı, Microsoft 1254'e
-çok benziyor). Bu karakter tablolarının hepsi temelde 8 bit tablolardır. Yani en fazla 256 farklı karakteri
-barındırabilmektedir. Eskiden belleklerin çok kıt olduğu dönemlerde karakterlerin az bitle ifade edilmesi anlamlıydı.
-Ancak bellekler bollaşınca artık bunun önemi de kalmamıştır. 8 bitlik code page'ler dünyanın tüm dillerini ve çeşitli
-işaret dillerini temsil edememektedir. Ayrıca farklı dillerdeki yazıların aynı doküman içerisinde tutulduğu durumlarda 8
-bitlik code page'ler sorunlara yol açmaktadır. İşte son 30 yıldır her bir karakterin kabaca 1 byte ile değil 2 byte ile
-kodlandığı ismine *Unicode* denilen bir tablo oluşturulmuştur. Unicode tablo zamanla programlama dillerini de etkisi
-altına almış ve diller de bu tabloyu destekleyecek biçimde evrim geçirmişlerdir. Unicode karakter tablosu ISO tarafından
-*ISO/IEC 10646* kod numarasıyla da standardize edilmiştir. Unicode tablodaki karakterlerin kod numaraları (code points)
-için ilk zamanlar 2 byte yeterli oluyordu. Ancak zamanla Unicode'un çeşitli versiyonlarında tabloya karakterler eklendi.
-Bugün Unicode tabloda yaklaşık 150,000 karakter bulunmaktadır. Yani artık Unicode karakterler için 2 byte da
-yetmemektedir.
+Dünyanın bilgisayar alanında kullanılan ilk karakter tablosu *ASCII (American Standard Code Information Interchange)*
+denilen tablodur. Bu tablo 60'ların başlarında tasarlanmaya başlamış ve 1963 yılında *ANSI (American National Standard
+Institute)* tarafından standardize edilmiştir. ASCII tablosunun dışında *EBCDIC* gibi *WISCII* gibi başka karakter tabloları
+da geliştirilmiştir. Bunlar arasında en yaygın kullanılanı ASCII tablosu olmuştur. ASCII tablosu ``7`` bitlik bir tabloydu.
+Yani ``128`` karakter içeriyordu. Sonra zamanla ``8``'inci bit değişik ülkeler tarafından değişik biçimlerde organize 
+edildi ve bunun sonucu olarak *kod sayfaları (code page)* ortaya çıkmaya başladı. Örneğin bugün Türkçe için ilk yarısı standart 
+ASCII tablosunun aynısı olan ikinci yarısı değişik düzenlenmiş olan üç farklı kod sayfası bulunmaktadır: *IBM 857* (eski DOS 
+sistemlerinde kullanılıyordu), *Microsoft 1254* (Windows'ta kullanılıyor) ve *ISO 8859-9* (ISO standardı, Microsoft 1254'e çok 
+benziyor). Bu karakter tablolarının hepsi temelde ``8`` bit tablolardır. Yani en fazla ``256`` farklı karakteri barındırabilmektedir. 
+Eskiden belleklerin çok kıt olduğu dönemlerde karakterlerin az bitle ifade edilmesi anlamlıydı. Ancak bellekler bollaşınca 
+artık bunun önemi de kalmamıştır. ``8`` bitlik kod sayfaları dünyanın tüm dillerini ve çeşitli işaret dillerini temsil 
+edememektedir. Ayrıca farklı dillerdeki yazıların aynı doküman içerisinde tutulduğu durumlarda ``8`` bitlik kod sayfaşarı 
+sorunlara yol açmaktadır. İşte son 30 yıldır her bir karakterin kabaca ``1`` byte ile değil ``2`` byte ile kodlandığı ismine 
+*Unicode* denilen bir tablo oluşturulmuştur. Unicode tablo zamanla programlama dillerini de etkisi altına almış ve diller de 
+bu tabloyu destekleyecek biçimde evrim geçirmişlerdir. Unicode karakter tablosu ISO tarafından *ISO/IEC 10646* kod 
+numarasıyla da standardize edilmiştir. Unicode tablodaki karakterlerin *kod numaraları (code points)* için ilk zamanlar 
+``2`` byte yeterli oluyordu. Ancak zamanla Unicode'un çeşitli versiyonlarında tabloya karakterler eklendi. Bugün Unicode 
+tabloda yaklaşık ``150,000`` karakter bulunmaktadır. Yani artık Unicode karakterler için ``2`` byte da yetmemektedir.
 
 Karakter tablolarını anlayabilmek için bazı terimlerin anlamlarının bilinmesi gerekir. Bir karakter tablosundaki
-karakterlerin görüntülerine İngilizce *glyph* denilmektedir. Karakter tablosundaki her karaktere 0'dan başlanarak bir
-artan sırada bir sayı karşılık getirilir. Karakterin bu sıra numaralarına *kod numarası (code point)* denilmektedir.
-Örneğin ASCII tablosunda 'a' karakterinin kod numarası 97'dir. Bir karakter tablosundaki kod numaralarının 2'lik
+karakterlerin grafiksel temsiline İngilizce *glyph* denilmektedir. Karakter tablosundaki her karaktere ``0``'dan başlanarak 
+bir artan sırada bir sayı karşılık getirilir. Karakterlerin bu sıra numaralarına *kod numarası (code point)* denilmektedir.
+Örneğin ASCII tablosunda ``'a'`` karakterinin kod numarası ``97``'dir. Bir karakter tablosundaki kod numaralarının ``2``'lik
 sistemde nasıl ifade edileceğine de *karakter kodlaması (character encoding)* denilmektedir.
 
-Unicode tablonun ilk 128 kod numarasına ilişkin karakterleri standart ASCII karakterleriyle aynıdır. Unicode tablonun
-128 ile 255 arasındaki kod numaralarına ilişkin karakterler de ASCII Latin-1 (ISO 8859-1) code page'i ile aynıdır.
+Unicode tablonun ilk ``128`` kod numarasına ilişkin karakterleri standart ASCII karakterleriyle aynıdır. Unicode tablonun
+``128`` ile ``255`` arasındaki kod numaralarına ilişkin karakterler de *ASCII Latin-1 (ISO 8859-1)* code page'i ile aynıdır.
 Türkçe özel karakterlerin Unicode tablodaki kod numaraları 200'lü ve 300'lü sıralardadır ve bunların sıraları Türk
 alfabesindeki sıra ile uyumlu değildir.
 
-Unicode tablonun üç temel encoding'i bulunmaktadır: UTF-8, UTF-16 ve UTF-32. Unicode'un UTF-8 kodlaması multibyte bir
-kodlamadır. Bu kodlamada çok kullanılan karakterler az byte ile az kullanılan karakterler çok byte ile kodlanmaktadır.
-Örneğin standart ASCII karakterlerine ilişkin kod numaralarının hepsi UTF-8 kodlamasında 1 byte ile, Türkçe karakterler
-2 byte ile, Japonca ve Çince'deki kanji karakterleri ise 3 byte ile ve çok az kullanılan karakterler de 4 byte ile
-kodlanmaktadır. Bu nedenle Unicode UTF-8 kodlanmış bir yazının byte sayısına bakarak onun kaç karakter içerdiği
-anlaşılamaz. Unicode UTF-16 kodlamasında her karakter 2 byte ile kodlanır. Eskiden Unicode tablonun tüm karakterleri
-böyle 2 byte ile kodlanabiliyordu. Ancak Unicode tablo büyüyünce artık bazı karakterler UTF-16 encoding'inde iki ayrı
-iki byte ile kodlanmaktadır. Zaten tüm dillerin karakterlerinin kod numaraları 65535 içerisindedir. İşte UTF-32 de her
-karakterin sabit 4 byte ile kodlandığı encoding'tir. Yukarıda Unicode tablonun ilk 128 karakterinin kod numaraları ile
-ASCII tablosundaki karakterlerin kod numaralarının aynı olduğunu belirtmiştik. Bu durumda standart ASCII ile kodlanmış
-bir yazı ile Unicode UTF-8 kodlanmış bir yazı arasında bir farkın kalmadığına dikkat ediniz.
+Unicode tablonun üç temel kodlaması (*encoding*) bulunmaktadır: UTF-8, UTF-16 ve UTF-32. Unicode'un UTF-8 kodlaması 
+multibyte bir kodlamadır. Bu kodlamada çok kullanılan karakterler az byte ile az kullanılan karakterler çok byte ile 
+kodlanmaktadır. Örneğin standart ASCII karakterlerine ilişkin kod numaralarının hepsi UTF-8 kodlamasında ``1`` byte ile, 
+Türkçe karakterler ``2`` byte ile, Japonca ve Çince'deki kanji karakterleri ise ``3`` byte ile ve çok az kullanılan karakterler 
+de ``4`` byte ile kodlanmaktadır. Bu nedenle Unicode UTF-8 kodlanmış bir yazının byte sayısına bakarak onun kaç karakter içerdiği
+anlaşılamaz. Unicode UTF-16 kodlamasında her karakter ``2`` byte ile kodlanır. Eskiden Unicode tablonun tüm karakterleri
+böyle ``2`` byte ile kodlanabiliyordu. Ancak Unicode tablo büyüyünce artık bazı karakterler UTF-16 kodlamasında iki ayrı
+iki byte ile kodlanmaktadır. Zaten tüm dillerin karakterlerinin kod numaraları ``0`` ile ``65535`` içerisindedir. 
+İşte UTF-32 de her karakterin sabit ``4`` byte ile kodlandığı encoding'tir. Yukarıda Unicode tablonun ilk ``128`` karakterinin 
+kod numaraları ile ASCII tablosundaki karakterlerin kod numaralarının aynı olduğunu belirtmiştik. Bu durumda standart ASCII 
+ile kodlanmış bir yazı ile Unicode UTF-8 kodlanmış bir yazı arasında bir farkın kalmadığına dikkat ediniz.
 
-Java ve C# dillerindeki char türü Unicode UTF-16 encoding'ini kullanmaktadır. Zaten bu diller Unicode tablonun daha
-büyük kod numaralarını doğrudan desteklememektedir. Python'daki CPython yorumlayıcısı da Unicode UTF-16 encoding'ini
-kullanmaktadır. C++'a UTF-8, UTF-16 ve UTF-32 desteği C++11 standartları ile, C'ye de C11 standartları ile eklenmiştir.
+Java ve C# dillerindeki ``char`` türü Unicode UTF-16 kodlamasını kullanmaktadır. Zaten bu diller Unicode tablonun daha
+büyük kod numaralarını doğrudan desteklememektedir. C++'a UTF-8, UTF-16 ve UTF-32 desteği C++11 standartları ile, C'ye 
+de C11 standartları ile eklenmiştir.
 
-İşte Rust'ta char türü en genel Unicode encoding'i olan UTF-32 encoding'ini kullanmaktadır. Bu nedenle char türü Rust'ta
-4 byte uzunluktadır.
+İşte Rust'ta ``char`` türü en genel Unicode encoding'i olan UTF-32 encoding'ini kullanmaktadır. Bu nedenle ``char`` türü Rust'ta
+``4`` byte uzunluktadır.
 
-Rust'ta str türü iki tırnak içerisindeki string'leri temsil etmektedir. Bu türe Rust'ta *string dilimi (string slice)*
-de denilmektedir. Ancak bu tür genel olarak referanslı bir biçimde yani &str biçiminde kullanılır. &str türüne ise
-*string dilimi referansı (string slice reference)* denilmektedir. Biz Rust'ta iki tırnak içerisindeki yazıları str
-türünden değişkenlere değil &str türünden değişkenlere atayabiliriz. Referans kavramının ve dilim kavramının Rust'ta ne
-anlam ifade ettiği kursumuzun ilerleyen bölümlerinde ayrıntılarıyla ele alınacaktır. Burada şimdiden bir kavramı da
-açıklamak istiyoruz. Rust'ta bazı türlere *dinamik uzunluğa sahip türler (dynamically sized types)* ya da kısaca
-*uzunluğu bilinmeyen türler (unsized types)* denilmektedir. Dinamik uzunluğa sahip türler türünden değişkenler
-bildirilememekte ancak referanslar bildirilebilmektedir.
+Rust'ta ``str`` türü karakter dizilimlerini temsil etmektedir. Ancak ``str`` türünden değişkenler bildirilememektedir. Rust'ta 
+iki tırnak içerisindeki karakterlerin oluşturduğu sabitlere *string dilimi (string slice)* denilmektedir. String dilimleri ``&str`` 
+türüyle temsil edilmektedir; yani str türünden referans belirtmektedir. Rust'ta &str türüne *string dilimi referansı (string slice reference)* 
+denilmektedir. Biz Rust'ta iki tırnak içerisindeki yazıları ``str`` türünden değişkenlere değil ``&str`` türünden değişkenlere atayabiliriz. 
+Referans kavramının ve dilim kavramının Rust'ta ne anlam ifade ettiği kursumuzun ilerleyen bölümlerinde ayrıntılarıyla ele alınacaktır. 
+Ancak burada şimdiden bir kavramı da açıklamak istiyoruz. Rust'ta bazı türlere *dinamik uzunluğa sahip türler (dynamically sized types)* 
+ya da kısaca *uzunluğu bilinmeyen türler (unsized types)* denilmektedir. Dinamik uzunluğa sahip türler türünden değişkenler
+bildirilemez, yalnızca referanslar ve göstericiler bildirilebilir. Rust'ta str türü herhangi bir uzunluğa sahip olabilen karakter
+dizilimini temsil etmektedir. Ancak ileride de açıklayacağınız gibi ``&str`` bir şişman gösterici türüdür. ``str`` türünden 
+referansların içerisinde hem bir adres hem de bir uzunluk bilgisi tutulmaktadır. 
 
 Rust'ta iki tırnak içerisindeki yazılar Unicode UTF-8 encoding'iyle tutulmaktadır. Yukarıda da belirttiğimiz gibi
-Unicode UTF-8 encoding'i ile kodlanmış yazıların karakter uzunlukları yazının kapladığı byte uzunluğuna bakarak
-anlaşılamamaktadır.
+Unicode UTF-8 ile kodlanmış yazıların karakter uzunlukları yazının kapladığı byte uzunluğuna bakarak anlaşılamamaktadır.
 
 Rust'ta iki tırnak içerisindeki yazıların sonunda C'de ve C++'ta olduğu gibi bir null karakter (``'\0'`` karakteri)
 bulunmamaktadır. Bu nedenle Rust'ta yazının sonu özel bir karakterle değil yazının uzunluğundan hareketle
 belirlenmektedir.
 
-never Türü
-==========
+never (!) Türü
+==============
 
 Rust'ta ! ile temsil edilen ismine *never türü* denilen bir tür de vardır. Bu never türü *akışın o noktadan devam
-etmeyeceği* anlamına gelmektedir. Never türü özellikle fonksiyonların geri dönüş değerlerinde kullanılmaktadır.
+etmeyeceği* anlamına gelmektedir. Never türü tipik olarak fonksiyonların geri dönüş değerlerinde ilgili fonksiyonun 
+geri dönmeyeceğini belirtmek için kullanılmaktadır.
 
