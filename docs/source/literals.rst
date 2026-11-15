@@ -175,7 +175,7 @@ Burada a değişkeni i32 türündendir. Fakat örneğin:
 
    let a = 10u32;
 
-Burada ise a değişkeni u32 türündendir.
+Burada ise a değişkeni ``u32`` türündendir.
 
 Basamakları ayrıştırmak için kullanılan ``'_'`` karakterlerinin sayının sonunda da bulunabileceğini belirtmiştik. Tür
 soneklerinin okunabilirliği bozmasını engellemek amacıyla soneklerden önce ``'_'`` karakteri de kullanılabilir. Örneğin:
@@ -227,8 +227,8 @@ Buradaki sayı i32 türünün sınırları dışındadır. Dolayısıyla bu bağ
 
    b = a + 0x10;           // geçerli
 
-Buradaki 0x10 aslında 10'luk sistemdeki 16 sayısıdır. Dolayısıyla bu bağlamda bu sayı i8 türünün sınırları içerisinde
-olduğu için i8 sabit olarak ele alınacaktır.
+Buradaki ``0x10`` aslında 10'luk sistemdeki 16 sayısıdır. Dolayısıyla bu bağlamda bu sayı ``i8`` türünün sınırları
+içerisinde olduğu için ``i8`` sabit olarak ele alınacaktır.
 
 Tabii biz 2'lik, 8'lik ve 16'lık sistemlerde yazdığımız sabitlerin sonuna da yine tür ekleri getirebiliriz. Örneğin:
 
@@ -243,7 +243,7 @@ Burada artık sabit u64 türündendir. Tabii basamak ayıraçları yine bu siste
 
    let a = 0b_1010_0101;
 
-Burada a i32 türündendir.
+Burada ``a`` ``i32`` türündendir.
 
 Gerçek Sayı Sabitleri
 =====================
@@ -255,7 +255,7 @@ bağlama göre gereksinim duyulan türün sınırları içerisinde kalıyorsa o 
 
    let f: f32 = 3.14;       // geçerli
 
-Burada 3.14 sabiti f32 türü ile ifade edilebilmektedir. Bu nedenle sanki f32 türünden bir sabitmiş gibi
+Burada ``3.14`` sabiti ``f32`` türü ile ifade edilebilmektedir. Bu nedenle sanki ``f32`` türünden bir sabitmiş gibi
 kullanılabilmiştir. Örneğin:
 
 .. code-block:: rust
@@ -265,26 +265,27 @@ kullanılabilmiştir. Örneğin:
 
    b = a + 1.2;            // geçerli
 
-Burada 1.2 bağlam içerisinde f32 türünden bir sabit olarak ele alınacaktır. Çünkü 1.2 sayısı f32 türü ile ifade
-edilebilmektedir. Ancak bu durum tamsayılar için geçerli değildir. Örneğin:
+Burada ``1.2`` bağlam içerisinde ``f32`` türünden bir sabit olarak ele alınacaktır. Çünkü ``1.2`` sayısı ``f32`` türü
+ile ifade edilebilmektedir. Ancak bu durum tamsayılar için geçerli değildir. Örneğin:
 
 .. code-block:: rust
 
    let a: f32 = 10;        // error
 
-Burada her ne kadar 10 sabiti f32 türü ile ifade edilebiliyorsa da tamsayı sabiti olduğu için bağlama geçersizdir.
-Noktalı bir sayı eğer f32 türünün basamaksal olarak (duyarlılık olarak değil) sınırları dışında kalırsa bu durum derleme
-aşamasında error oluşturmaktadır. Örneğin:
+Burada her ne kadar ``10`` sabiti ``f32`` türü ile ifade edilebiliyorsa da tamsayı sabiti olduğu için bağlama 
+geçersizdir. Noktalı bir sayı eğer ``f32`` türünün basamaksal olarak (duyarlılık olarak değil) sınırları dışında 
+kalırsa bu durum derleme aşamasında error oluşturmaktadır. Örneğin:
 
 .. code-block:: rust
 
    let a: f32 = 1e50;      // error!
 
-Burada 1e50 sabiti basamaksal olarak f32 türünün sınırları içerisinde kalmamaktadır. Bu nedenle bu sabit ataması error
-ile sonuçlanacaktır. Eğer noktalı sayı basamaksal değil de mantis bakımından f32 türü ile ifade edilemiyorsa bu durum
-error oluşturmaz. f32 ile ifade edilebilen ona en yakın değer elde edilir. (Bu durumda f32 türüne dönüştürme kuralı
-uygulanmaktadır. Bu dönüştürme kuralını tür dönüştürme operatörünü anlatırken ele alacağız.) Diğer pek çok dilde olduğu
-gibi '.' karakterinin sağına bir şey yazılmazsa sabit sanki .0 gibi ele alınmaktadır. Örneğin:
+Burada ``1e50`` sabiti basamaksal olarak ``f32`` türünün sınırları içerisinde kalmamaktadır. Bu nedenle bu sabit ataması
+error ile sonuçlanacaktır. Eğer noktalı sayı basamaksal değil de mantis bakımından ``f32`` türü ile ifade edilemiyorsa 
+bu durum error oluşturmaz. ``f32`` ile ifade edilebilen ona en yakın değer elde edilir. (Bu durumda ``f32`` türüne 
+dönüştürme kuralı uygulanmaktadır. Bu dönüştürme kuralını tür dönüştürme operatörünü anlatırken ele alacağız.) Diğer 
+pek çok dilde olduğu gibi ``'.'`` karakterinin sağına bir şey yazılmazsa sabit sanki ``.0`` gibi ele alınmaktadır. 
+Örneğin:
 
 .. code-block:: rust
 
@@ -332,7 +333,7 @@ soneki kullanılmaktadır:
 
    let a = 3.14f32;
 
-Burada a değişkeni artık f32 türünden olacaktır. Halbuki örneğin:
+Burada a değişkeni artık ``f32`` türünden olacaktır. Halbuki örneğin:
 
 .. code-block:: rust
 
@@ -352,15 +353,16 @@ Gerçek sayı sabitlerinde tür soneki noktadan hemen sonra başlatılamaz. Örn
    let a: f64 = 1.f64;         // error!
    let b: f64 = 1._f64;        // error!
 
-Gerçek sayı sabitlerinde açıkça tür belirtmek iyi bir tekniktir. Gerçek sayı sabitine f32 ve f64 soneki getirmiş olsak
-bile eğer sabit basamaksal olarak soneke ilişkin türün sınırları dışında kalıyorsa sabit geçersiz olmaktadır. Örneğin:
+Gerçek sayı sabitlerinde açıkça tür belirtmek iyi bir tekniktir. Gerçek sayı sabitine ``f32`` ve ``f64`` soneki getirmiş
+olsak bile eğer sabit basamaksal olarak soneke ilişkin türün sınırları dışında kalıyorsa sabit geçersiz olmaktadır. 
+Örneğin:
 
 .. code-block:: rust
 
    let a: f32 = 1e50;      // error! sabit f32 sınırlarını basamaksal olarak aşıyor
 
 C'de gerçek sayı soneklerini (f ve lf) kullanabilmek için sabitin nokta içermesi gerekmektedir. Rust'ta sabit nokta
-içermese de sabitin sonuna f32 ve f64 sonekleri getirilebilmektedir. Örneğin:
+içermese de sabitin sonuna ``f32`` ve ``f64`` sonekleri getirilebilmektedir. Örneğin:
 
 .. code-block:: rust
 
@@ -369,8 +371,8 @@ içermese de sabitin sonuna f32 ve f64 sonekleri getirilebilmektedir. Örneğin:
 Üstel Biçimde Gerçek Sayı Sabitleri
 ===================================
 
-Pek çok programlama dilinde olduğu gibi Rust'ta da gerçek sayı sabitleri (f32 ve f64 türünden sabitler) üstel biçimde
-belirtilebilmektedir. Gerçek sayı sabitleri üstel biçimde belirtilirken e ya da E harfi 10'un kuvveti anlamına
+Pek çok programlama dilinde olduğu gibi Rust'ta da gerçek sayı sabitleri (``f32`` ve ``f64`` türünden sabitler) üstel 
+biçimde belirtilebilmektedir. Gerçek sayı sabitleri üstel biçimde belirtilirken e ya da E harfi 10'un kuvveti anlamına
 gelmektedir. Örneğin:
 
 .. code-block:: rust
@@ -460,10 +462,10 @@ tırnak içerisindeki ASCII karakterinin kod numarasına ilişkin bir sayı beli
 
    b = b'a';       // geçerli, b'a' u8 türünden
 
-Burada ``b'a'`` sabiti bir byte sabitidir. Byte sabitler ``u8`` türünden kabul edildikleri için biz onları ancak ``u8`` türünden bir
-değişkene atayabiliriz. Byte sabitlerinde tek tırnak içerisine yalnızca standart ASCII karakterlerinden biri
-yerleştirilebilir. Yani tek tırnak içine yerleştirilecek karakterin Unicode kod numarasının [0, 127] aralığında olması
-gerekir. Örneğin:
+Burada ``b'a'`` sabiti bir byte sabitidir. Byte sabitler ``u8`` türünden kabul edildikleri için biz onları ancak ``u8``
+türünden bir değişkene atayabiliriz. Byte sabitlerinde tek tırnak içerisine yalnızca standart ASCII karakterlerinden 
+biri yerleştirilebilir. Yani tek tırnak içine yerleştirilecek karakterin Unicode kod numarasının [0, 127] aralığında 
+olması gerekir. Örneğin:
 
 .. code-block:: rust
 
@@ -517,8 +519,8 @@ belirtilebilir. Örneğin:
    let b: u8 = b'\xFC';        // geçerli
 
 Byte sabitleri Python'da uzun süredir bulunmaktadır. Tabii Python'da bir byte'lık başka bir tür olmadığı için oradaki
-byte türü ve byte sabitlerinin yeri başka biçimde doldurulamamaktadır. Python'da byte sabitlerin öneki ``'b'`` ya da ``'B'``
-olabilmektedir. Halbuki Rust'ta bu önek yalnızca ``'b'`` biçimindedir.
+byte türü ve byte sabitlerinin yeri başka biçimde doldurulamamaktadır. Python'da byte sabitlerin öneki ``'b'`` ya da 
+``'B'`` olabilmektedir. Halbuki Rust'ta bu önek yalnızca ``'b'`` biçimindedir.
 
 String Sabitleri (String Literals)
 ==================================
@@ -533,14 +535,14 @@ yerleştirilmediğini de daha önce belirtmiştik. C'den geçen kişiler özelli
 2) Rust'ta string'lerin sonunda null karakter yoktur.
 
 C'de string'ler ifade içerisinde kullanıldığında ``char *`` türünden, C++'te ``const char *`` türünden kabul
-edilmektedir. Java, C# ve Python gibi dillerde string'ler o dillerin ``String`` sınıfı türünden (Python'da ``str`` sınıfı
-türünden) değişken referansı belirtmektedir. Örneğin Java ve C#'ta iki tırnak ifadeleri o dillerin ``String`` sınıfı
-türünden bir değişkene atanabilmektedir.
+edilmektedir. Java, C# ve Python gibi dillerde string'ler o dillerin ``String`` sınıfı türünden (Python'da ``str``
+sınıfı türünden) değişken referansı belirtmektedir. Örneğin Java ve C#'ta iki tırnak ifadeleri o dillerin ``String``
+sınıfı türünden bir değişkene atanabilmektedir.
 
-Rust'ta iki tırnak içerisindeki string'ler ``&str`` türündendir. ``str`` türüne string dilimi (string slice) denilmektedir.
-Ancak bu tür hemen hep referanslı bir biçimde kullanılır. Dolayısıyla Rust'ta biz bir string'i ``&str`` türünden bir
-değişkene atayabiliriz. ``&str`` türüne *string dilim referansı* denilmektedir. Referanslar ve dilimler ilerideki bölümlerde
-ele alınacaktır. Örneğin:
+Rust'ta iki tırnak içerisindeki string'ler ``&str`` türündendir. ``str`` türüne string dilimi (string slice) 
+denilmektedir. Ancak bu tür hemen hep referanslı bir biçimde kullanılır. Dolayısıyla Rust'ta biz bir string'i ``&str``
+türünden bir değişkene atayabiliriz. ``&str`` türüne *string dilim referansı* denilmektedir. Referanslar ve dilimler
+ilerideki bölümlerde ele alınacaktır. Örneğin:
 
 .. code-block:: rust
 
@@ -1856,10 +1858,10 @@ ayrı bir başlık altında bir tabloyla açıklanmıştır.
 Rust'ta daha önceden de belirttiğimiz gibi iki operand'lı operatörlerin operand'ları aynı türden olmak zorundadır.
 Dolayısıyla Rust'ta *işlem öncesi otomatik tür dönüştürmesi (usual arithmetic conversion)* yoktur. Benzer biçimde
 Rust'ta *işlem öncesinde int türüne dönüştürme (integral promotion)* biçiminde de bir kural da yoktur. Örneğin C'de biz
-int ile long değeri aritmetik işleme sokarsak long türünden bir değer elde ederiz. Ancak Rust'ta i64 ile i32 türlerini
-zaten işleme sokamayız. Rust'ta operand'lar aynı türden olmak zorunda olduğu için işlemin sonucu da aynı türden olur.
-Örneğin Rust'ta iki i8 türünden değeri toplarsak sonuç i8 türünden olur. Fakat örneğin C'de iki char türünden değer
-toplanırsa *int türüne yükseltme kuralı* gereği sonuç int türden elde edilir.
+``int`` ile ``long`` değeri aritmetik işleme sokarsak ``long`` türünden bir değer elde ederiz. Ancak Rust'ta ``i64`` 
+ile ``i32`` türlerini zaten işleme sokamayız. Rust'ta operand'lar aynı türden olmak zorunda olduğu için işlemin sonucu
+da aynı türden olur. Örneğin Rust'ta iki ``i8`` türünden değeri toplarsak sonuç i8 türünden olur. Fakat örneğin C'de
+iki char türünden değer toplanırsa *int türüne yükseltme kuralı* gereği sonuç int türden elde edilir.
 
 Operand'ların Ele Alınma Sırası
 ===============================
@@ -2721,4 +2723,2946 @@ Operatörler                                Associativity
 
 Bileşik atama operatörlerinden de yine birim (unit) değeri (yani ``()`` değeri) elde edilmektedir. Yani bu operatörler
 de kombine edilememektedir.
+
+==================
+Tür Dönüştürmeleri
+==================
+
+Tür Dönüştürmelerine Giriş
+==========================
+
+Bu bölümde Rust'ta tür dönüştürmelerini göreceğiz. Anımsanacağı gibi Rust'ta bir atama işlemi söz konusu olduğunda
+kaynak türle hedef türün aynı olması gerekiyordu. (Bunun referanslar ve göstericiler bağlamında bazı istisnalar vardır.)
+Tabii programlama dillerinin büyük çoğunluğunda ilkdeğer verme de, fonksiyon çağırılırken argümanlardan parametre
+değişkenlerine aktarım da, fonksiyonun geri dönüş değerinin oluşturulması da bir çeşit atama işlemi gibi ele
+alınmaktadır. Yani bu bağlamlarda da atama işlemindeki semantik uygulanmaktadır. Dolayısıyla Rust'ta nasıl atama
+operatörünün kaynak ve hedef türleri aynı olmak zorundaysa argümanın türüyle parametre değişkeninin türünün, return
+ifadesinin türüyle fonksiyonun geri dönüş değeri türünün de aynı olması gerekmektedir.
+
+as Operatörü
+============
+
+Rust'ta farklı türleri birbirine atamak için ya da iki operand'lı operatörlerle işleme sokmak için programcının as
+operatörü ile açıkça tür dönüştürmesi yapması gerekmektedir. as operatörü iki operand'lı araek (binary infix) bir
+operatördür. Operatörün sol tarafındaki operand dönüştürülecek ifadeyi sağ tarafındaki operand dönüştürülecek türü
+belirtmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let b: i16;
+
+   b = a as i16;
+
+Burada a değişkeni açıkça (explicitly) i16 türüne dönüştürülmüştür. Tabii programlama dillerinde genel olarak tür
+dönüştürmesi hep geçici nesne yoluyla yapılmaktadır. Yani biz bir ifadeyi bir türe dönüştürürken önce derleyici hedef
+tür türünden geçici bir nesne oluşturur, kaynak değeri bu geçici nesneye atar, işlemde bu geçici nesneyi kullanır, 
+işlem bitince de geçici nesneyi yok eder. Örneğin:
+
+.. code-block:: rust
+
+   b = a as i16;
+
+Burada a'nın türü i16 olarak değiştirilmemektedir. i16 türünden geçici bir değişken yaratılıp a'nın içerisindeki değer 
+o değişkene atanıp işlemde o değişken kullanılmaktadır. Tabii derleyiciler buradaki geçici değişkeni olanak elveriyorsa
+CPU'nun yazmaçlarında yaratmaktadır. Yani bu geçici değişkenlerin yaratılması genellikle bir performans kaybına yol
+açmaz.
+
+Rust'ta iki operand'lı operatörlerin operand'larının da aynı türden olması gerektiğini anımsayınız. Aşağıdaki toplama
+işlemi operand'lar farklı türlerden olduğu için error ile sonuçlanacaktır:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let b: i16 = 20;
+   let result: i32;
+
+   result = a + b;       // error!
+
+Bu tür durumlarda da bir operand'ın açıkça diğerinin türüne as operatörüyle dönüştürülmesi gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let b: i16 = 20;
+   let result: i32;
+
+   result = a + b as i32;          // geçerli
+   print!("{} ", result);          // 30
+
+as operatörü öncelik tablosunda aritmetik operatörlerden daha yüksek öncelikli grupta bulunmaktadır.
+
+========================================== ==============================
+Operatörler                                Associativity
+========================================== ==============================
+``()``                                     Soldan Sağa
+``- !``                                    Sağdan Sola
+``as``                                     Soldan Sağa
+``* / %``                                  Soldan Sağa
+``+ -``                                    Soldan Sağa
+``<< >>``                                  Soldan Sağa
+``&``                                      Soldan Sağa
+``^``                                      Soldan Sağa
+``|``                                      Soldan Sağa
+``< > >= <= == !=``                        Parantezsiz Kombine Edilemez
+``&&``                                     Soldan Sağa
+``||``                                     Soldan Sağa
+``= += -= *= /= %= &= |= ^= <<= >>=``      Sağdan Sola
+========================================== ==============================
+
+Örneğin:
+
+.. code-block:: rust
+
+   result = a + b as i16;
+
+işleminde operatörler şu sırada işleme sokulacaktır:
+
+.. code-block:: text
+
+   İ1: b as i16
+   İ2: a + İ1
+   İ3: result = İ2
+
+Eğer bir işlem sonucunu bir türe dönüştürmek istiyorsanız parantez kullanmalısınız:
+
+.. code-block:: rust
+
+   c = (a + b) as i32;
+
+Bilgi Kaybına Yol Açan ve Açmayan Dönüştürmeler
+===============================================
+
+Bazı dönüştürmeler bilgi kaybına yol açmazlar. Örneğin i16 türünden bir ifadenin ``i32`` türüne dönüştürülmesi sırasında
+bir bilgi kaybı oluşmaz. Genel olarak küçük türden büyük türe yapılan dönüştürmeler bilgi kaybına neden olmamaktadır. 
+C gibi bazı programlama dillerinde temel türlerin her biri diğerine otomatik olarak (implicitly) dönüştürülebilmektedir. 
+Java ve C# gibi bazı dillerde ise yalnızca bilgi kaybına yol açmayacak dönüştürmeler otomatik yapılabilmektedir. Örneğin
+Java ve C#'ta int türünden ``long`` türüne otomatik dönüştürme olduğu için ``int`` türü ``long`` türüne atanabilmektedir.
+Ancak ``long`` türünden int türüne otomatik dönüştürme olmadığı için ``long`` türü ``int`` türüne atanamamaktadır. İşte
+tür dönüştürmeleri ele alınırken bilgi kaybına yol açabilecek dönüştürmelerin nasıl gerçekleştiği üzerinde durulmalıdır.
+Biz de izleyen paragraflarda tek tek bu durumun üzerinde duracağız.
+
+Tamsayı Türleri Arasındaki Dönüştürmeler
+========================================
+
+* Küçük işaretli tamsayı türünden büyük işaretli tamsayı türüne, küçük işaretsiz tamsayı türünden büyük işaretsiz
+  tamsayı türüne yapılan dönüştürmelerde bilgi kaybı oluşmaz. Kaynak değer aynı biçimde hedef türle ifade edilir.
+
+* Aynı tamsayı türünün işaretli ve işaretsiz biçimler arasında yapılan dönüştürmelerde sayının bitleri değişmez,
+  yalnızca işaret bitinin anlamı değişir. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = -1;            // 0xFFFFFFFF
+   let b: u32;
+
+   b = a as u32;
+   println!("{}", b);      // 4294967295
+
+``i32`` içerisindeki ``-1`` değeri tüm bitler ``1`` olan bir değerdir. Tüm bitleri ``1`` olan bir sayı ``u32`` türünden 
+bir değişkenin içerisine yerleştirilirse bu değer en büyük pozitif sayı haline gelir. Örneğin:
+
+.. code-block:: rust
+
+   let a: u32 = 4294967294;            // 0xFFFFFFFE
+   let b: i32;
+
+   b = a as i32;
+   println!("{}", b);                  // -2
+
+* Büyük tamsayı türünden (işaretli ya da işaretsiz) küçük tamsayı türüne (işaretli ya da işaretsiz) dönüştürmelerde
+  sayının yüksek anlamlı bitleri atılır, düşük anlamlı bitleri atanır. Ancak eğer kaynak türe ilişkin değer hedef türün
+  sınırları içerisinde kalıyorsa bir bilgi kaybı söz konusu olmaz.
+
+Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = -2;            // 0xFFFFFFFE
+   let b: i16;
+
+   b = a as i16;
+   println!("{}", b);          // -2
+
+Burada ``i32`` içerisindeki ``-2`` değeri ``0xFFFFFFFE`` bitlerine sahip olacaktır. Biz yüksek anlamlı 2 byte'ı atıp 
+düşük anlamlı 2 byte'ı elde edersek ``0xFFFE`` bitleri oluşur. Bu da zaten ``i16`` türü için ``-2``'dir. Görüldüğü gibi 
+``i32`` içerisindeki ``-2`` değeri ``i16`` ile temsil edilebildiğinden dolayı bilgi kaybı söz konusu olmamıştır. 
+Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = -2;            // 0xFFFFFFFE
+   let b: u8;
+
+   b = a as u8;
+   println!("{}", b);          // 254
+
+Burada yine ``i32`` içerisindeki değerin yüksek anlamlı byte'ları atılıp düşük anlamlı byte'ları elde edilmiştir. Bu da
+``0xFE`` bitleridir. Tabii bu bitler işaretsiz 1 byte'lık bir değişkenin içerisine yerleştirildiği için ``254`` olarak
+ele alınacaktır.
+
+* Küçük işaretli tamsayı türünden büyük işaretli ya da büyük işaretsiz türe dönüştürme yapılırken önce küçük işaretli
+  türdeki bitlerin hepsi büyük tamsayı türünün düşük anlamlı bitlerine yerleştirilir. Sonra geri kalan bitler kaynak
+  türe ilişkin değer negatif ise ``1``'lerle pozitif ise ``0``'larla doldurulur. Örneğin:
+
+.. code-block:: rust
+
+   let a: i8 = -1;             // 0xFF
+   let b: u32;
+
+   b = a as u32;
+   println!("{}", b);          // 4294967295 = 0xFFFFFFFF
+
+Burada kaynak türdeki değer işaretli ve negatiftir. 1 byte içerisinde ``-1`` değeri ``0xFF`` bitlerinden oluşmaktadır.
+Buradaki sayı negatif olduğu için ``u32``'ye dönüştürme yapılırken geri kalan 3 byte ``1``'lerle doldurulacaktır.
+Dolayısıyla sayı çok büyük pozitif bir sayı haline gelmektedir. Burada ``i8`` içerisindeki ``-1`` değerinin ``u32`` 
+türüne ``+1`` olarak dönüştürülmediğine dikkat ediniz. Tabii yukarıdaki örnekte küçük türle belirtilen değer pozitif 
+olsaydı doldurma ``0`` bitleriyle yapılacak ve aslında yine aynı pozitif sayı elde edilecektir. Örneğin:
+
+.. code-block:: rust
+
+   let a: i8 = 1;              // 0x01
+   let b: u32;
+
+   b = a as u32;
+   println!("{}", b);          // 0x00000001 = 1
+
+Aslında C'de de aynı durum söz konusudur. Yalnızca C standartlarında anlatım değişik yapılmıştır. C standartlarında
+küçük işaretli tamsayı türünden büyük işaretsiz tamsayı türüne dönüştürmenin iki aşamada yapılacağı söylenmiştir: Önce
+kaynak değer hedef türün işaretli biçimine sonra hedef türün işaretli biçiminden işaretsiz biçimine dönüştürülmektedir.
+
+Gerçek Sayı Türleri ile Tamsayı Türleri Arasındaki Dönüştürmeler
+================================================================
+
+* ``f32`` ya da ``f64`` türünden bir değer tamsayı türlerine dönüştürüldüğünde noktadan sonraki kısım atılır, tam kısım 
+  elde edilir. (Noktalı pozitif ya da negatif bir sayının noktadan sonraki kısmının atılmasına İngilizce *truncation 
+  toward zero* denilmektedir.) Peki sayının noktadan sonraki kısmı atıldıktan sonra tam kısmı hedef türün sınırları 
+  içerisinde kalmıyorsa ne olacaktır? İşte Rust'ta bu durumda eğer gerçek sayı pozitifse hedef türle ifade edilebilen 
+  en büyük pozitif tamsayı, gerçek sayı negatif ise hedef türle ifade edilebilen en küçük negatif sayı elde edilmektedir.
+  Örneğin:
+
+.. code-block:: rust
+
+   let f: f64 = 1000.12;
+   let b: u8;
+
+   b = f as u8;
+   println!("{}", b);      // 255
+
+Burada ``1000.12`` sayısının noktadan sonraki kısmı atıldıktan sonra ``1000`` değeri elde edilir. Ancak bu ``1000``
+değeri hedef tür olan ``u8``'in sınırları dışında kalmaktadır. ``u8`` ile ifade edilecek en büyük pozitif sayı 
+255``'tir. Örneğin:
+
+.. code-block:: rust
+
+   let f: f64 = -1000.12;
+   let b: i8;
+
+   b = f as i8;
+   println!("{}", b);      // -128
+
+C'de gerçek sayı türlerine ilişkin bir değerin noktadan sonraki kısmı atılıp tam kısmı elde edildiğine bu değer hala
+hedef türün sınırları içerisinde kalmıyorsa *tanımsız davranış (undefined behavior)* oluşmaktadır. (Ancak C
+derleyicilerinin hemen hepsi bu tür durumlarda noktadan sonraki kısmı atılmış olan sayının yüksek anlamlı byte'larını
+atarak dönüştürmeyi yapmaktadır.)
+
+* Tamsayı türlerinden ``f32`` ve ``f64`` türlerine dönüştürme yapılırken bir bilgi kaybı oluşmayabilir ya da bilgi kaybı
+  oluşabilir. Bu tür durumlarda basamaksal kayıp değil mantis kaybı oluşuyorsa (yani sayının mertebesi aynı ama sayı tam
+  olarak ifade edilemiyorsa) dönüştürülmek istenen tamsayıya en yakın hedef türe ilişkin gerçek sayı elde edilir. Burada
+  en yakın demekle dönüştürülmek istenen tamsayıdan büyük ya da küçük olan (yani mutlak değerce) sayı kastedilmektedir.
+  Örneğin ``i64`` türünden bir değer tam olarak ``f32`` türü ile ifade edilemeyebilir. Bu durumda ``i64`` değerine en 
+  yakın ``f32`` değeri elde edilmektedir. (Bazen dönüştürülecek tamsayı değere en yakın ondan büyük ve ondan küçük iki 
+  gerçek sayı birlikte bulunuyor olabilir. Bu durumda çift olan sayı tercih edilmektedir.) Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 1234567890;
+   let b: f32;
+
+   b = a as f32;
+   println!("{}", b);      // 1234568000
+
+Burada ``1234567890`` sayısı ``f32`` türü ile tam olarak ifade edilememiştir. Ancak mantis kaybıyla ona en yakın bir sayı
+elde edilmiştir.
+
+Tamsayı türlerinden gerçek sayı türlerine dönüştürme yapılırken aynı basamakta bir sayı elde edilemiyorsa (yani hedef
+gerçek sayı türünün basamaksal sınırları aşılıyorsa) bu duruma *basamaksal kayıp* denilmektedir. Programlama dillerinde
+genel olarak basamaksal kayıplar tolere edilmemektedir. Rust'ta eğer dönüştürülecek tamsayı türünden değer hedef türün
+sınırları içerisinde kalmıyorsa (yani basamaksal bir kayıp oluşuyorsa) bu durumda kaynak tamsayı pozitifse hedef türden
+``+inf``, kaynak tamsayı negatifse hedef türden ``-inf`` değeri elde edilmektedir. Fakat böylesi bir durum ancak
+``u128``'den ``f32`` yapılan dönüştürmelerde söz konusu olabilir.
+
+* ``f32`` türünden ``f64`` türüne dönüştürmelerde bilgi kaybı oluşmaz. Dolayısıyla sayı tam olarak hedef türle ifade 
+edilir.
+
+* ``f64`` türünden ``f32`` türüne dönüştürme yapılırken eğer mantis kaybı oluşuyorsa ``f32`` ile temsil edilen 
+dönüştürülecek sayıya en yakın sayı elde edilir. Yine eşit uzaklıkta sayılarda çift olan tercih edilmektedir. Eğer
+basamaksal bir kayıp söz konusu olursa dönüştürülecek sayı pozitifse ``+inf``, negatifse ``-inf`` değeri elde 
+edilmektedir.
+
+======================================================================
+char ve bool Dönüştürmeleri, never Türü, Klavyeden Okuma ve if İfadesi
+======================================================================
+
+char Türünün Dönüştürülmesi
+===========================
+
+``char`` türü ``as`` operatörü ile tamsayı türlerine dönüştürülebilir, ancak ``f32`` ve ``f64`` türlerine 
+dönüştürülemez. ``char`` türü tamsayı türlerine dönüştürüldüğünde ilgili karakterin Unicode UTF-32 kod numarasına
+(code point) ilişkin sayı elde edilmektedir. Rust'ta ``char`` türü Unicode UTF-32 kod numaralarını tutabilen 4 byte
+genişlikte olduğu için ``char`` türünün dönüştürüleceği en uygun tamsayı türü de ``u32`` türüdür. Örneğin:
+
+.. code-block:: rust
+
+   let c: char = 'a';
+   let a: u32;
+
+   a = c as u32;
+   println!("a: {}", a);           // 97
+
+``char`` türü ``u32`` türünden daha küçük türlere dönüştürüldüğünde yüksek anlamlı byte'lar kırpılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let c: char = 'ş';
+   let a: i8;
+
+   a = c as i8;            // kırpılma olacak
+   println!("a: {}", a);
+
+Rust'ta yalnızca ``u8`` türü ``as`` operatörüyle ``char`` türüne dönüştürülebilmektedir. Diğer türlerden ``char`` 
+türüne dönüştürme yoktur. Örneğin:
+
+.. code-block:: rust
+
+   let c: char;
+   let a: u8 = 97;
+
+   c = a as char;
+   println!("a: {}", c);       // a
+
+bool Türünün Dönüştürülmesi
+===========================
+
+``bool`` türü ``as`` operatörüyle tamsayı türlerine dönüştürülebilir. Bu durumda ``true`` için ``1``, ``false`` için 
+``0`` elde edilmektedir. Ancak ``bool`` türü gerçek sayı türlerine (``f32`` ve ``f64`` türlerine) dönüştürülemez. 
+Tamsayı ya da gerçek sayı türlerinden ``bool`` türüne de ``as`` operatörüyle dönüştürme yapılamamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let b: bool = true;
+   let a: i32;
+
+   a = b as i32 + 10;
+   println!("{}", a);      // 11
+
+Temel Türler Arası Dönüştürme Tablosu
+=====================================
+
+Şimdi de hangi temel türlerden hangi temel türlere ``as`` operatörüyle dönüştürme yapılacağını özet bir tabloyla 
+belirtelim:
+
+======================= ======================= =================
+Kaynak Tür              Hedef Tür               Dönüştürme Durumu
+======================= ======================= =================
+Tamsayı Türleri         Gerçek Sayı Türleri     VAR
+Gerçek Sayı Türleri     Tamsayı Türleri         VAR
+bool Türü               Tamsayı Türleri         VAR
+bool Türü               Gerçek Sayı Türleri     YOK
+Herhangi Bir Tür        bool Türü               YOK
+char Türü               Tamsayı Türleri         VAR
+char Türü               Gerçek Sayı Türleri     YOK
+u8 Türü                 char Türü               VAR
+u8 Dışındaki Türler     char Türü               YOK
+======================= ======================= =================
+
+never Türü ve Geri Dönmeyen Fonksiyonlar
+========================================
+
+Temel türleri görürken ``!`` ile temsil edilen *never* isimli bir tür de görmüştük. Bu tür fonksiyonların geri dönüş
+değerlerinde kullanıldığında fonksiyonların geri dönmeyeceği anlamına geliyordu. Örneğin:
+
+.. code-block:: rust
+
+   fn foo() -> ! {
+       //...
+   }
+
+Burada ``foo`` fonksiyonu çağrıldığında akış bu fonksiyondan geri dönmeyecektir. Yani fonksiyonu yazan kişi derleyiciye
+fonksiyonun geri dönmeyeceği sözünü vermektedir. Ancak programcı bu sözünde durmazsa derleme aşamasında error oluşur.
+Örneğin:
+
+.. code-block:: rust
+
+   fn foo() -> ! {
+       println!("foo");
+   }
+
+Burada programcı ``foo`` fonksiyonu çağrıldığında fonksiyonun geri dönmeyeceği sözünü vermiştir. Ancak bu sözü yerine
+getirmemiştir. Buradaki ``foo`` fonksiyonu çağrıldığında fonksiyon geri dönecektir. Bu nedenle bu fonksiyonda derleme
+sırasında error oluşacaktır. Örneğin:
+
+.. code-block:: rust
+
+   fn foo() -> ! {
+       loop {
+       }
+   }
+
+``loop`` deyimi izleyen paragraflarda görecek olduğumuz sonsuz döngü oluşturan bir deyimdir. Dolayısıyla burada ``foo``
+fonksiyonu geri dönmeyecektir. Programcı verdiği sözü tutmuştur. Örneğin:
+
+.. code-block:: rust
+
+   fn foo() -> ! {
+       println!("foo");
+       std::process::exit(0);
+   }
+
+Burada ``foo`` içerisinde ``exit`` fonksiyonu ile program sonlandırılmıştır. ``exit`` fonksiyonu da ``!`` geri dönüş
+değerine sahiptir. Dolayısıyla derleyici ``exit`` fonksiyonu geri dönmediği için ``foo`` fonksiyonun da geri
+dönmeyeceğini anlar. Kod geçerli olarak derlenir.
+
+Bir fonksiyonun geri dönmeyeceği bilgisi derleyicinin o fonksiyon için daha kısa bir kod üretmesini sağlamaktadır. C++'a
+bu özellik resmi olarak C++11 ile eklenen ``[[noreturn]]`` özniteliği ile gelmiştir. Örneğin:
+
+.. code-block:: cpp
+
+   [[noreturn]] void foo()
+   {
+       //...
+
+       exit(0);
+   }
+
+C11 ile C'ye ``_Noreturn`` anahtar sözcüğü eklenmiştir. Ancak C23 ile birlikte C'ye de C++'taki gibi öznitelikler
+(attributes) eklenince bu işlem artık C'de de C++'ta olduğu gibi ``[[noreturn]]`` ile yapılabilmektedir.
+
+Rust'ta never türü *akış geriye gelmeyecek* anlamına geldiği için never türünden herhangi bir türe otomatik dönüştürme
+vardır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let a: i32;
+
+       a = foo();      // geçerli
+       //...
+   }
+
+   fn foo() -> ! {
+       println!("foo");
+       std::process::exit(0);
+   }
+
+Burada ``foo`` fonksiyonun geri dönüş değeri never türündendir. Never türü de *fonksiyon geriye dönmeyecek* anlamına
+gelir. Akış zaten geriye dönmeyeceğine göre ``foo()`` çağrım ifadesinin herhangi bir türe atanmasında sakınca
+görülmemiştir.
+
+Diğer Dönüştürmeler
+===================
+
+Biz yukarıda tüm temel türler arasındaki dönüştürmeleri gördük. Ancak bu dönüştürmelerin dışında ``enum`` dönüştürmeleri
+ve adres dönüştürmeleri bu konuların anlatıldığı bölümlerde ele alınacaktır.
+
+Klavyeden Okuma
+===============
+
+Şimdiye kadar klavyeden (``stdin`` dosyasından) okuma yapmadık. Maalesef Rust'ta klavyeden okuma yapmak ancak birkaç
+satırlık kodla sağlanabilmektedir. Bu birkaç satırlık kod içerisinde henüz görmediğimiz birtakım konular da
+kullanılmaktadır. Biz de bu bölümde ayrıntılara girmeden klavyeden okumanın kalıp olarak nasıl yapıldığı üzerinde
+duracağız.
+
+stdout Dosyasının flush Edilmesi
+--------------------------------
+
+Rust'ın ``stdout`` dosyası default olarak *satır tabanlı (line buffered)* tamponlanmaktadır. Dolayısıyla yazılanların
+ekranda görünmesi için ya yazının sonuna ``\n`` karakterinin iliştirilmesi ya da ``stdout`` dosyasının flush edilmesi
+gerekmektedir. ``stdout`` dosyasının flush edilmesi şöyle yapılmaktadır:
+
+.. code-block:: rust
+
+   use std::io::Write;
+
+   print!("Bir sayı giriniz:");
+   std::io::stdout().flush().expect("cannot flush stdout!..");
+
+Burada ``std::io::stdout()`` çağrısı ``stdout`` dosya değişkenine erişmeyi sağlamaktadır. Bu değişkenle yapının 
+``flush`` metodu çağrılmıştır. Ancak ``flush`` metodu başarısız da olabilmektedir. Burada ``expect`` çağrısının argümanı 
+flush başarısız olursa ``stderr`` dosyasına (default olarak ekrana) basılacak yazıyı belirtmektedir. Bu yazı basıldıktan 
+sonra panic oluşacak ve programın çalışması sonlanacaktır. Tabii ``stdout`` dosyasının flush edilmesinde bir sorun ortaya
+çıkması normal koşullarda mümkün değildir. Aslında biz ``flush`` metodunun geri dönüş değerini hiç dikkate almayabilirdik:
+
+.. code-block:: rust
+
+   use std::io::Write;
+
+   print!("Bir sayı giriniz:");
+   std::io::stdout().flush();
+
+Ancak bu durumda Rust derleyicisi bir uyarı verecektir.
+
+Klavyeden Sayı Okuma
+--------------------
+
+Rust'ta klavyeden (``stdin`` dosyasından) ``i32`` gibi bir türden okuma yapmak için önce bir satır String olarak okunur,
+sonra bu satır parse edilerek hedef türe (örneğin ``i32`` türüne) dönüştürülür. Bu işlem şöyle yapılmaktadır:
+
+.. code-block:: rust
+
+   let val: i32;
+   let mut s: String = String::new();
+
+   std::io::stdin().read_line(&mut s).expect("cannot read line!..");
+   val = s.trim().parse().expect("cannot parse!..");
+
+Bu kodu satır satır ele alıp açıklayalım:
+
+.. code-block:: rust
+
+   let mut s: String = String::new();
+
+Burada ``String`` isimli bir yapı değişkeni içi boş olarak yaratılmaktadır. String yapısı Rust'ın standart kütüphanesinde
+bulunan string işlemleri yapan bir yapıdır. Bu yapıyı nesne yönelimli programlama dillerindeki string sınıflarına
+benzetebilirsiniz. Şimdi aşağıdaki satırı açıklayalım:
+
+.. code-block:: rust
+
+   std::io::stdin().read_line(&mut s).expect("cannot read line!..");
+
+Burada önce ``std::io::stdin()`` çağrısı ile ``stdin`` dosyasına ilişkin bir yapı türünden değer elde edilmiştir. Bu 
+yapı türüne ilişkin değerle yapının ``read_line`` metodu çağrılmıştır. Bu metot klavyeden (``stdin`` dosyasından) bir 
+satır okuyarak okunanları String değişkeninin içine yerleştirmektedir. ``read_line`` metodunu çağırırken String 
+değişkeninin adresi ``&mut`` operatörüyle alınarak metoda verilmiştir. ``read_line`` metodu başarısız olabilmektedir. 
+Örneğimizde metodun başarısı ele alınmış ve eğer metot başarısız olursa (gerçi başarısız olması pek de mümkün değildir) 
+``stderr`` dosyasına bir mesaj bastırılarak panic oluşturulmuştur. Şimdi de aşağıdaki satırı açıklayalım:
+
+.. code-block:: rust
+
+   val = s.trim().parse().expect("cannot parse!..");
+
+``read_line`` metodu klavyeden (``stdin`` dosyasından) bir satır okuduğunda satırın sonundaki ``'\n'`` karakterini de
+String değişkenine yerleştirmektedir. Dolayısıyla bu yazıyı parse etmeden önce bu ``'\n'`` karakterinden kurtulmak 
+gerekir. String yapısının ``trim`` metodu yazının başındaki ve sonundaki boşluk karakterlerini (white space) atmaktadır. 
+``trim`` metodu string dilimine (``&str`` türüne) geri dönmektedir. Bu string dilimi ile ``str`` yapısının ``parse`` 
+metodu çağrılmıştır. İşte yazıyı ``i32`` türüne dönüştüren bu ``parse`` metodudur. Ancak ``parse`` metodu da başarısız 
+olabilmektedir. Aynı gerekçelerle metodun başarısı yine yapının ``expect`` metodu ile ele alınmıştır. Eğer ``parse`` 
+metodu başarısız olursa ``stderr`` dosyasına bir mesaj basılacak ve panic durumu oluşacaktır. Ancak yukarıdaki kodda 
+kişilerin bir nokta kafasını karıştırmaktadır. ``parse`` metodu hangi türe dönüştürme yapacağını nereden bilmektedir? 
+İşte bu konu Rust'ın *generic* mekanizmasıyla ilgilidir ve ileride ele alınacaktır. Yukarıdaki kodda derleyici ifade 
+``i32`` türüne atandığı için i32'ye dönüştürme yapan ``parse`` metodunu çağırmaktadır. Örneğin biz yukarıdaki kodda 
+``f64`` türünden okuma yapmak isteseydik yalnızca val değişkeninin türünü değiştirmemiz yeterli olacaktı:
+
+.. code-block:: rust
+
+   let val: f64;
+   let mut s: String = String::new();
+
+   std::io::stdin().read_line(&mut s).expect("cannot read line!..");
+   val = s.trim().parse().expect("cannot parse!..");
+
+Yukarıdaki işlemleri bir fonksiyona da yaptırabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   fn getval() -> i32 {
+       let mut buf: String = String::new();
+
+       std::io::stdin().read_line(&mut buf).expect("read line failed");
+       buf.trim().parse().expect("parse into number")
+   }
+
+Burada ``getval`` fonksiyonu klavyeden okunan ``i32`` türünden bir değerle geri dönmektedir. Bu fonksiyonu farklı türü
+okuyacak hale getirmek için tek yapılacak şey geri dönüş değerinin türünü değiştirmektir:
+
+.. code-block:: rust
+
+   fn getval() -> f64 {
+       let mut buf: String = String::new();
+
+       std::io::stdin().read_line(&mut buf).expect("read line failed");
+       buf.trim().parse().expect("parse into number")
+   }
+
+Artık fonksiyon ``f64`` türünden (C'deki double türünden) değerle geri dönmektedir.
+
+Genel (Generic) Okuma Fonksiyonu
+--------------------------------
+
+Aslında yukarıdaki fonksiyonu *genel (generic)* biçimde de yazabiliriz. Biz *genel fonksiyonlar (generic functions)*
+konusunu ileride göreceğiz. Ancak burada açıklama fonksiyonun genelleştirilmiş halini aşağıda veriyoruz.
+
+.. code-block:: rust
+
+   fn getval<T>() -> T
+   where
+       T: std::str::FromStr,
+       <T as std::str::FromStr>::Err: std::fmt::Debug,
+   {
+       let mut buf = String::new();
+       std::io::stdin()
+           .read_line(&mut buf)
+           .expect("cannot read line!..");
+       buf.trim()
+           .parse::<T>()
+           .expect("cannot parse!..")
+   }
+
+.. code-block:: rust
+
+   use std::io::Write;
+
+   fn main() {
+       let val: i32;
+
+       print!("Bir sayı giriniz:");
+       std::io::stdout().flush().expect("cannot flush stdout!");
+
+       val = getval();
+       print!("{}\n", val * val);
+   }
+
+   fn getval<T>() -> T
+   where
+       T: std::str::FromStr,
+       <T as std::str::FromStr>::Err: std::fmt::Debug,
+   {
+       let mut buf = String::new();
+       std::io::stdin()
+           .read_line(&mut buf)
+           .expect("cannot read line!..");
+       buf.trim()
+           .parse::<T>()
+           .expect("cannot parse!..")
+   }
+
+Kontrol Deyimleri ve İfadeler
+=============================
+
+Bu bölümde Rust'taki ``if`` gibi, ``for`` gibi temel kontrol deyimlerini ele alacağız. Bazı kontrol deyimleri *kalıp 
+uyuşumu (pattern matching)* konusu ile ilgili olduğu için ``enum``, ``struct`` gibi temel veri yapıları görüldükten 
+sonra ele alınacaktır. Rust'ta deyimlerin de birer ifade gibi kullanılabildiğini dolayısıyla deyimlerin de değer 
+ürettiğini belirtmiştik. Bu nedenle Rust dünyasında *if deyimi, while deyimi* gibi terimler yerine *if ifadesi*, *while
+ifadesi* gibi terimler tercih edilmektedir.
+
+Deyimlerin BNF Grameri
+======================
+
+*The Rust Reference* dokümanlarında *deyimler (statements)* için oluşturulan BNF grameri şöyledir:
+
+.. code-block:: text
+
+   Statement :
+     ;
+     | Item
+     | LetStatement
+     | ExpressionStatement
+     | MacroInvocationSemi
+
+Burada ExpressionStatement ara sembolü şöyle açılmaktadır:
+
+.. code-block:: text
+
+   ExpressionStatement :
+     ExpressionWithoutBlock ;
+     | ExpressionWithBlock ;?
+
+Bu *BNF grameri* ifadesel deyimlerin iki biçimde oluşturulabileceği belirtilmektedir:
+
+1) Bir ifadenin sonuna ``';'`` getirilerek o ifade deyim yapılabilir.
+2) Blok içeren sentaktik yapılar sonunda ``';'`` olmasa da deyim belirtmektedir.
+
+Biz daha önceki konularda bloklu yapıların sonunda ifade varsa bloklarının sonuna ``';'`` atomunun getirilmesi
+gerektiğini görmüştük. Anımsayacağınız gibi blokların sonunda ifade yoksa ya da ``()`` ifadesi varsa bloklardan sonra
+``';'`` atomunun getirilmesi zorunlu değildir.
+
+Gramerdeki ``ExpressionWithBlock`` ara sembolü de şöyle açılmıştır:
+
+.. code-block:: text
+
+   ExpressionWithBlock :
+     OuterAttribute*†
+     (
+     BlockExpression
+     | ConstBlockExpression
+     | UnsafeBlockExpression
+     | LoopExpression
+     | IfExpression
+     | IfLetExpression
+     | MatchExpression
+     )
+
+Blok İfadeleri
+==============
+
+Daha önceden de belirttiğimiz gibi Rust'ta küme parantezi içerisindeki kod parçası da bir deyim dolayısıyla bir ifade
+belirtmektedir. Küme parantezleriyle oluşturulan deyimlere blok deyimleri denilmektedir. Blok deyimi de bir değer
+üretmektedir. Blok deyiminin ürettiği değer bloğun sonundaki ifadedir. Örneğin:
+
+.. code-block:: rust
+
+   let result: i32;
+
+   result = {
+       println!("this is a block");
+       100
+   };
+
+Burada ``result`` değişkenine blok ifadesinin ürettiği değer atanmıştır. Rust gramerinde blok ifadelerinin
+``ExpressionWithBlock`` ara sembolü içerisinde bulunduğuna dikkat ediniz. Daha önceden de belirttiğimiz gibi blok 
+ifadeleri eğer birim dışında (yani ``()`` dışında) bir değer üretiyorsa tek başlarına kullanıldığında bloğun sonunda 
+bir ``';'`` gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+   {
+       println!("this is a block");
+       100
+   }               // error!
+
+Burada blok ifadesi birim değerini üretmediği için bloğun sonunda ``';'`` bulunmak zorundadır:
+
+.. code-block:: rust
+
+   {
+       println!("this is a block");
+       100
+   };               // geçerli
+
+Tabii yukarıdaki kod geçerli olsa da mantıksal bakımdan anlamsızdır. Blok ifadesinin değeri kullanılmadıktan sonra ondan
+bir değerin elde edilmesinin anlamı yoktur. Örneğin:
+
+.. code-block:: rust
+
+   result = {
+       println!("this is a block");
+       100
+   };
+
+Buradaki ``';'`` her durumda bulundurulmak zorundadır. Çünkü bu ``';'`` artık atama operatörünün sonundaki ``';'``
+durumundadır.
+
+if İfadesi
+==========
+
+Rust'ta if ifadesinin genel biçimi şöyledir:
+
+.. code-block:: text
+
+   if <ifade> {
+       //...
+   }
+   [
+   else {
+       //...
+   }
+   ]
+
+``if`` anahtar sözcüğünü ``bool`` türden bir kontrol ifadesi izlemek zorundadır. Bu kontrol ifadesinin paranteze 
+alınmadığına dikkat ediniz. (C, C++, Java ve C# gibi dillerde ``if`` deyimindeki kontrol ifadesinin paranteze 
+alınmasının zorunlu olduğunu anımsayınız.) ``if`` ifadesinin doğruysa ve yanlışsa kısmında bir blok ifadesinin bulunması
+zorunludur. (Halbuki C, C++, Java ve C# gibi dillerde eğer ``if`` deyiminin doğruysa ve yanlışsa kısmında tek deyim 
+varsa bloklama yapmak zorunlu değildir.) Diğer dillerde olduğu gibi ``if`` ifadesinin else kısmı da bulunmayabilir. 
+*The Rust Reference* dokümanlarında ``if`` ifadesinin *BNF grameri* ise şöyle verilmiştir:
+
+.. code-block:: text
+
+   IfExpression :
+     if Expression BlockExpression
+     (else ( BlockExpression | IfExpression | IfLetExpression ) )?
+
+``if`` ifadesi şöyle çalışmaktadır: Derleyici ``if`` anahtar sözcüğünün yanındaki kontrol ifadesinin değerini hesaplar.
+Eğer bu değer ``true`` ise yalnızca doğruysa kısmındaki blok deyimini, ``false`` ise yalnızca yanlışsa kısmındaki blok 
+deyimini çalıştırır.
+
+``if`` anahtar sözcüğünden sonra neden parantezlerin gerekmediğini (ya da C, C++, Java ve C# gibi dillerde neden
+gerektiğini) merak edebilirsiniz. Rust'ta if ifadesinin doğruysa ve yanlışsa kısmında bloklama yapmak zorunlu olduğu
+için bu parantezlere gerek kalmamıştır. Halbuki C, C++, Java ve C# gibi dillerde tek deyim için bloklama zorunlu
+olmadığından kontrol ifadesiyle ``if`` deyiminin doğruysa kısmındaki ifadenin ayrıştırılabilmesi için parantezler
+gerekmektedir. Örneğin:
+
+.. code-block:: c
+
+   if (a > 0) x = 10; else  y = 20;
+
+Burada parantezler olmasaydı kontrol ifadesiyle doğruysa kısmındaki ifade ayrıştırılamazdı. Parantezleri kaldırarak aynı
+ifadeyi yeniden veriyoruz:
+
+.. code-block:: text
+
+   if a > 0  x = 10; else y = 20;
+
+Bloklu deyimlerde parantezin bulunmaması Rust'a özgü değildir. Swift, Kotlin, Go, Python gibi dillerde de benzer
+nedenlerden dolayı kontrol ifadesinin paranteze alınmasına gerek duyulmamaktadır.
+
+Tabii biz yine de ``if`` ifadesindeki kontrol ifadesini paranteze alabiliriz. Fakat buradaki parantezler artık öncelik
+parantezi olur. Zaten biz her ifadeyi paranteze alabiliriz. Tabii parantezleri kullanmak iyi bir teknik değildir. Rust
+derleyicisi bu tür gereksiz parantezlere uyarı da vermektedir.
+
+===================================
+if İfadesi, loop ve while Döngüleri
+===================================
+
+if İfadesinin Kullanımı
+=======================
+
+Aşağıdaki örnekte klavyeden (``stdin`` dosyasından) okunan ``i32`` türünden bir değerin pozitif olup olmadığı ekrana 
+(``stdout`` dosyasına) yazdırılmıştır. ``if`` ifadesi şöyle kullanılmıştır:
+
+.. code-block:: rust
+
+   if val > 0 {
+       println!("pozitif");
+   }
+   else {
+       println!("negatif ya da sıfır");
+   }
+
+.. code-block:: rust
+
+   use std::io::Write;
+
+   fn main() {
+       let val: i32;
+
+       print!("Bir sayı giriniz:");
+       std::io::stdout().flush().expect("cannot flush stdout!");
+
+       val = getval();
+
+       if val > 0 {
+           println!("pozitif");
+       }
+       else {
+           println!("negatif ya da sıfır");
+       }
+   }
+
+   fn getval() -> i32 {
+       let mut buf: String = String::new();
+
+       std::io::stdin().read_line(&mut buf).expect("read line failed");
+       buf.trim().parse().expect("parse into number")
+   }
+
+else-if Merdivenleri
+====================
+
+``if`` ifadesinin ``else`` kısmında başka bir ``if`` ifadesi varsa yazım biraz karmaşık hale gelmektedir. Örneğin:
+
+.. code-block:: rust
+
+   if val > 0 {
+       println!("pozitif");
+   }
+   else {
+       if val < 0 {
+           println!("negatif");
+       }
+       else {
+           println!("sıfır");
+       }
+   }
+
+İşte bu karmaşıklığı azaltmak için ``if`` gramerine şu özellik eklenmiştir: *Eğer else anahtar sözcüğünden sonra hemen
+başka bir ``if`` ifadesi geliyorsa bloklama yapmaya gerek yoktur.* Bu kural sayesinde *else-if merdivenleri* daha kolay
+yazılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   if val > 0 {
+       println!("pozitif");
+   }
+   else if val < 0 {
+       println!("negatif");
+   }
+   else {
+       println!("sıfır");
+   }
+
+Tabii if ifadesinin doğruysa kısmına başka bir ``if`` ifadesi yerleştirilecekse içteki ``if`` ifadesini blok açmadan 
+yazmanın bir yolu yoktur.
+
+if İfadesinin Değer Üretmesi
+============================
+
+``if`` bir ifade olduğu için bir değer de üretmektedir. Biz ``if`` ifadesinden elde edilen değeri doğrudan 
+kullanabiliriz. Örneğin onu bir değişkene atayabiliriz:
+
+.. code-block:: rust
+
+   result = if val > 0 {
+       //...
+       100
+   }
+   else {
+       //...
+       200
+   };
+
+``if`` ifadesinin doğruysa ve yanlışsa kısmında aynı türden değerlerin oluşturulması zorunludur. Örneğin:
+
+.. code-block:: rust
+
+   result = if val > 0 {
+       //...
+       10
+   }
+   else {
+       //...
+       20.5
+   };
+
+Yukarıdaki kod error oluşturacaktır. Çünkü ``if`` ifadesinin kolları aynı türden değer oluşturmamaktadır.
+
+``if`` ifadesinin ``else`` kısmının olmayabileceğini belirtmiştik. Peki bu durumda aşağıdaki gibi bir atama işleminde 
+ne olacaktır:
+
+.. code-block:: rust
+
+   result = if val > 0 {
+       //...
+       100
+   };
+
+Burada koşul sağlanıyorsa result değişkenine ``100`` değeri atanır. Peki ya koşul sağlanmıyorsa? İşte *The Rust
+Reference* dokümanlarında *eğer if ifadesinin else kısmı yoksa sanki boş bir else kısmı varmış ve oradan birim (unit)
+değeri elde ediliyormuş gibi bir işlemin* uygulandığı belirtilmiştir. Dolayısıyla yukarıdaki atama işleminde ``if``
+ifadesinin doğruysa ve yanlışsa kısımları farklı türlerden ifade oluşturduğu için error oluşacaktır. Tabii aşağıdaki
+gibi bir atama error ile sonuçlanmaz:
+
+.. code-block:: rust
+
+   result = if val > 0 {
+       //...
+       ()
+   };
+
+Burada ``result`` değişkeninin birim türünden olması gerekir. Fakat böyle bir atamanın da mantıksal bir anlamı yoktur. 
+O halde Rust'ta else kısmı olmayan ``if`` ifadesinden bir değer oluşturmaya çalışmak anlamlı değildir.
+
+*else-if merdivenlerinde* yine her bloğun oluşturduğu değerin aynı türden olması gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+   result = if val == 1 {
+       //...
+       10
+   }
+   else if val == 2 {
+       //...
+       20
+   }
+   else if val == 3 {
+       //...
+       30
+   }
+   else {
+       0
+   };
+
+if let İfadesi
+==============
+
+Rust'ta ``if`` ifadesinin yanı sıra ``if let`` biçiminde ``if`` ifadesine benzeyen başka bir ifade daha vardır. Ancak 
+``if let`` ifadesi *kalıp uyuşumu (pattern matching)* özelliği ile çalışmaktadır. Biz kalıp uyuşumunu başka bir başlık 
+altında ve çeşitli konuların içerisine yaydırarak inceleyeceğiz.
+
+Döngü İfadeleri
+===============
+
+Bir program parçasının yinelemeli olarak çalıştırılmasını sağlayan deyimlere *döngü deyimleri (loop statements)*
+denilmektedir. Örneğin pek çok programlama dilinde döngü oluşturmak için ``while`` ve ``for`` deyimleri bulunmaktadır. 
+Bir süredir programlama dillerine *dolaşılabilir (iterable)* nesneleri dolaşan özel ``for`` döngüleri de sokulmuştur. 
+Bu ``for`` döngülerine örneğin C++11'de *aralık tabanlı for döngüleri (range based loop)*, C#'ta ``foreach`` döngüleri 
+denilmektedir. Rust'ta deyimler birer ifade gibi olduğu için biz *döngü deyimleri* terimi yerine *döngü ifadeleri (loop
+expressions)* terimini kullanacağız.
+
+Döngü İfadelerinin BNF Grameri
+==============================
+
+Rust'taki döngü ifadeleri şunlardır:
+
+* loop döngüleri
+* while döngüleri
+* while let döngüleri
+* for döngüleri
+
+*The Rust Reference* dokümanlarında döngü ifadeleri için BNF grameri şöyle verilmiştir:
+
+.. code-block:: text
+
+   LoopExpression :
+     LoopLabel? (
+       InfiniteLoopExpression
+       | PredicateLoopExpression
+       | PredicatePatternLoopExpression
+       | IteratorLoopExpression
+       | LabelBlockExpression
+     )
+
+Burada ``InfiniteLoopExpression`` ara sembolü ``loop`` döngülerini, ``PredicateLoopExpression`` ara sembolü ``while``
+döngülerini, ``PredicatePatternLoopExpression`` ara sembolü ``while let`` döngülerini, ``IteratorLoopExpression`` ara 
+sembolü de ``for`` döngülerini belirtmektedir. ``LabelBlockExpression`` ara sembolü aslında bir döngü belirtmez. Ancak 
+gramer olarak buraya yerleştirilmiştir.
+
+loop İfadesi
+============
+
+Sonsuz Döngü
+------------
+
+Rust'ta ``loop`` ifadesi sonsuz döngü oluşturmak için kullanılmaktadır. Genel biçimi şöyledir:
+
+.. code-block:: rust
+
+   loop {
+       //...
+   }
+
+``loop`` anahtar sözcüğünden sonra bir blok ifadesi bulunmak zorundadır. Döngü sürekli olarak buradaki deyimleri 
+çalıştırır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut i = 0;
+
+       loop {
+           println!("{}", i);
+           i += 1;
+       }
+   }
+
+Burada bir sonsuz döngü içerisinde ``i`` değişkeni sürekli artırılıp değeri yazdırılmıştır. Tabii ileride göreceğimiz 
+gibi sonsuz döngülerden ``break`` ifadesi ile çıkabiliriz.
+
+loop ve never Türü
+------------------
+
+``loop`` ifadesi içerisinde eğer ``break`` ifadesi kullanılmamışsa ``loop`` ifadesi never türünden (``!`` türünden) 
+değer üretir. Never türünün herhangi bir türe doğrudan dönüştürülebildiğini anımsayınız. Bu durumda biz ``loop`` ile 
+oluşturduğumuz sonsuz döngüyü herhangi bir türe atayabiliriz. Ancak bunun bir anlamı olmaz. Örneğin:
+
+.. code-block:: rust
+
+   let result: f64;
+
+   result = loop {
+       //...
+   }
+
+Bu kod parçası geçerli olsa da anlamsızdır. Zaten ``loop`` döngüsünden çıkılamadığına göre onun sonucunu değişkene 
+atamanın da bir anlamı yoktur. Rust terminolojisinde bir akışın bir biçimde geri dönmemesi durumuna *divergent* ya da 
+*diverging* denilmektedir. Eğer ``loop`` döngüsünden break ile çıkılırsa (yani ``loop`` döngüsü *divergent* değilse) bu 
+durumda loop ifadesi ``break`` anahtar sözcüğünün yanındaki ifadenin değerini oluşturur. Örneğin:
+
+break ile Değer Üretme
+----------------------
+
+.. code-block:: rust
+
+   fn main() {
+       let mut i = 0;
+       let result: i32;
+
+       result = loop {
+           println!("{}", i);
+           i += 1;
+           if i == 10 {
+               break 100;
+           }
+       };
+
+       println!("{}", result);       // 100
+   }
+
+Burada ``loop`` içerisinden ``break`` ifadesi ile çıkılmıştır. Artık ``loop`` never değil ``100`` değerini 
+oluşturmaktadır. Eğer ``break`` anahtar sözcüğünün yanında bir ifade kullanılmazsa bu durumda sanki birim (unit) 
+ifadesi kullanılmış gibi işlem yapılır. Örneğin:
+
+.. code-block:: rust
+
+   result = loop {
+       println!("{}", i);
+       i += 1;
+       if i == 10 {
+           break;
+       }
+   };
+
+Burada result birim (unit) türünden olmak zorundadır. Tabii bu durumda ``loop`` ifadesinin bir değişkene atanmasının da
+anlamı kalmamaktadır. ``loop`` ifadesinde birden fazla ifadeli break kullanılıyorsa bütün ``break`` ifadelerinin de aynı 
+türden olması gerekir. Örneğin:
+
+.. code-block:: rust
+
+   result = loop {
+       //...
+       if ifade1 {
+           break 10;
+       }
+       //...
+       if ifade2 {
+           break 3.14;
+       }
+   }
+
+Burada eğer ``result`` değişkeni tamsayı türlerine ilişkinse error ikinci break ifadesinde rapor edilecektir.
+
+``loop`` ifadesinin bir blok ifadesi içerdiğini belirttik. Ancak ``loop`` ifadesindeki bloğun sonuna bir ifade 
+yerleştirilemez. (Halbuki genel olarak blok ifadelerinin sonuna bir ifade yerleştirilebilmektedir.) Örneğin:
+
+.. code-block:: rust
+
+   result = loop {
+       //...
+       100             // anlamsız, error oluşacaktır!
+   };
+
+Burada ``loop`` bloğunun sonuna yerleştirilen ifade error oluşturacaktır. Ancak burada ilginç bir durumdan bahsetmek
+istiyoruz. Aşağıdaki gibi bir döngüde Rust derleyicisi error oluşturmamaktadır:
+
+.. code-block:: rust
+
+   result = loop {
+       //...
+       ()
+   };
+
+Birim (unit) Türü ve loop İfadesi
+---------------------------------
+
+Aslında Rust'ta ``()`` atomları hem bir ifade hem de bir tür belirtmektedir. Zaten bunun için ``()`` atomlarına *birim
+(unit)* de denilmektedir, *birim türü (unit type)* da denilmektedir. Örneğin aşağıdaki gibi bir bağlama geçerlidir:
+
+.. code-block:: rust
+
+   let a: () = ();
+
+İşte Rust'ta ``()`` atomlarının bir tür mü yoksa bir değer mi (yani ifade mi) belirttiğine içinde bulunulan bağlama göre
+karar verilmektedir. Yukarıdaki ``loop`` ifadesinin sonundaki ``()`` ifade olamayacağı için Rust derleyicisi tarafından 
+bir tür tanımlaması olarak ele alınmaktadır. Bu da Rust'ta geçerlidir. Yani aşağıdaki gibi bir ``loop`` deyimi nasıl 
+geçerliyse yukarıdaki de aynı biçimde geçerlidir:
+
+.. code-block:: rust
+
+   result = loop {
+       //...
+       struct Point {
+           x: i32,
+           y: i32
+       }
+   };
+
+Dolayısıyla sonu ``()`` ile biten ``loop`` ifadesi divergent biçimdedir ve yine never türüne ilişkindir.
+
+while İfadesi
+=============
+
+Rust'ta diğer pek çok programlama dilinde olduğu gibi ``while`` döngüleri de bulunmaktadır. ``while`` döngülerinin 
+genel biçimi şöyledir:
+
+.. code-block:: rust
+
+   while <ifade> {
+       //...
+   }
+
+``while`` anahtar sözcüğünden sonra yine parantez kullanmaya gerek yoktur. Ancak yinelenen deyimler blok içerisinde 
+bulunmak zorundadır. ``while`` döngülerinde kontrol ifadesinin ``bool`` türden olması zorunludur.
+
+``while`` döngüsü şöyle çalışmaktadır: Kontrol ifadesinin değeri elde edilir. Eğer bu değer ``true`` ise döngü deyimleri
+(yani blok ifadesi) çalıştırılır ve başa dönülür. Kontrol ifadesi ``false`` ise döngüden çıkılır. Yani ``while`` 
+döngüleri *koşul doğru olduğu sürece* yinelenmeye yol açmaktadır.
+
+Rust'ta kontrolün sonda yapıldığı ``while`` döngüleri (yani do-while döngüleri) bulunmamaktadır. Eğer bu tarzda bir
+algoritmik yapı ile karşılaşırsanız (zaten seyrek karşılaşılmaktadır) bunu kontrolün başta yapıldığı ``while`` döngüsü 
+ile sağlamalısınız.
+
+Aşağıda ``while`` döngüsünün örnek bir kullanımını görüyorsunuz:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut i = 0;
+
+       while i < 10 {
+           println!("{}", i);
+           i += 1;
+       }
+   }
+
+Rust'ta atama operatörü birim değerini (yani ``()`` değerini) ürettiği için C gibi dillerde çokça yaptığımız *önce ata,
+sonra atanmış değeri karşılaştır* işlemini yapamamaktayız. Örneğin:
+
+.. code-block:: rust
+
+   while (val = getval()) != 0 {           // Rust'ta error oluşturur!
+       //...
+   }
+
+Bu durumu sağlamanın bir yolu döngüyü sonsuz döngü biçimine dönüştürmektir:
+
+.. code-block:: rust
+
+   loop {
+       val = getval();
+       if val == 0 {
+           break;
+       }
+       //...
+   }
+
+Ya da aynı şey koşul parantez içerisindeki ifadenin iki kez yazılmasıyla da yapılabilirdi:
+
+.. code-block:: rust
+
+   val = getval();
+   while val != 0 {
+       //...
+       val = getval();
+   }
+
+==============================================
+while İfadesi, for Döngüleri ve Range Yapıları
+==============================================
+
+while İfadesinin Ürettiği Değer
+===============================
+
+Rust'ta ``while`` ifadesi her zaman birim değerini (yani ``()`` değerini) üretmektedir. Bu nedenle biz ``while`` 
+ifadesinde bloğun sonuna bir ifade yerleştiremeyiz. (Bloğun sonuna ``()`` ifadesi yerleştirilirse bu bir tür 
+tanımlaması (item) olarak ele alınmaktadır.) Bu durumda Rust'ta ``while`` ifadesini bir değişkene atamanın da pratik 
+bir faydası yoktur. Örneğin:
+
+.. code-block:: rust
+
+   result = while i < 10 {
+       println!("{}", i);
+       i += 1;
+   };
+   println!("{:?}", result);           // ()
+
+Örneğin:
+
+.. code-block:: rust
+
+   result = while i < 10 {
+       println!("{}", i);
+       i += 1;
+       100             // error!
+   };
+
+``while`` bloğunun sonuna bir ifade yerleştirmenin bir anlamı olmadığı için bu sentaks yasaklanmıştır.
+
+``while`` döngülerinde de ``break`` ifadesi kullanılabilir. Yani ``while`` döngüleri de ``break`` ile sonlandırılabilir.
+Örneğin:
+
+.. code-block:: rust
+
+   while true {
+       println!("{}", i);
+       i += 1;
+       if i == 10 {
+           break;
+       }
+   };
+
+Fakat ``while`` içerisinde kullanılan ``break`` ifadesinin yanına bir ifade yerleştirilemez. İfadeli ``break`` yalnızca 
+``loop`` döngüsünde kullanılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   result = while true {
+       println!("{}", i);
+       i += 1;
+       if i == 10 {
+           break 100;      // error!
+       }
+   };
+
+``while`` ifadesi her zaman birim değerini (yani ``()`` değerini) üretmektedir. Dolayısıyla ``while`` içerisinde ifadeli 
+``break`` kullanmak geçerli değildir.
+
+Klavyeden Okunan Değerin Karesini Yazdırma
+==========================================
+
+Klavyeden (``stdin`` dosyasından) bir döngü içerisinde ``getval`` isimli bir fonksiyonla bir sayı okuyup o sayının 
+karesini yazdırmak isteyelim. Ancak ``0`` girildiğinde döngüyü sonlandırılacak olsun. Yukarıda da belirttiğimiz gibi 
+bu işlem C, C++, Java ve C# gibi dillerde pratik bir biçimde aşağıdaki gibi yapılabilmektedir:
+
+.. code-block:: c
+
+   while ((val = getval()) != 0)
+       printf("%d\n", val * val);
+
+Ancak Rust'ta atama operatörü birim değerini (yani ``()`` değerini) ürettiği için bu işlem yukarıdaki gibi
+yapılamamaktadır. Bu tür durumlarda ``loop`` döngüsünü tercih edebilirsiniz:
+
+.. code-block:: rust
+
+   loop {
+       val = getval();
+       if val == 0 {
+           break;
+       }
+       println!("{}", val * val);
+   };
+
+.. code-block:: rust
+
+   use std::io::Write;
+
+   fn main() {
+       let mut val;
+
+       loop {
+           print!("Bir sayı giriniz:");
+           std::io::stdout().flush();
+           val = getval();
+           if val == 0 {
+               break;
+           }
+           println!("{}", val * val);
+       };
+   }
+
+   fn getval() -> i32 {
+       let mut buf: String = String::new();
+
+       std::io::stdin().read_line(&mut buf).expect("read line failed");
+       buf.trim().parse().expect("parse into number")
+   }
+
+while let İfadesi
+=================
+
+Rust'ta nasıl ``if`` ifadesinin kalıp uyuşumuyla çalışan ``if let`` isminde bir biçimi varsa ``while`` ifadesinin de 
+``while let`` isminde kalıp uyuşumuyla çalışan bir biçimi de vardır. Biz ``while let`` döngüsünü kalıp uyuşumu (pattern 
+matching) konusundan sonra ele alacağız.
+
+Dolaşım Mekanizmasıyla Çalışan for Döngüleri
+============================================
+
+Rust'ta dolaşım (iteratör) mekanizmasıyla çalışan bir ``for`` döngüsü de bulunmaktadır. Bu ``for`` döngüsü ancak dolaşım
+(iterator) türlerine ilişkin değişken ya da değerlerle kullanılabilmektedir. Biz kursumuzda dolaşım (iterator)
+yapılarının nasıl oluşturulduğunu sonraki bölümlerde göreceğiz. Ancak burada genel olarak Rust'ın ``for`` döngüsünü ele
+alacağız.
+
+Dolaşım mekanizmasıyla çalışan döngüler Rust gibi C# gibi yeni programlama dillerinde doğuştan bulunmaktadır. Eski bazı
+dillere ise bu döngüler belli zamandan sonra eklenmiştir. Örneğin C++'a dolaşım yoluyla çalışan döngüler *aralık tabanlı
+for döngüleri (range based for loops)* ismi ile C++11 standartlarında eklenmiştir. Java'ya ise bu döngüler 2004 yılında
+*Java Language Specification 5* ile eklenmiştir. C#'ta bu döngülere ``foreach`` döngüleri, Java'da ise *genişletilmiş for
+döngüleri (enhanced for loops)* denilmektedir.
+
+Rust'ta dolaşım mekanizmasıyla çalışan ``for`` döngülerinin genel biçimi şöyledir:
+
+.. code-block:: rust
+
+   for <kalıp> in <dolaşım_ifadesi> {
+       //...
+   }
+
+``for`` anahtar sözcüğünden sonra bir kalıp ifadesi gelmektedir. Burada tipik olarak bir değişken ismi (variable pattern)
+kullanılabilir. Daha sonra bu kalıbı ``in`` anahtar sözcüğü ve bir dolaşım ifadesi (iterator expression) izler. Dolaşım
+ifadesi dolaşım türünden (iterator type) bir değişken ya da değer belirtmektedir.
+
+Dolaşım türünden bir ifade dolaşıldığında dolaşan kişiye değerler verilmektedir. Dolaşım ifadesi her dolaşım sırasında
+bir değer verir, en sonunda verecek değeri kalmadığında dolaşım sonlanır. Rust'taki bazı yapılar zaten dolaşım
+özelliğine sahiptir. Dolayısıyla onlar türünden değişkenleri ve değerleri ``for`` döngüleriyle dolaşabiliriz.
+
+Rust'ta ``for`` döngüleri kabaca şöyle çalışmaktadır: Dolaşım ifadesi bir değer verir. Bu değer kalıpla belirtilen
+değişkenlere atanır. Döngünün bloğu çalıştırılır. Sonra dolaşım ifadesi yeni bir değer verir bu değer de kalıpla
+belirtilen değişkenlere atanır ve yine döngünün bloğu çalıştırılır. En sonunda dolaşım ifadesi artık değer vermez duruma
+gelir. Çünkü verecek değeri kalmamıştır. Döngü de sonlanır.
+
+Rust'ın ``for`` döngülerinin bazı dillerdeki ``for (i = 0; i < 10; ++i)`` biçimindeki ``for`` döngüleri gibi 
+çalışmadığına dikkat ediniz. Rust'ın ``for`` döngülerinin iyi anlaşılabilmesi için iki konusunun bilinmesi gerekmektedir:
+
+1) Kalıp uyuşumu (pattern matching) konusu.
+2) Dolaşım ifadelerinin (dolaşım türünden değişkenlerin ve değerlerin) nasıl oluşturulduğu konusu.
+
+Biz bu konuları ilerde ayrı bir bölümde ele alacağız. Ancak burada Rust'ın ``for`` döngülerinin temel kullanımı üzerinde
+duracağız.
+
+Dolaşım mekanizmasıyla çalışan ``for`` döngülerinin en önemli avantajı *farklı veri yapılarının aynı biçimde 
+dolaşılmasına* olanak sağlamasıdır. Biz bu tür ``for`` döngüleriyle her türden dolaşım (iterator) ifadelerini aynı 
+biçimde dolaşabilmekteyiz. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let a: [i32;5] = [1, 2, 3, 4, 5];
+
+       for val in a {
+           print!("{} ", val);
+       }
+       println!("");
+
+       let v: Vec<i32> = vec![1, 2, 3, 4, 5];
+
+       for val in v {
+           print!("{} ", val);
+       }
+       println!("");
+   }
+
+Burada bir dizi ve bir ``Vec`` türünden aynı biçimde dolaşılmıştır. Tabii biz henüz dizileri ve vektörleri görmedik.
+Yalnızca bu örneği aynı biçimde dolaşıma bir örnek olarak verdik.
+
+Range Yapısı ile for Döngüleri
+==============================
+
+Dolaşım mekanizmasıyla çalışan ``for`` döngüleri ile klasik *for (i = 0; i < 10; ++i)* biçimindeki ``for`` döngülerini
+oluşturmak için Rust'ın standart kütüphanesinde ``Range``, ``RangeInclusive`` ve ``RangeFrom`` isimli yapılar 
+bulundurulmuştur. Dolaşımda kullanılan bu yapılar *genel (generic)* yapılardır. Bir genel yapı kullanılırken tür 
+parametreleri için türler açıkça ya da gizlice belirtilmektedir. Genel bir türün belli türler için açılmasına Rust'ta 
+*monomorfize edilmesi (monomorphize)* denilmektedir. Genel türler kursumuzda ileride başka bir bölümde ele alınmaktadır.
+
+``Range`` isimli yapı türünden bir ifade ``for`` döngüsü ile dolaşılmak istendiğinde bu ifade dolaşım sırasında start 
+değerinden itibaren end değerine kadar (end değeri dahil değil) tamsayı değerleri vermektedir. Böylece klasik ``for`` 
+döngüleri bu ``Range`` yapısı yoluyla oluşturulabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let r: std::ops::Range<i32> = std::ops::Range {start: 0, end: 10};
+
+   for i in r {
+       //...
+   }
+
+Burada ``r`` değişkeni ``Range<i32>`` türündendir. Dolaşım sırasında bu değişken ``0``'tan itibaren ``10``'a kadar 
+(``10`` dahil değil) i32 tamsayı değerlerini verecektir. Dolayısıyla bu döngü C, C++, Java ve C#'taki aşağıdaki döngüyle 
+işlevsel olarak eşdeğer hale gelmektedir:
+
+.. code-block:: c
+
+   for (int i = 0; i < 10; ++i) {
+       //...
+   }
+
+``Range`` yapısının ``std::ops`` modülünde bulunduğuna dikkat ediniz. Yazımı kolaylaştırmak için ``use`` deyimini 
+kullanabilirsiniz:
+
+.. code-block:: rust
+
+   use std::ops::Range;
+
+   let r: Range<i32> = Range {start: 0, end: 10};
+
+   for i in r {
+       print!("{} ", i);
+   }
+
+Tabii ``let`` deyiminde bağlama yapılırken değişken için tür de belirtilmeyebilir. Örneğin:
+
+.. code-block:: rust
+
+   let r = Range {start: 0, end: 10};
+
+``Range`` değişkeninin yaratılması ``for`` döngüsünün içerisinde de yapılabilmektedir. Ancak bu durumda ifadenin 
+paranteze alınması gerekir. Örneğin:
+
+.. code-block:: rust
+
+   for i in (Range {start: 0, end: 10}) {
+       print!("{} ", i);
+   }
+
+Exclusive Range Operatörü
+=========================
+
+Klasik ``for`` döngülerine benzer döngüler çok sık oluşturulduğu için Rust'ta ``Range`` değerlerin ``..`` operatörü ile 
+daha kolay bir biçimde oluşturulmasına olanak sağlanmıştır. ``..`` operatörüne İngilizce *exclusive range* operatörü
+denilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   for i in 0..10 {
+       //...
+   }
+
+biçimindeki for döngüsü tamamen aşağıdakiyle eşdeğerdir:
+
+.. code-block:: rust
+
+   for i in (Range {start: 0, end: 10}) {
+       //...
+   }
+
+``Range`` değişkenlerinde start değerinin aralığa dahil olduğunu ancak end değerinin aralığa dahil olmadığını bir kez 
+daha vurgulamak istiyoruz.
+
+``Range`` değişkeni yaratılırken tür parametresi herhangi bir tamsayı türü olarak belirlenebilir. Ancak tür parametresi `
+``f32`` ya da ``f64`` olursa Range değişkeni dolaşım ifadesi olmaktan çıkmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let r: Range<u8> = Range {start: 0, end: 10};
+
+   for i in  r {
+       //...
+   }
+
+Yukarıdaki işlemi ``..`` operatörüyle aşağıdaki gibi de yapabilirdik:
+
+.. code-block:: rust
+
+   for i in  0u8..10u8 {
+       //...
+   }
+
+Fakat biz Range yapısını ``f32`` ya da ``f64`` türüyle *monomorfize* edersek artık onu ``for`` döngüsüyle dolaşamayız. 
+Çünkü değişken dolaşım ifadesi olmaktan çıkar. Örneğin:
+
+.. code-block:: rust
+
+   let r: Range<f64> = Range {start: 0., end: 10.};
+
+   for i in  r {           // error! Range<f64> dolaşım ifadesi olmaktan çıktı
+       //...
+   }
+
+Tabii biz ``f64`` türünden Range değerini ``..`` operatörü ile örneğin ``0.0..10.0`` biçiminde ya da ``0f64..10f64``
+biçiminde de oluşturabilirdik.
+
+Atlamalı Dolaşım (step_by)
+--------------------------
+
+Peki ``Range`` türünden bir ifade ile atlamalı (yani step değeri ile) dolaşım sağlayabilir miyiz? İşte ``Range`` 
+yapısının ``step_by`` metodu parametre olarak atlama miktarını (step miktarını) bizden alır, bize başka bir dolaşım 
+değeri verir. Bu dolaşım değerini dolaştığımızda artık değerleri atlamalı biçimde elde ederiz. Örneğin:
+
+.. code-block:: rust
+
+   let r: Range<i32> = Range {start: 0, end: 10};
+
+   for i in  r.step_by(2) {
+       //...
+   }
+
+Burada döngünün her yinelenmesinde sırasıyla ``0, 2, 4, 6, 8`` değerleri elde edilecektir. ``step_by`` metodunun
+parametresi ``usize`` türündendir. Dolayısıyla biz ``Range`` sınıfı ile noktalı artırımlar (örneğin her defasında ``0.5``
+artırım) yapamayız. Noktalı artırımlara pek çok programlama dilinde *sorunlu olduğu gerekçesiyle* izin verilmemiştir.
+(Eğer noktalı artırım yapılabilseydi yuvarlama hataları nedeniyle bazı durumlarda döngünün yinelenme miktarı farklı
+olabilirdi.) Artırımlı dolaşım için Rust'ta ``..`` operatörüyle ilgili başka pratik bir sentaks bulunmamaktadır. Bunun
+en pratik yolu aşağıdaki gibidir:
+
+.. code-block:: rust
+
+   for i in (0..10).step_by(2) {
+       //...
+   }
+
+Burada ``..`` operatörünün önceliği nedeniyle paranteze alındığına dikkat ediniz. Öncelik tablosunda ``..`` operatörü
+düşük bir önceliktedir:
+
+========================================== ==============================
+Operatörler                                Associativity
+========================================== ==============================
+``()``                                     Soldan Sağa
+``- !``                                    Sağdan Sola
+``as``                                     Soldan Sağa
+``* / %``                                  Soldan Sağa
+``+ -``                                    Soldan Sağa
+``<< >>``                                  Soldan Sağa
+``&``                                      Soldan Sağa
+``^``                                      Soldan Sağa
+``|``                                      Soldan Sağa
+``< > >= <= == !=``                        Parantezsiz Kombine Edilemez
+``&&``                                     Soldan Sağa
+``||``                                     Soldan Sağa
+``.. ..=``                                 Parantezsiz Kombine Edilemez
+``= += -= *= /= %= &= |= ^= <<= >>=``      Sağdan Sola
+========================================== ==============================
+
+Tersten Dolaşım (rev)
+---------------------
+
+Peki elimizde bir dolaşım ifadesi varsa biz onu tersten dolaşabilir miyiz? İşte bir dolaşım ifadesinin tersten
+dolaşılabilirliği o dolaşım ifadesine ilişkin yapıyı yazanlar tarafından belirlenmektedir. Başka bir deyişle eğer
+dolaşım ifadesine ilişkin yapıyı yazanlar izin vermişse tersten dolaşım mümkün olmaktadır. ``Range`` ifadesini tersten
+dolaşabilmek için ``Range`` yapısının ``rev`` metodu kullanılmaktadır. ``rev`` metodu parametresizdir. ``rev`` metodu 
+bize tersten dolaşım yapılabilecek yeni bir dolaşım nesnesi vermektedir. Örneğin:
+
+.. code-block:: rust
+
+   let r: Range<i32> = Range {start: 0, end: 10};
+
+   for i in  r.rev() {
+       //...
+   }
+
+Burada yine start değeri aralığa dahildir ancak end değeri aralığa dahil değildir. Yani burada ``i`` değişkenine 
+sırasıyla ``9, 8, 7, 6, 5, 4, 3, 2, 1, 0`` değerleri yerleştirilecektir. Tabii biz ``rev`` metodunun verdiği dolaşım 
+türünden değerin üzerinde de yeniden ``step_by`` metodunu çağırabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   let r: Range<i32> = Range {start: 0, end: 10};
+
+   for i in r.rev().step_by(2) {
+      //...
+   }
+
+Burada ``i`` değişkeni sırasıyla ``9, 7, 5, 3, 1`` değerlerini alacaktır. Tabii biz ``rev`` metodunu ``..`` operatörü
+üzerinde de uygulayabilirdik. Örneğin:
+
+.. code-block:: rust
+
+   for i in (0..10).rev() {
+       //...
+   }
+
+Benzer biçimde ``rev`` metodunun verdiği dolaşım türünden değer üzerinde yine ``step_by`` metodunu uygulayabiliriz:
+
+.. code-block:: rust
+
+   for i in (0..10).rev().step_by(2) {
+       //...
+   }
+
+Peki burada ``rev`` ve ``step_by`` çağrılarının sırasını değiştirirsek ne olur?
+
+.. code-block:: rust
+
+   for i in  (0..10).step_by(2).rev() {
+       //...
+   }
+
+Burada önce ``step_by`` ile verilen dolaşım türünden değer dolaşıldığında ``0, 2, 4, 6, 8`` değerleri elde edileceğine
+göre bu değerler de tersten dolaşıldığında ``i`` değişkeni sırasıyla ``8, 6, 4, 2, 0`` değerlerini alacaktır.
+
+Inclusive Range Operatörü
+=========================
+
+Bazen dolaşıma end değerinin de dahil edilmesini isteyebiliriz. Örneğin aşağıdaki C döngüsünün Rust eşdeğerini yazmak
+isteyelim:
+
+.. code-block:: c
+
+   for (int i = 0; i <= 10; ++i) {
+       //...
+   }
+
+Burada ``i`` değişkeni ``10`` değerini de almaktadır. İşte bunu sağlamak için Rust'ın standart kütüphanesinde 
+``std::ops`` modülünde ``RangeInclusive`` isimli bir yapı bulundurulmuştur. Ancak ``RangeInclusive`` yapısının start 
+ve end elemanları private durumdadır. Bu nedenle ``RangeInclusive`` türünden bir değerin yaratılması yapının ``new`` 
+isimli *ilişkili fonksiyonuyla (associated function)* yapılmaktadır. Tabii ``RangeInclusive`` yapısı da *genel (generic)*
+bir yapıdır. Örneğin:
+
+.. code-block:: rust
+
+   use std::ops::RangeInclusive;
+
+   let ri: RangeInclusive<i32> = RangeInclusive::new(0, 10);
+
+   for i in  ri {
+       //...
+   }
+
+Burada artık dolaşıma ``10`` değeri de dahil edilecektir. RangeInclusive türünden bir değeri kolay oluşturabilmek için
+``..=`` operatörü de bulundurulmuştur. ``..=`` operatörüne İngilizce *inclusive range* operatörü denilmektedir. Bu
+durumda yukarıdaki işlemin işlevsel eşdeğeri basit bir biçimde aşağıdaki gibi oluşturulabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   for i in  0..=10 {
+       //...
+   }
+
+Burada dolaşıma ``10`` da dahil edilmiştir.
+
+=================================================
+Range Yapıları, Örnek Programlar ve break İfadesi
+=================================================
+
+RangeFrom Yapısı
+================
+
+``std::ops`` modülünde ``RangeFrom`` isimli bir dolaşım türü daha vardır. ``RangeFrom`` isimli yapı start değeri olan 
+ancak end değeri olmayan dolaşımlar için kullanılmaktadır. Bu türden bir ifade ``for`` döngüsüyle dolaşılmaya çalışılırsa
+start değerinden başlanarak artan sırada tamsayılar elde edilir. Ancak end değeri olmadığı için ifade bize sürekli olarak
+değer verecektir. Böylece bir sonsuz döngü oluşacaktır. Örneğin:
+
+.. code-block:: rust
+
+   use std::ops::RangeFrom;
+
+   let rf: RangeFrom<i32> = RangeFrom{start: 5};
+   for i in rf {
+       //...
+   }
+
+Burada ``5``'ten başlanarak sürekli artan tamsayılar elde edilecektir.
+
+``RangeFrom`` yapısının da genel (generic) bir yapı olduğuna dikkat ediniz. Bu yapı da ``f32`` ve ``f64`` türleriyle 
+*monomorfize (monomorphize)* edilirse artık elde edilen değişken ya da değer dolaşım ifadesi olmaktan çıkmaktadır.
+
+``..`` operatöründe sol taraftaki operand belirtilir ancak sağ taraftaki operand belirtilmezse bu durum ``RangeFrom`` 
+yapısı türünden bir değerin yaratılacağı anlamına gelmektedir. Örneğin:
+
+.. code-block:: rust
+
+   for i in 5.. {
+       //...
+   }
+
+Burada ``5..`` ifadesi RangeFrom türünden bir değerin yaratılıp kullanılması anlamına gelmektedir. Yani yukarıdaki 
+``for`` ifadesi aşağıdakiyle eşdeğerdir:
+
+.. code-block:: rust
+
+   for i in (RangeFrom {start: 5}) {
+       //...
+   }
+
+RangeTo, RangeToInclusive ve RangeFull Yapıları
+===============================================
+
+RangeTo
+-------
+
+``std::ops`` modülünde dolaşım sağlayamayan ``RangeTo``, ``RangeToInclusive`` ve ``RangeFull`` isimli üç yapı daha 
+vardır. ``RangeTo`` yapısı start değeri olmayan ancak end değeri olan bir range değişkeni oluşturmaktadır. Ancak 
+``RangeTo`` yapısı yukarıda da belirttiğimiz gibi bir dolaşım türü (iterator type) değildir. Yani biz bir ``RangeTo``
+türünden bir ifadeyi ``for`` döngüsünde kullanamayız. Bu nedenle aşağıdaki kod error oluşacaktır. Örneğin:
+
+.. code-block:: rust
+
+   use std::ops::RangeTo;
+
+   let rt: RangeTo<i32> = RangeTo {end: 10};
+   for i in rt  {          // error! RangeTo değişkeni bir dolaşım ifadesi değildir
+       //...
+   }
+
+Yukarıda ``for`` döngüsünde ``RangeTo`` değişkeni bir dolaşım ifadesi olmadığı için error oluşacaktır. ``RangeTo`` yapısı
+türünden değerler de ``..`` operatörüyle oluşturulabilmektedir. Bunun için operatörün sol tarafındaki operand'ı boş 
+bırakılır, yalnızca sağ tarafındaki operand'ı belirtilir. Örneğin:
+
+.. code-block:: rust
+
+   use std::ops::RangeTo;
+
+   let rt: RangeTo<i32> = ..10;
+
+``RangeTo`` türünden değişkenlerde end değeri aralığa dahil değildir. ``RangeTo`` konusunda iki soru akla gelmektedir: 
+Birincisi *start değerinin kaç olduğu* sorusudur. İkincisi de *bu türden bir ifade for döngüsüyle dolaşılmadığına göre 
+ne işe yarıyor* sorusudur.
+
+``RangeTo`` yapısında start değerinin ne olduğuna yönelik bir açıklamada bulunulmamıştır. Ancak pek çok bağlamda bu değer
+``0`` olarak kabul edilmektedir. ``RangeTo`` yapısı aslında değişik bağlamlarda kullanılabilmektedir. Programcılar da 
+kendi yapılarında eğer anlamlıysa ``RangeTo`` kullanımını mümkün hale getirebilmektedir. Yani ``RangeTo`` yapısı dolaşım
+amaçlı değil de başka amaçlarla kullanılabilmektedir. Örneğin bir diziyi dilimlerken biz ``RangeTo`` türünden ifade 
+kullanabiliriz. ``RangeTo`` türünden ifadelerin bu tür kullanımları ilgili konuların ele alındığı yerde açıklanacaktır.
+
+RangeToInclusive
+----------------
+
+RangeTo yapısının semantiğinde end değeri aralığa dahil değildir. Eğer end değerinin de aralığa dahil olması isteniyorsa
+``RangeToInclusive`` yapısı kullanılmalıdır. ``RangeToInclusive`` türünden bir değişken benzer biçimde yaratılmaktadır:
+
+.. code-block:: rust
+
+   let rti: RangeToInclusive<i32> = RangeToInclusive { end: 10 };
+
+Tabii ``RangeToInclusive`` yapısı da bir dolaşım türü belirtmemektedir. Yani bu yapı türünden değişken de ``for`` 
+döngüsüyle dolaşılamamaktadır. ``RangeToInclusive`` türünden değerler ``..=`` operatörü ile *sol taraftaki operand boş 
+bırakılıp sağ taraftaki operand belirtilerek* de yaratılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let rti: RangeToInclusive<i32> = ..=10;
+
+RangeFull
+---------
+
+Son range yapısı da RangeFull isimli yapıdır. RangeFull yapısı genel (generic) bir yapı değildir. Bu yapı da semantik
+bakımdan start ve end değeri olmayan bir aralık oluşturmak için kullanılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let rf: RangeFull = RangeFull {};
+
+RangeFull yapısı da bir dolaşım türü belirtmez. Yani biz bu yapı türünden ifadeleri de for döngüsünde kullanamayız. Bu
+yapı çeşitli bağlamlarda *bütünü temsil etmek için* kullanılmaktadır. RangeFull türünden değer ``..`` operatörü ile
+*operatörün sol tarafındaki ve sağ tarafındaki operand boş bırakılarak* oluşturulabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let rf: RangeFull = ..;
+
+Range Yapılarının Özeti
+=======================
+
+Şimdi de yukarıda tek tek gördüğümüz range yapılarını bir tablo biçiminde özetleyelim:
+
+==================== ============================ ================
+Yapı İsmi            Range Operatör İle Yaratım   Dolaşılabilirlik
+==================== ============================ ================
+Range                ``a..b``                     Dolaşılabilir
+RangeInclusive       ``a..=b``                    Dolaşılabilir
+RangeFrom            ``a..``                      Dolaşılabilir
+RangeTo              ``..b``                      Dolaşılamaz
+RangeToInclusive     ``..=b``                     Dolaşılamaz
+RangeFull            ``..``                       Dolaşılamaz
+==================== ============================ ================
+
+Range Sabitlerinde Tür Belirleme
+================================
+
+Rust'ta sonek almayan tamsayı sabitlerinin bağlama göre değerlendirildiğini yani ilgili türün sınırları içerisinde
+kalıyorsa o türden kabul edildiğini belirtmiştik. Bu durum range operatörlerinde de geçerlidir. Örneğin:
+
+.. code-block:: rust
+
+   let r: Range<i8> =1..10;
+
+Burada ``1..10`` range ifadesindeki ``1`` ve ``10`` zaten ``i8`` türünden kabul edilecektir. Yani türlerin aşağıdaki 
+gibi açıkça yazılmasına gerek yoktur:
+
+.. code-block:: rust
+
+   let r: Range<i8> =1i8..10i8;
+
+Tabii bağlam belli değilse sabitlerin ``i32`` türünden olduğu varsayılır. Örneğin:
+
+.. code-block:: rust
+
+   let r = 1..10;
+
+Bu bağlamanın eşdeğeri şöyledir:
+
+.. code-block:: rust
+
+   let r = 1i32..10i32;
+
+Örnek: 1'den n'e Kadar Sayıların Toplamı
+========================================
+
+Aşağıda 1'den n'e kadar sayıların toplamını döngü yoluyla hesaplayan bir fonksiyon örneği verilmiştir. (Tabii
+aslında 1'den n'e kadar sayıların toplamını döngüyle hesaplamaya gerek yoktur.)
+
+.. code-block:: rust
+
+   fn main() {
+       let result: i32;
+
+       result = get_total(100);
+       println!("{}", result);
+   }
+
+   fn get_total(n: i32) -> i32 {
+       let mut total = 0;
+
+       for i in 1..=n {
+           total += i;
+       }
+       total
+   }
+
+Örnek: Asal Sayıların Bulunması
+===============================
+
+Aşağıda bir sayının asal olup olmadığını belirleyen ``isprime`` isimli bir fonksiyon yazılmıştır. Fonksiyon ``i32`` 
+türünden bir parametreye sahiptir. Eğer girilen argüman asalsa fonksiyon ``true`` değerine asal değilse ``false`` 
+değerine geri dönmektedir. Fonksiyon şöyle yazılmıştır:
+
+.. code-block:: rust
+
+   fn isprime(val: i32) -> bool {
+       let end = (val as f64).sqrt() as i32;
+
+       if val % 2 == 0 {
+           return val == 2;
+       }
+       for i in (3..=end).step_by(2) {
+           if val % i == 0 {
+               return false;
+           }
+       }
+       true
+   }
+
+Öklit teoremine göre asal olmayan her sayının en az iki asal çarpanı vardır. Bu iki asal çarpanın ikisi de sayının
+karekökünden büyük olmaz. O halde sayı asal değilse sayının kareköküne kadar (karekökü de dahil) en az bir asal çarpanı
+olmak zorundadır. Yani kontrol sayının kareköküne kadar yapılabilir. Bütün çift sayıları kontrol etmeye de gerek yoktur.
+En başta sayının çift olup olmadığı yalnızca bir kez kontrol edilebilir. Sonra hep tek sayılarla kontrol yapılabilir.
+Rust'ta bir sayının karekökü ``f32`` ve ``f64`` türleri üzerinde ``sqrt`` metodu çağrılarak elde edilebilir. Yukarıdaki
+``isprime`` fonksiyonunun parametresi ``i32`` türündendir. Bu nedenle önce bu parametre ``f64`` türüne dönüştürülüp 
+``sqrt`` metodu çağrılmıştır. Tabii elde edilen değer yeniden ``i32`` türüne dönüştürülmüştür. Aşağıda ``2``'den 
+klavyeden girilen sayıya kadarki tüm asal sayılar yazdırılmıştır.
+
+.. code-block:: rust
+
+   use std::io::{stdin, Write};
+
+   fn main() {
+       let val: i32;
+
+       print!("Bir sayı giriniz:");
+       std::io::stdout().flush().expect("Can't flush stdout");
+       val = getval();
+
+       for i in 2..=val {
+           if isprime(i) {
+               print!("{} ", i);
+           }
+       }
+   }
+
+   fn isprime(val: i32) -> bool {
+       let end = (val as f64).sqrt() as i32;
+
+       if val % 2 == 0 {
+           return val == 2
+       }
+       for i in (3..=end).step_by(2) {
+           if val % i == 0 {
+               return false;
+           }
+       }
+       true
+   }
+
+   fn getval() -> i32 {
+       let mut buf: String = String::new();
+
+       stdin().read_line(&mut buf).expect("cannot read line..");
+       buf.trim().parse().expect("not a number")
+   }
+
+for Döngülerinde mut Döngü Değişkeni
+====================================
+
+``for`` döngülerinde döngü değişkeni (aslında kalıp) ``mut`` da olabilir. Örneğin:
+
+.. code-block:: rust
+
+   for i in 0..10 {
+       //...
+       i += 1;                  // error!
+       //...
+   }
+
+Burada döngü değişkeni ``mut`` olmadığı için içerisindeki değer döngü içerisinde değiştirilememektedir. Eğer bu değerin
+döngü içerisinde değiştirilmesini istiyorsanız. Döngü değişkenini ``mut`` yapabilirsiniz:
+
+.. code-block:: rust
+
+   for mut i in 0..10 {
+       //...
+       i += 1;                  // geçerli
+       //...
+   }
+
+break İfadesi
+=============
+
+Rust'ta diğer pek çok dilde de olduğu gibi ``break`` ifadesi bulunmaktadır. Biz de zaten ``break`` ifadesini bazı 
+örneklerimizde kullanmıştık. ``break`` ifadesinin genel biçimi şöyledir:
+
+.. code-block:: text
+
+   break [etiket] [ifade];
+
+*The Rust Reference* dokümanlarında *break deyimi* yerine *break ifadesi* terimi kullanılmıştır. Tabii ``break`` anahtar
+sözcüğünün yanına ``';'`` konulduğunda zaten bu ifade de bir deyim olmaktadır. Biz kursumuzda *break ifadesi* demeyi
+tercih edeceğiz.
+
+Etiketsiz break
+---------------
+
+``break`` ifadesi döngü deyimini sonlandırmak için kullanılmaktadır. Genel biçimden ``break`` anahtar sözcüğünün yanında 
+bir etiket (label) bulunabileceği anlaşılmaktadır. Peki bu etiket ne anlama gelmektedir? İşte eğer ``break`` ifadesi 
+etiketsiz kullanılırsa yalnızca içinde bulunduğu döngü deyimini sonlandırmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   for i in 0..10 {
+       for k in 0..10 {
+           println!("({}, {})", i, k);
+           if i == 5 && k == 5 {
+               break;
+           }
+       }
+   }
+
+Burada ``i == 5`` ve ``k == 5`` durumunda programın akışı break ifadesini görecektir. Ancak yalnızca içteki döngü
+sonlanacaktır. Anımsanacağı gibi C, C++, C# gibi dillerde iç bir döngüde tek hamlede tüm döngülerden çıkmak için ``goto``
+deyimi kullanılıyordu. Ancak Java gibi Rust gibi bazı dillerde ``goto`` deyimi bulunmamaktadır. İşte bu dillerde iç 
+döngüden tek hamlede çıkışı sağlamak için etiketler kullanılmaktadır. Döngü deyimlerinin BNF gramerini hatırlayalım, 
+şöyleydi:
+
+.. code-block:: text
+
+   LoopExpression :
+     LoopLabel? (
+       InfiniteLoopExpression
+       | PredicateLoopExpression
+       | PredicatePatternLoopExpression
+       | IteratorLoopExpression
+       | LabelBlockExpression
+     )
+
+Etiketli break
+--------------
+
+Bu gramerde tüm döngü deyimlerinin başında isteğe bağlı olarak bir etiketin (label) bulunabileceği anlaşılmaktadır.
+Rust'ta etiketler tek tırnak karakterine yapışık bir değişken isminden oluşmaktadır. Döngü etiketlerinde yine etiket
+isminden sonra ``':'`` atomu da kullanılmak zorundadır. Örneğin:
+
+.. code-block:: rust
+
+   'lbl: loop {
+       //...
+   }
+
+Burada ``'lbl`` etiketi belirtmektedir. İşte break işlemi yapılırken break anahtar sözcüğünün yanına *hangi döngünün
+kırılacağını belirten* bir etiket getirilebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   'lbl: loop {
+       i += 1;
+       if i == 10 {
+           break 'lbl;
+       }
+       println!("{}", i);
+   }
+
+Tabii iç içe döngü söz konusu olmadıktan sonra döngüye etiket iliştirmenin ve etiketli ``break`` kullanmanın anlamı 
+yoktur. Fakat iç içe döngülerden tek hamlede çıkmak için etiketli ``break`` kullanmak gerekir. Örneğin:
+
+.. code-block:: rust
+
+   'lbl:
+   for i in 0..10 {
+       for k in 0..10 {
+           println!("({}, {})", i, k);
+           if i == 5 && k == 5 {
+               break 'lbl;
+           }
+       }
+   }
+
+Burada ``break`` ile tek hamlede iki döngüden de çıkılmıştır. Döngü bir etikete sahipse ancak ``break`` ifadesinde etiket
+kullanılmamışsa Rust derleyicisi uyarı vermektedir.
+
+İfadeli break
+-------------
+
+Biz daha önce break ifadesinin yanında bir ifade de kullanmıştık. Rust'ta ifadeli ``break`` yalnızca ``loop`` döngüsü 
+içerisinde kullanılabilmektedir. Bu durumda ``loop`` döngüsü *divergent* olmaktan çıkıp break ifadesindeki değeri 
+üretiyordu. Örneğin:
+
+.. code-block:: rust
+
+   let mut i = 0;
+   let result: i32;
+
+   result = loop {
+       println!("{}", i);
+       i += 1;
+       if i == 10 {
+           break 1000;
+       }
+   };
+   println!("{}", result);
+
+Burada ifadeli ``break`` ifadesi nedeniyle ``loop`` döngüsünden ``i32`` türünden değer elde edilmiştir. Tabii ``loop`` 
+döngüsü içerisinde hem etiket hem de ifade birlikte kullanılabilir. Örneğin:
+
+.. code-block:: rust
+
+   let mut i = 0;
+   let result: i32;
+
+   result = 'lbl: loop {
+       //...
+       i += 1;
+       if i == 10 {
+           break 'lbl 1000;
+       }
+   };
+   println!("{}", result);
+
+Burada ``break`` anahtar sözcüğünde önce etiket sonra ifade bulundurulmuştur. Bunları ters sırada yerleştiremeyiz. Burada
+bir kez daha anımsatmak istiyoruz: ifadeli ``break`` ifadesi yalnızca ``loop`` döngüsü içerisinde kullanılabilmektedir. 
+``while`` ve ``for`` döngülerinde kullanılamamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let result = for i in 0..100 {
+       //...
+       if i == 5 {
+           break 1000;         // error
+       }
+   }
+
+C, C++, Java ve C# gibi dillerde ``break`` ifadesi o dillerin ``switch`` deyimleri içerisinde de kullanılabilmektedir. 
+Rust'taki ``switch`` benzeri deyime ``match`` deyimi denilmektedir. ``match`` deyimi içerisinde break kullanımı yoktur.
+
+break İfadesinin Türü
+---------------------
+
+``break`` ifadesinin kendi ürettiği değer (yani deyimin yerleştirildiği yerden elde edilen değer) ``!`` türündendir. 
+Yani break ifadesi divergent biçimdedir. ``!`` türünün herhangi bir türe otomatik dönüştürüldüğünü anımsayınız. Bu 
+durumda örneğin anlamlı olmasa da biz break ifadesini herhangi bir değişkene atayabiliriz:
+
+.. code-block:: rust
+
+   loop {
+       //...
+       if ifade {
+           x = break;      // x hangi türden olursa olsun geçerli!
+       }
+   }
+
+===============================================
+break Üzerine Notlar, continue ve match İfadesi
+===============================================
+
+break İfadesi ve Noktalı Virgül
+===============================
+
+Burada konuya devam etmeden önce sınıfta sorulan bir sorunun yanıtı hakkında bir açıklamada bulunmak istiyoruz. Soru
+şöyle: *Neden aşağıdaki kodda break ifadesinden sonra* ``';'`` *konulmadığında error ortaya çıkmıyor?* Yani aşağıdaki
+kodda neden ``';'`` bulunmaması soruna yol açmıyor?
+
+.. code-block:: rust
+
+   fn main() {
+       let mut i = 0;
+       let result: i32;
+
+       result = loop {
+           if i == 10 {
+               break 1000
+           }
+           println!("{}", i);
+           i += 1;
+       };
+
+       println!("\n{}", result);
+   }
+
+Burada break ifadesi ``if`` ifadesinin doğruysa bloğunun son ifadesi durumunda olduğu için, blokların da değer 
+üretmesinden dolayı ``';'`` kullanılmasa da ifade geçerli olmaktadır. ``break`` ifadesinin ``!`` türünden değer 
+ürettiğini anımsayınız. Bu durumda ``if`` ifadesinin ``else`` kısmı olmadığı için ``else`` kısmından ``()`` değerinin 
+elde edildiği kabul edilmektedir. ``!`` türü de her türe otomatik dönüştürülebildiği için bu ``if`` ifadesinden ``()``
+değeri elde edilecektir. Tabii burada ``if`` ifadesinin ``else`` kısmı olsaydı ve ``else`` kısmından başka türden bir
+değer elde edilseydi kod anlamsız fakat yine geçerli olurdu. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut i = 0;
+       let result: i32;
+
+       result = loop {
+           if i == 10 {
+               break 1000
+           }
+           else {
+               //...
+               100         // anlamsız ama geçerli
+           };
+           println!("{}", i);
+           i += 1;
+       };
+
+       println!("\n{}", result);
+   }
+
+Burada ``if`` ifadesinden ``i32`` türünden değer elde edilecektir. Ancak bu değer kullanılmadığı için else kısmının bir 
+değer üretmesi anlamsızdır.
+
+Tabii ``if`` ifadesinin hem doğruysa hem de yanlışsa kısmında ``break`` ifadesi varsa bu durumda ``if`` ifadesi de ``!`` 
+türünden değer üretir. Örneğin:
+
+.. code-block:: rust
+
+   loop {
+       //...
+       if koşul {
+           //...
+           break
+       }
+
+       else {
+           //...
+           break
+       }
+   }
+
+Burada ``if`` deyimi ``!`` türünden değer vermektedir.
+
+Etiketli Blok İfadeleri
+=======================
+
+Rust'ta aslında bir döngü belirtmediği halde gramerde ``LoopExpression`` ara sembolünün altına yerleştirilen ve ismine
+*etiketli block ifadesi (labeled block expression)* denilen bir deyim daha vardır. ``LoopExpression`` ara sembolünün
+açılımını aşağıda yeniden veriyoruz:
+
+.. code-block:: text
+
+   LoopExpression :
+     LoopLabel? (
+       InfiniteLoopExpression
+       | PredicateLoopExpression
+       | PredicatePatternLoopExpression
+       | IteratorLoopExpression
+       | LabelBlockExpression
+     )
+
+Bir blok ifadesi içerisinde ``break`` ifadesi kullanılabilir. Ancak bu durumda ``break`` ifadesinde bir etiketin olması 
+ve bloğun başında da bir etiketin bulunması gerekir. Örneğin:
+
+.. code-block:: rust
+
+   val = getval();
+   'a: {
+       println!("block begins");
+       if val > 0 {
+           break 'a;
+       }
+       println!("block ends");
+   };
+
+Bu blok ifadesi geçerlidir. İşte bu blok ifadesine *etiketli blok ifadesi* denilmektedir. Yukarıda da belirttiğimiz gibi
+bir bloğun içerisinde ``break`` ifadesinin kullanılabilmesi için ``break`` ifadesinin etiketli olması zorunludur. 
+Örneğin:
+
+.. code-block:: rust
+
+   val = getval();
+   {
+       println!("block begins");
+       if val > 0 {
+           break;          // error!
+       }
+       println!("block ends");
+   };
+
+Bu blok ifadesinde ``break`` etiketsiz kullanıldığı için error oluşacaktır. Etiketli blok ifadelerinde hiç ``break``
+kullanılmaması error oluşturmasa da anlamsız olduğu gerekçesiyle uyarı mesajı oluşturmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   'a: {
+       println!("block begins");
+       //...
+       println!("block ends");
+   };
+
+Yukarıdaki kod geçerlidir fakat bloğa etiket iliştirilmesi anlamsız olduğu için uyarı oluşturacaktır. Tabii etiketli
+blok ifadelerindeki ``break`` ifadesinde ``break`` anahtar sözcüğünün yanında hem etiket hem de ifade bulunabilir. Bu 
+durumda önce etiketin sonra ifadenin bulundurulması zorunludur. Örneğin:
+
+.. code-block:: rust
+
+   val = getval();
+   result = 'a: {
+       println!("block begins");
+       if a > 0 {
+           break 'a 100;
+       }
+       println!("block ends");
+       200
+   };
+   println!("{}", result);
+
+continue İfadesi
+================
+
+Pek çok programlama dilinde bulunan ``continue`` ifadesi Rust'ta da bulunmaktadır. ``continue`` ifadesinin genel biçimi
+şöyledir:
+
+.. code-block:: text
+
+   continue [etiket];
+
+``continue`` anahtar sözcüğü de sonunda ``';'`` olmazsa bir ifade gibi kullanılabildiği için biz *break ifadesi* yerine
+*continue ifadesi* demeyi tercih edeceğiz.
+
+``continue`` ifadesi ancak döngü deyimlerinin içerisinde kullanılabilir. Etiketli blok deyimi içerisinde ``continue``
+kullanılamaz. Programın akışı ``continue`` ifadesini gördüğünde akış sonraki yinelemeye geçer. Yani ``continue`` ifadesi 
+döngü deyimini değil döngü deyimi içerisindeki blok ifadesini sonlandırmaktadır. ``continue`` ifadesinin döngü deyimini
+sonlandırdığına ``continue`` deyiminin ise döngünün içerisindeki blok ifadesini sonlandırdığına dikkat ediniz. Döngü
+içerisindeki blok ifadesi bittiğinde ne oluyorsa programın akışı ``continue`` ifadesini gördüğünde aynısı olmaktadır.
+Örneğin:
+
+.. code-block:: rust
+
+   for i in 0..10 {
+       if i % 2 == 0 {
+           continue;
+       }
+       println!("{}", i);
+   }
+
+Burada ekrana tek sayılar basılacaktır. Programın akışı ``continue`` ifadesini gördüğünde sanki döngü içerisindeki blok
+sonlanmış gibi bir etki oluşacağı için Range iteratörü de yeni bir değer verecektir.
+
+Genel biçimden ``continue`` deyiminin de bir etikete sahip olabileceğini görüyorsunuz. Diğer pek çok dilde iç içe 
+döngülerde ``continue`` yalnızca kullanıldığı döngünün deyimini sonlandırmaktadır. Ancak Rust'taki bu etiket sayesinde
+iç içe döngülerde dıştaki döngü üzerinde de ``continue`` yapılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   'a: for k in 0..10 {
+       for i in 0..10 {
+           //...
+           if ifade {
+               continue 'a;
+           }
+       }
+       //...
+   }
+
+Burada artık ``continue`` ifadesi içteki döngünün blok ifadesini değil dıştaki döngünün blok ifadesini sonlandırmaktadır.
+
+Biz yukarıdaki ``continue`` ifadesinin çalışmasını açıklayacak örnekler verdik. Bu örneklerde aslında ``continue`` 
+kullanılmadan da hedeflenen işlemler yapılabilirdi. Peki ``continue`` ifadesine hangi durumlarda gereksinim 
+duyulmaktadır? Bazı algoritmalarda (özellikle ``switch`` içeren kodlarda) ``continue`` ifadesinin kullanılması kodu 
+kısaltabilmektedir. Ancak ``continue`` ifadesi çoğu kez döngü içerisinde büyük ``if`` bloklarını elimine etmek için
+kullanılmaktadır. Aşağıdaki gibi kod
+parçası olsun:
+
+.. code-block:: rust
+
+   loop {
+       val = getval();
+       if val > 0 {
+           //...
+       }
+   }
+
+Burada döngü içerisindeki ``if`` ifadesinin çok uzun olduğunu varsayalım. Bu ``if`` ifadesinin içerisinde de pek çok
+kontrol deyimi kullanılmış olsun. Biz yukarıdaki döngüde bu geniş ``if`` bloğunu ``continue`` sayesinde elimine 
+edebiliriz.
+
+.. code-block:: rust
+
+   loop {
+       val = getval();
+       if val <= 0 {
+           continue;
+       }
+       //...
+   }
+
+``continue`` ifadesi de tıpkı break ifadesi gibi ``!`` değerini üretmektedir. Yani continue ifadesi de *divergent* 
+durumdadır. ``continue`` ifadesini biz herhangi türden bir değişkene atayabiliriz. Örneğin yukarıdaki ``if`` ifadesinde
+``else`` kısım herhangi bir türden olabilirdi:
+
+.. code-block:: rust
+
+   loop {
+       val = getval();
+       if val <= 0 {
+           continue;
+       }
+       else {
+           100         // geçerli ama anlamsız!
+       };
+       //...
+   }
+
+match İfadesi
+=============
+
+match İfadesine Giriş
+---------------------
+
+Bu bölümde göreceğimiz son kontrol deyimi ``match`` deyimidir. Rust'taki ``match`` deyimi C, C++, Java ve C# gibi 
+dillerdeki ``switch`` deyimine benzemektedir. Ancak Rust'taki ``match`` deyimi bu dillerdeki ``switch`` deyiminden 
+çok daha fazla olanaklara sahip bir deyimdir. Dolayısıyla ``match`` deyiminin Rust'ta kullanımı bu dillerdeki ``switch``
+deyiminin kullanımından çok daha yoğundur.
+
+Rust'ta ``match`` deyimi *kalıp uyuşumu (pattern matching)* kurallarıyla çalışmaktadır. Kalıp uyuşumu konusu ise oldukça
+ayrıntılıdır. Bu konunun henüz görmediğimiz dizilerle, demetlerle, enum türleriyle, yapılarla bağlantısı vardır. Bu
+nedenle biz bu bölümde ``match`` deyimini henüz geldiğimiz noktaya kadarki konular eşliğinde ele alacağız. Sonra bu
+konuların anlatıldığı yerde çeşitli eklemeler yapacağız. En sonunda da kalıp uyuşumu konusunu bütünsel olarak yeniden
+gözden geçireceğiz.
+
+Aslında kalıp uyuşumuyla çalışan ``switch`` ya da ``match`` deyimleri Rust'a özgü değildir. Ruby gibi, Swift gibi, Kotlin
+gibi, hatta Python gibi dillerde de kalıp uyuşumuyla çalışan ``match`` benzeri deyimler bulunmaktadır.
+
+match İfadesinin Genel Biçimi
+-----------------------------
+
+Rust'ta ``match`` ifadesinin genel biçimi şöyledir:
+
+.. code-block:: text
+
+   match <ifade> {
+       <kalıp1> => ifade1,
+       <kalıp2> => ifade2,
+       <kalıp3> => ifade3,
+       ....
+   }
+
+``match`` anahtar sözcüğünü bir ifade izlemek zorundadır. Buradaki ifade herhangi bir türe ilişkin olabilir. ``match``
+ifadesinin aslında çalışması oldukça basittir. Derleyici ``match`` anahtar sözcüğünün yanındaki ifadeyi inceler. Sonra
+match kalıplarını yukarıdan aşağıya doğru ele alır. Kalıbın uyuştuğu ilk ifadeyi çalıştırır. ``match`` ifadesinden bu
+çalıştırılan ifadenin değeri elde edilir. ``match`` ifadesinde diğer bazı dillerdeki ``case`` anahtar sözcüğünün
+bulunmadığına dikkat ediniz. ``match`` ifadesinde ``break`` ifadesi kullanılırsa bu ``break`` ifadesinin ``match``
+ifadesi ile bir ilgisi yoktur. ``match`` ifadesinin içinde bulunduğu döngü ile ilgisi vardır. ``match`` deyiminde C 
+gibi, Java gibi dillerdeki *aşağıya düşme (fall through)* mekanizması da yoktur. Dolayısıyla Rust'taki ``match`` 
+deyiminde yalnızca uyuşan ilk kalıbın ifadesi işletilmektedir.
+
+*The Rust Reference* dokümanlarında ``match`` deyimindeki ``=>`` içeren her kısma *match kolu (match arm)* denilmektedir.
+``match`` deyiminde akışın hangi kola aktarılacağını anlayabilmek için kalıp uyuşumu konusunun bilinmesi gerekmektedir. 
+Biz burada geldiğimiz noktaya kadarki kalıp uyuşumları üzerinde duracağız. Rust'ta ``match`` deyiminde mutlaka bir match
+kolunun kalıp uyuşumunu sağlaması gerekir. Aksi takdirde derleme sırasında error oluşmaktadır. Bu duruma Rust'ta 
+``match`` deyiminin *exhaustive* olması denilmektedir.
+
+Kalıpların BNF Grameri
+----------------------
+
+*The Rust Reference* dokümanlarında kalıpların (patterns) BNF grameri şöyle verilmiştir:
+
+.. code-block:: text
+
+   Pattern :
+     |? PatternNoTopAlt ( | PatternNoTopAlt )*
+
+   PatternNoTopAlt :
+       PatternWithoutRange
+     | RangePattern
+
+   PatternWithoutRange :
+       LiteralPattern
+     | IdentifierPattern
+     | WildcardPattern
+     | RestPattern
+     | ReferencePattern
+     | StructPattern
+     | TupleStructPattern
+     | TuplePattern
+     | GroupedPattern
+     | SlicePattern
+     | PathPattern
+     | MacroInvocation
+
+Görüldüğü gibi her kalıp bir isimle belirtilmektedir.
+
+Rust'ta kalıp uyuşumu ile ilgili olan tek deyim ``match`` deyimi değildir. Aşağıdaki deyimlerde de kalıp uyuşumu etkili
+olmaktadır:
+
+* let deyimi
+* if let deyimi
+* while let deyimi
+* for deyimi
+
+Ayrıca fonksiyonların parametrelerinde de genel olarak kalıplar kullanılabilmektedir.
+
+Sabit Kalıbı (Literal Pattern)
+------------------------------
+
+En basit kalıp *sabit kalıbı (literal pattern)* denilen kalıptır. İsmi üzerinde sabit kalıbında kalıp ifadesi
+sabitlerden oluşturulmaktadır. Bu durumda ``match`` deyimi C'deki ``switch`` deyimine benzer hale gelmektedir. ``match``
+anahtar sözcüğünün yanındaki ifadeyle ilk eşleşen sabit kalıbının ifadesi çalıştırılacaktır. ``match`` deyiminin 
+*exhaustive* olmasını sağlamak için ``_`` kalıbı kullanılır. Bu kalıba *wildcard kalıbı (wildcard pattern)* da 
+denilmektedir. Wildcard kalıbı her ifadeyle uyuşum sağlamaktadır. Bu nedenle wildcard kalıbı genellikle ``match``
+ifadesini *exhaustive* hale getirmek için ``match`` ifadesinin son kolunda bulundurulur. Örneğin:
+
+.. code-block:: rust
+
+   match val {
+       1 => println!("bir"),
+       2 => println!("iki"),
+       3 => println!("üç"),
+       _ => println!("hiçbiri"),
+   }
+
+Burada ``val`` ifadesinin çeşitli değerleri için farklı ifadeler yapılmaktadır. Tabii bu örnekte ``println!`` makrosu
+birim değeri ürettiği için match ifadesi de birim değerini üretmektedir.
+
+``match`` ifadesinin son kolunun ``','`` atomu ile bitirilmesi zorunlu değildir. Ancak Rust programcılarının çoğu son
+kola da ``','`` atomunu yerleştirmektedir. Örneğin yukarıdaki ``match`` ifadesi aşağıdaki gibi de olabilirdi:
+
+.. code-block:: rust
+
+   match val {
+       1 => println!("bir"),
+       2 => println!("iki"),
+       3 => println!("üç"),
+       _ => println!("hiçbiri")
+   }
+
+.. code-block:: rust
+
+   use std::io::Write;
+
+   fn main() {
+       let val: i32;
+
+       print!("Bir sayı giriniz:");
+       std::io::stdout().flush().expect("cannot flush stdout!..");
+       val = getval();
+       match val {
+           1 => println!("bir"),
+           2 => println!("iki"),
+           3 => println!("üç"),
+           _ => println!("hiçbiri"),
+       }
+   }
+
+   fn getval() -> i32 {
+       let mut buf: String = String::new();
+
+       std::io::stdin().read_line(&mut buf).expect("read line failed");
+       buf.trim().parse().expect("parse into number")
+   }
+
+Farklı Türlerde Sabit Kalıpları
+-------------------------------
+
+Sabit kalıbında (literal pattern) kullanılacak sabit herhangi bir türe ilişkin olabilir. Örneğin:
+
+.. code-block:: rust
+
+   match val {
+       'a' => println!("a"),
+       'b' => println!("b"),
+       'c' => println!("c"),
+       _ => println!("hiçbiri"),
+   }
+
+C, C++, Java ve C# gibi dillerde ``switch`` anahtar sözcüğünün yanındaki kontrol ifadesinin tamsayı türlerine ilişkin
+olması gerekmektedir. Ancak Rust'ta böyle bir zorunluluk yoktur. Ancak ne olursa olsun yuvarlama hatalarından dolayı
+sabit kalıplarında gerçek sayı sabitlerini kullanmak kötü bir tekniktir. Örneğin:
+
+.. code-block:: rust
+
+   match val {
+       1.0 => println!("bir"),
+       2.0 => println!("iki"),
+       3.0 => println!("üç"),
+       _ => println!("hiçbiri"),
+   }
+
+Sabit kalıbında sabitlerin match anahtar sözcüğünün yanındaki kontrol kalıbındaki tür türünden olması gerekmektedir.
+
+Sabit kalıbında eğer ``match`` anahtar sözcüğünün yanındaki ifade ``&str`` türündense sabitler string de olabilmektedir.
+Örneğin:
+
+.. code-block:: rust
+
+   let city: &str = "eskişehir";
+   //...
+
+   match city {
+       "ankara" => println!("6"),
+       "izmir" => println!("35"),
+       "adana" => println!("1"),
+       "eskişehir" => println!("26"),
+       _ => println!("hiçbiri"),
+   }
+
+Burada da görüldüğü gibi eğer ``match`` kollarında sabit kalıbı olarak string sabiti kullanılacaksa ``match`` anahtar 
+sözcüğünün yanındaki ifadenin de ``&str`` türünden olması gerekir.
+
+================================================================
+match İfadesi (Devam): Kollar, Veya, Range ve Değişken Kalıpları
+================================================================
+
+Komut Satırı Örneği
+===================
+
+Aşağıda basit bir komut satırı örneği verilmiştir. Bu örnekte bir döngü içerisinde ``stdin`` dosyasından komutlar alınmış
+ve ``match`` ifadesi ile bu komutlar işlenmiştir. Programdaki ``match`` deyiminin nasıl oluşturulduğuna dikkat ediniz:
+
+.. code-block:: rust
+
+   match getstr().as_str() {
+       "" => continue,
+       "dir" => println!("dir command"),
+       "copy" => println!("copy command"),
+       "rename" => println!("rename command"),
+       "quit" => break,
+       _ => println!("unknown command"),
+   }
+
+Tabii burada komutların işlenmesi için fonksiyonlar oluşturulup her ``match`` kolunda da ilgili fonksiyon çağrılabilirdi.
+Örneğin:
+
+.. code-block:: rust
+
+   match getstr().as_str() {
+       "" => continue,
+       "dir" => dir_proc(),
+       "copy" => copy_proc(),
+       "rename" => rename_proc(),
+       "quit" => break,
+       _ => println!("unknown command"),
+   }
+
+.. code-block:: rust
+
+   use std::io::{self, Write};
+
+   fn main() {
+      loop {
+         print!("CSD>");
+         io::stdout().flush().expect("cannot flush stdout!");
+
+         match getstr().as_str() {
+            "" => continue,
+            "dir" => println!("dir command"),
+            "copy" => println!("copy command"),
+            "rename" => println!("rename command"),
+            "quit" => break,
+            _ => println!("unknown command"),
+         }
+      }
+   }
+
+   fn getstr() -> String {
+      let mut buf: String = String::new();
+
+      std::io::stdin().read_line(&mut buf).expect("read line failed");
+      buf.trim().to_string()
+   }
+
+Birden Fazla Deyim İçeren match Kolları
+=======================================
+
+Bir ``match`` kolunda birden fazla deyim bulundurulmak isteniyorsa blok ifadesi oluşturulmalıdır. Örneğin:
+
+.. code-block:: rust
+
+   match val {
+       1 => {
+           //...
+       },
+       2 => {
+           //...
+       },
+       3 => {
+           //...
+       },
+       _ => ()
+   }
+
+match İfadesinin Değer Üretmesi
+===============================
+
+Tabii ``match`` ifadesi de diğer deyimlerde olduğu gibi bir değer de üretmektedir. ``match`` ifadesinden elde edilen 
+değer çalıştırılan ``match`` kolundaki ifadenin değeridir. Tabii bu durumda ``match`` ifadesinin bütün kollarından 
+elde edilen değerlerin aynı türden olması gerekir. Örneğin:
+
+.. code-block:: rust
+
+   loop {
+       print!("CSD>");
+       io::stdout().flush().expect("cannot flush stdout!");
+       let result: i32;
+
+       result = match getstr().as_str() {
+           "" => continue,
+           "quit" => break,
+           "dir" => {
+               println!("dir command");
+               1
+           },
+           "copy" => {
+               println!("copy command");
+               2
+           },
+           "rename" => {
+               println!("rename command");
+               3
+           },
+           _ => {
+               println ! ("unknown command");
+               0
+           }
+       };
+       println!("result: {}", result);
+   }
+
+Burada ``match`` ifadesinin her kolu ``i32`` türünden değer üretmektedir. ``break`` ve ``continue`` ifadelerinin never 
+türünden (! türünden) değer ürettiğini anımsayınız. Never türü diğer her türe otomatik dönüştürülebildiği için diğer her
+türle bu bağlamda bir arada bulunabilmektedir.
+
+Peki aşağıdaki gibi bir ``match`` ifadesindeki ``result`` değişkeninin ``match`` kolundaki kullanımı geçerli midir?
+
+.. code-block:: rust
+
+   let result: i32;
+
+   result = match val {
+       1 => {
+           println!("{}", result);         // error!
+           10
+       }
+       //...
+       _ => 0
+   };
+
+Bu örnekte ``result`` değişkeni match ifadesi bittiğinde değer alacaktır. Dolayısıyla bu kullanım *içerisinde henüz değer
+atanmamış değişkenin içerisindeki değerin* kullanılması nedeniyle error oluşturacaktır. Tabii biz baştan ``result``
+değişkenine değer atamış olsaydık bu durum soruna yol açmayacaktı:
+
+.. code-block:: rust
+
+   let mut result: i32 = 0;
+
+   result = match val {
+       1 => {
+           println!("{}", result);         // geçerli
+           10
+       }
+       //...
+       _ => 0
+   };
+
+wildcard Kolu ve Uyuşan Kollar
+==============================
+
+Peki ``match`` ifadesinin son koluna wildcard kalıbı getirildiğinde bu wildcard kalıbındaki ifade ne olmalıdır? ``match``
+ifadesinin wildcard kolu diğer kollarla aynı değeri üretmelidir. Eğer diğer kollar unit değeri üretiyorsa bu durumda
+wildcard ifadesinde de bir şey yapmak istemiyorsanız oradaki ``()`` biçiminde ya da eşdeğer olarak ``{}`` biçiminde
+oluşturabilirsiniz. Örneğin:
+
+.. code-block:: rust
+
+   match val {
+       1 => println!("bir"),
+       2 => println!("iki"),
+       3 => println!("üç"),
+       _ => (),
+   }
+
+Daha önceden de belirttiğimiz gibi ``match`` ifadesinde ``match`` kollarına yukarıdan aşağıya doğru sırasıyla 
+bakılmaktadır. Rust'ta birden fazla ``match`` kolunda kalıp uyuşumu sağlanabilir. Bu durum error oluşturmamaktadır. 
+Bu durumda yukarıdan aşağıya doğru ilk uyuşan kalıbın ``match`` ifadesi işletilmektedir. Tabii bazen derleyici sabit
+kalıplarında ya da diğer bazı kalıplarda bir durum tespiti yapıp uyarı mesajı verebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   match val {
+       1 => println!("bir"),
+       1 => println!("yine bir"),
+       _ => (),
+   }
+
+Burada val değeri ``1`` ise ilk koldaki ifade çalıştırılacaktır. Bu durumda açıkça diğer ikinci kol *erişilemeyen
+(unreachable)* durumda olur. Rust derleyicisi bunu tespit edip bir uyarı mesajı oluşturacaktır.
+
+Veya Kalıbı (Or Pattern)
+========================
+
+Bazen farklı değerler için aynı şeylerin yapılması istenebilir. Bunun için ``match`` ifadesinde *veya kalıbı (or 
+pattern)* kullanılmaktadır. Veya kalıbı ``|`` atomuyla oluşturulmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   match val {
+      1 | 2 | 3 => println!("bir ya da iki ya da üç"),
+      4 => println!("dört"),
+      5 => println!("beş"),
+      _ => println!("diğer bir sayı")
+   }
+
+Burada birinci match kolu aşağıdaki gibidir:
+
+.. code-block:: rust
+
+   1 | 2 | 3 => println!("bir ya da iki ya da üç"),
+
+Bu kalıp ``1`` ya da ``2`` ya da ``3`` anlamına gelmektedir. Örneğin daha önce yazmış olduğumuz komut satırı
+uygulamasında biz döngüden *quit* ya da *exit* komutu girildiğinde çıkmak isteyebiliriz:
+
+.. code-block:: rust
+
+   loop {
+       //...
+       match getstr().as_str() {
+           "" => continue,
+           "dir" => println!("dir command"),
+           "copy" => println!("copy command"),
+           "rename" => println!("rename command"),
+           "quit" | "exit" => break,
+           _ => println!("unknown command"),
+       }
+   }
+
+Tabii veya kalıbındaki kalıplar sabit kalıplarıysa bunların aynı türden olması gerekir.
+
+Range Kalıbı
+============
+
+``match`` ifadelerinde çok kullanılan diğer bir kalıp da range kalıbıdır. range kalıbı bir değerin bir aralık içerisinde
+olup olmadığını belirlemekte kullanılmaktadır. Range kalıbını oluşturabilmek için yine daha önce görmüş olduğumuz ``..``
+ve ``..=`` operatörleri kullanılmaktadır. Range kalıbında kullanılabilecek range ifadeleri şunlardır:
+
+.. code-block:: text
+
+   a..b
+   a..=b
+   ..b
+   ..=b
+   a..
+
+Bu range ifadelerinin ne anlama geldiğini daha önce görmüştük. Bir kalıp olarak kullanıldığında bu range kalıpları şu
+anlamlara gelmektedir (``a`` ve ``b``'nin aynı tamsayı türlerine ilişkin değerler olduğunu varsayıyoruz):
+
+* ``a..b``: ``a``'dan ``b``'ye ``b`` dahil olmamak üzere (exclusive range) tamsayıların herhangi biri
+
+* ``a..=b``: ``a``'dan ``b``'ye ``b`` dahil olmak üzere (inclusive range) tamsayıların herhangi biri
+
+* ``..b``: ``b``'ye kadar olan fakat ``b`` dahil değil (range to) tamsayıların herhangi biri (negatif değerler de dahil)
+
+* ``..=b``: ``b``'ye kadar olan fakat ``b`` de dahil (range to inclusive) tamsayıların herhangi biri (negatif değerler de
+dahil)
+
+* ``a..``: a'dan başlayan tamsayıların herhangi biri (range from)
+
+Örneğin:
+
+.. code-block:: rust
+
+   let val = getval();
+
+   match val {
+       0 => break,
+       1 => println!("1"),
+       2..5 => println!("2..5"),
+       5 => println!("5"),
+       6..=8 => println!("6..=8"),
+       ..10 => println!("..10"),
+       ..=20 => println!("..=20"),
+       21.. => println!("21.."),
+   }
+
+Burada çeşitli kalıplar birlikte kullanılmıştır. Bu örnekte ilginç olan bir durum hiç wildcard kalıbının kullanılmamış
+olmasıdır. Çünkü bu örnekte zaten ``match`` *exhaustive* durumdadır. Yani ``i32`` türünün her değeri için çalıştırılacak
+bir ``match`` kolu bulunmaktadır.
+
+.. code-block:: rust
+
+   use std::io::{self, Write};
+
+   fn main() {
+      loop {
+         let val: i32;
+
+         print!("Bir değer giriniz:");
+         io::stdout().flush().expect("cannot flush stdout!");
+
+         val = getval();
+         match val {
+            0 => break,
+            1 => println!("1"),
+            2..5 => println!("2..5"),
+            5 => println!("5"),
+            6..=8 => println!("6..=8"),
+            ..10 => println!("..10"),
+            ..=20 => println!("..=20"),
+            21.. => println!("21.."),
+         }
+      }
+   }
+
+   fn getval() -> i32 {
+      let mut buf: String = String::new();
+
+      std::io::stdin().read_line(&mut buf).expect("read line failed");
+      buf.trim().parse().expect("parse into number failed")
+   }
+
+Range Kalıbında Türler
+----------------------
+
+Range kalıplarında ``match`` anahtar sözcüğünün yanındaki ifadenin türü ile range ifadesindeki türlerin aynı olması
+gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let val: i8;
+
+   val = getval();
+   match val {
+       1..10 => println!("1..10"),
+       _ => (),
+   }
+
+Burada ``val`` ifadesi ``i8`` türündendir. ``1..10`` range kalıbı bağlama göre ``1i8..10i8`` gibi ele alınmaktadır.
+Dolayısıyla buradaki range kalıbı geçerlidir. Örneğin:
+
+.. code-block:: rust
+
+   let val: i32;
+
+   val = getval();
+   match val {
+       1i8..10i8 => println!("1i8..10i8"),            // error!
+       _ => (),
+   }
+
+Bu örnekte ``val`` değişkeni ``i32`` türündendir. Ancak range kalıbı ``i8`` türüne ilişkindir. Bu nedenle error 
+oluşacaktır.
+
+Tabii range kalıbında çok seyrek olsa da ``f32`` ve ``f64`` türleri kullanılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let val: f64;
+
+   val = getval();
+   match val {
+       1.0..3.0 => println!("1.0..3.0"),
+       _ => ()
+   }
+
+Burada val ``f64`` türündendir. Range kalıbı da ``f64`` türüne ilişkindir. Yani örneğimizde val değeri ``1`` ile ``3``
+arasında herhangi bir gerçek sayı değeri ise uyuşum sağlanacaktır.
+
+Range Kalıbı ve Range Değişkeni
+-------------------------------
+
+Range kalıbında kalıp range operatörleriyle oluşturulmalıdır. Eğer biz bir match koluna Range türünden bir değişken
+yerleştirirsek bu bir range kalıbı olmaz. Sonraki paragrafta göreceğimiz gibi bir değişken kalıbı olur. Örneğin:
+
+.. code-block:: rust
+
+   let a = 10;
+   let r = 1..100;
+
+   match a {
+       r => println!("{}", r),     // dikkat! bu bir range kalıbı değil
+       //...
+   }
+
+``match`` kolundaki ``r`` yeni bir değişkendir ve bu değişken izleyen paragrafta da görüleceği üzere ``a``'nın türünden, 
+yani örneğimizde ``i32`` türünden olacaktır.
+
+Değişken Kalıbı (Identifier Pattern)
+====================================
+
+Diğer ilginç bir kalıba da *değişken kalıbı (identifier pattern)* denilmektedir. Değişken kalıbında kalıp bir değişken
+olur. Bu durumda uyuşum her zaman sağlanır. Değişken kalıbında kalıpla uyuşan değer kalıpta belirtilen değişkene
+yerleştirilir. Örneğin:
+
+.. code-block:: rust
+
+   val = getval();
+   match val {
+       a => println!("a = {}", a),
+   }
+
+Burada bu değişken kalıbı tüm val değerleriyle uyuşum sağlayacaktır. Uyuşum sağlandığında ``val`` değişkeninin 
+içerisindeki değer ``a`` değişkenine atanacaktır. ``a`` değişkeninin yukarıda ``let`` ile bağlanmış olması gerekmez.
+Çünkü zaten ``match`` kolunda yeni bir değişken bağlaması yapılmaktadır. Bu kalıpta değişkene bir tür bilgisi 
+iliştirilmez. Değişkenin türünün ``match`` anahtar sözcüğünün yanındaki ifadenin türüyle aynı olduğu kabul edilir.
+Örneğin yukarıdaki ``match`` ifadesinde ``a`` değişkeninin türü ``val`` değişkeninin türü ile aynıdır. Yani ``a``
+değişkeni de ``i32`` türündedir. Burada ayrıca ``match`` ifadesinin *exhaustive* olduğuna dikkat ediniz. Dolayısıyla
+wildcard kalıbı gerekmemektedir. Kalıpta belirtilen değişken yalnızca o match kolunda kullanılabilmektedir.
 
