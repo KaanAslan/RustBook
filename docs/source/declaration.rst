@@ -142,7 +142,7 @@ Rust'ta tek bir ``_`` karakteri bir yer tutucu olarak görev yapmaktadır. Örne
    let _ = foo();
 
 Burada programcı ``foo`` fonksiyonunun geri dönüş değerinden faydalanmak istemediğini derleyiciye söylemektedir. Tabii 
-aslında Rust derleyicisi bu durumda ``_`` için bellekte bir yer ayırmaz. Zaten programcı da bu ``_``karakterini programının 
+aslında Rust derleyicisi bu durumda ``_`` için bellekte bir yer ayırmaz. Zaten programcı da bu ``_`` karakterini programının 
 içerisinde bir değişken ismi gibi kullanamamaktadır. Örneğin:
 
 .. code-block:: rust
