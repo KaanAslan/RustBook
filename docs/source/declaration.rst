@@ -73,7 +73,7 @@ Bu işlem aşağıdakiyle eşdeğerdir:
 Ancak ``let`` ile tür belirtmeden bildirim yapıldıktan sonra değişkene ilkdeğer verilmezse bu durum error oluşturmaktadır.
 
 Aslında verilen ilkdeğerden hareketle otomatik tür tespiti eski pek çok programlama diline zaman içerisinde sokulmuştur.
- C++11 ile birlikte C++'a, C23 ile de C'ye auto anahtar sözcüğüyle bu özellik eklenmiştir. Örneğin:
+C++11 ile birlikte C++'a, C23 ile de C'ye auto anahtar sözcüğüyle bu özellik eklenmiştir. Örneğin:
 
 .. code-block:: cpp
 
