@@ -79,7 +79,7 @@ C++11 ile birlikte C++'a, C23 ile de C'ye auto anahtar sözcüğüyle bu özelli
 
    auto a = 123;       // 123 int türden olduğu için a da int türden
 
-Java ve C#'ta da aynı özellik var anahtar sözcüğü ile sağlanmaktadır. Örneğin:
+Java ve C#'ta da aynı özellik ``var`` anahtar sözcüğü ile sağlanmaktadır. Örneğin:
 
 .. code-block:: csharp
 
@@ -92,7 +92,7 @@ aşağıdaki gibi bir bildirim geçerlidir:
 
    int a = 10, b, c = 20;
 
-Ancak Rust'taki let deyimi *kalıp uyuşumu (pattern matching)* ile çalışmaktadır. Rust'ta bu biçimde tek hamlede bağlama
+Ancak Rust'taki let deyimi *kalıp uyuşumu (pattern matching)* ile çalışmaktadır. Rust'ta bu biçimde bir bağlama
 yapılamamaktadır. Örneğin:
 
 .. code-block:: rust
@@ -105,8 +105,8 @@ Rust'ta bu işlem tipik olarak *demet (tuple) kalıbı* ile yapılmaktadır. Ör
 
    let (a, b) = (10, 20);      // geçerli
 
-Değişken İsimlendirme Kuralları
-===============================
+Değişken İsimlendirme Kuralları ve Yazım Geleneği
+=================================================
 
 Rust *büyük harf küçük harf duyarlılığı olan (case sensitive)* bir programlama dilidir. Yani büyük harfler ve küçük
 harfler farklı karakterler olarak ele alınmaktadır. Rust'ta değişken isimlendirmesinde Unicode tablodaki tüm dillerin
@@ -118,16 +118,16 @@ oluşturabiliriz:
    let ağrı_dağının_yüksekliği = 5137;
 
 Her ne kadar böyle bir serbestlik varsa da diğer pek çok dilde olduğu gibi değişken isimlendirmesinde yoğun olarak
-İngilizce karakterler tercih edilmektedir. Birden fazla sözcük içeren değişkenlerin harflendirilmesi (capitalization)
+İngilizce karakterler tercih edilmektedir. Birden fazla sözcük içeren değişkenlerin harflendirilmesi (*capitalization*)
 için Rust'ta genel olarak C'deki gibi *yılan notasyonu (snake case)* tercih edilmektedir. Ancak yapı, enum, trait
-gibi *tür isimleri (items)* genellikle Pascal tarzı, sembolik sabitler ise genellikle Pascal tarzı ya da tüm harfleri
+gibi türlere ilişkin isimler (items) genellikle Pascal tarzı, sembolik sabitler (*const* değişkenler) ise genellikle tüm harfleri
 büyük olacak biçimde harflendirilmektedir. Biz de kursumuzda Rust'taki bu geleneğe uyacağız.
 
 Rust'ta bir değişken isminin başında ``'_'`` karakteri varsa bu durum Rust derleyicisi tarafından özel bir anlama
-gelmektedir. Rust derleyicisi default durumda bağlanmış (tanımlanmış) ancak kullanılmamış değişkenler için uyarı
-vermektedir. Ancak eğer değişkenin başında ``'_'`` varsa bu uyarıyı vermemektedir. Yani programcı ismini ``'_'`` ile
-başlattığı değişken için derleyiciye *Ben bu değişkeni kullanmayabilirim. Belki de daha sonra kullanacağım. Bunun için
-bana uyarı verme* demek istemektedir. Örneğin:
+gelmektedir. Rust derleyicisi varsayılan durumda bildirilmiş ancak kullanılmamış değişkenler için uyarı mesajı vermektedir. 
+Ancak eğer değişkenin başında ``'_'`` karakteri varsa bu uyarıyı vermemektedir. Yani programcı ismini ``'_'`` ile
+başlattığı değişken için derleyiciye "ben bu değişkeni kullanmayabilirim. Belki de daha sonra kullanacağım. Bunun için
+bana uyarı vmesajı erme* demek istemektedir. Örneğin:
 
 .. code-block:: rust
 
@@ -135,15 +135,15 @@ bana uyarı verme* demek istemektedir. Örneğin:
 
 Biz burada artık bu number değişkenini kullanmasak bile derleyici bunun için bize uyarı vermeyecektir.
 
-Rust'ta tek bir ``_`` karakterinden oluşan değişkenler bir yer tutucu olarak görev yapmaktadır. Örneğin:
+Rust'ta tek bir ``_`` karakteri bir yer tutucu olarak görev yapmaktadır. Örneğin:
 
 .. code-block:: rust
 
    let _ = foo();
 
-Burada programcı foo fonksiyonunun geri dönüş değerinden faydalanmak istemediğini derleyiciye söylemektedir. Tabii
-aslında Rust derleyicisi bu ``_`` değişkeni için bellekte bir yer ayırmaz. Zaten programcı da bu ``_`` ismini
-programının içerisinde bir değişken ismi gibi kullanamaz. Örneğin:
+Burada programcı ``foo`` fonksiyonunun geri dönüş değerinden faydalanmak istemediğini derleyiciye söylemektedir. Tabii 
+aslında Rust derleyicisi bu durumda ``_`` için bellekte bir yer ayırmaz. Zaten programcı da bu ``_``karakterini programının 
+içerisinde bir değişken ismi gibi kullanamamaktadır. Örneğin:
 
 .. code-block:: rust
 
@@ -151,7 +151,7 @@ programının içerisinde bir değişken ismi gibi kullanamaz. Örneğin:
 
    println!("{}", _);      // error!
 
-Belli bir versiyondan sonra Rust'ta ``_`` isimli değişken hiç bağlama yapmadan atama işleminde de kullanılabilir hale
+Belli bir versiyondan sonra Rust'ta ``_`` isimli değişken ``let`` anahtar sözcüğü olmadan atama işleminde de kullanılabilir hale 
 gelmiştir. Örneğin:
 
 .. code-block:: rust
@@ -164,6 +164,10 @@ ile özellikle demet açımlarında sıkça karşılaşılmaktadır. Demetler il
 Rust'ta değişkenlerin maksimum karakter uzunluğu konusunda *The Rust Reference* dokümanlarında bir belirlemede
 bulunulmamıştır. Bu konuda bir belirlemede bulunulmamış olması bu durumun derleyicileri yazanların isteğine bırakıldığı
 anlamına gelmektedir.
+
+Rust'taki yazım geleneğine ilişkin **Rust Style Guideline** dokümanına aşağıdaki bağlantıdan erişebilirsiniz:
+
+https://doc.rust-lang.org/stable/style-guide/
 
 Değiştirilemez ve Değiştirilebilir Değişkenler
 ==============================================
