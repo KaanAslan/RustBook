@@ -16,37 +16,6 @@ Program içerisinde doğrudan yazılmış olan değerlere *sabit (literal)* deni
 
 Burada a ve b birer değişken 10 ise bir sabittir. Biz burada b'nin içerisindeki değerle doğrudan 10'u topluyoruz.
 
-Katı Tür Kontrolü
-=================
-
-Rust katı tür kontrolüne (strict type checking) sahip bir programlama dilidir. Atama sırasında kaynak değerin türüyle
-hedef değerin türünün aynı olması gerekir. Örneğin:
-
-.. code-block:: rust
-
-   let a: i8 = 10;
-   let b: i32;
-
-   b = a;      // error!
-
-Burada her ne kadar i8 türündeki her değer i32 türüyle temsil edilebiliyorsa da başka bir deyişle atamada bilgi kaybının
-oluşması söz konusu değilse de bu atama error ile sonuçlanacaktır. Çünkü kaynak türle hedef tür birbirinden farklıdır.
-Yukarıdaki gibi atamaların C, Java ve C# gibi programlama dillerinde tamamen normal ve geçerli olduğunu anımsayınız.
-
-Rust'ta iki operand'lı operatörlerde operand'ların türleri de aynı olmak zorundadır. Örneğin:
-
-.. code-block:: rust
-
-   let a: i8 = 10;
-   let b: i32 = 20;
-   let c: i32;
-
-   c = a + b;      // error!
-
-============================
-Sabitlerin Yazımı ve Türleri
-============================
-
 Tamsayı Sabitleri ve Türleri
 ============================
 
@@ -2992,13 +2961,13 @@ sınırları içerisinde kalmıyorsa (yani basamaksal bir kayıp oluşuyorsa) bu
 ``+inf``, kaynak tamsayı negatifse hedef türden ``-inf`` değeri elde edilmektedir. Fakat böylesi bir durum ancak
 ``u128``'den ``f32`` yapılan dönüştürmelerde söz konusu olabilir.
 
-* ``f32`` türünden ``f64`` türüne dönüştürmelerde bilgi kaybı oluşmaz. Dolayısıyla sayı tam olarak hedef türle ifade 
-edilir.
+*  ``f32`` türünden ``f64`` türüne dönüştürmelerde bilgi kaybı oluşmaz. Dolayısıyla sayı tam olarak hedef türle ifade 
+   edilir.
 
 * ``f64`` türünden ``f32`` türüne dönüştürme yapılırken eğer mantis kaybı oluşuyorsa ``f32`` ile temsil edilen 
-dönüştürülecek sayıya en yakın sayı elde edilir. Yine eşit uzaklıkta sayılarda çift olan tercih edilmektedir. Eğer
-basamaksal bir kayıp söz konusu olursa dönüştürülecek sayı pozitifse ``+inf``, negatifse ``-inf`` değeri elde 
-edilmektedir.
+   dönüştürülecek sayıya en yakın sayı elde edilir. Yine eşit uzaklıkta sayılarda çift olan tercih edilmektedir. Eğer
+   basamaksal bir kayıp söz konusu olursa dönüştürülecek sayı pozitifse ``+inf``, negatifse ``-inf`` değeri elde 
+   edilmektedir.
 
 ======================================================================
 char ve bool Dönüştürmeleri, never Türü, Klavyeden Okuma ve if İfadesi
@@ -5521,7 +5490,7 @@ anlamlara gelmektedir (``a`` ve ``b``'nin aynı tamsayı türlerine ilişkin de�
 * ``..b``: ``b``'ye kadar olan fakat ``b`` dahil değil (range to) tamsayıların herhangi biri (negatif değerler de dahil)
 
 * ``..=b``: ``b``'ye kadar olan fakat ``b`` de dahil (range to inclusive) tamsayıların herhangi biri (negatif değerler de
-dahil)
+  dahil)
 
 * ``a..``: a'dan başlayan tamsayıların herhangi biri (range from)
 

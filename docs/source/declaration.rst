@@ -2,7 +2,7 @@
 Bildirim İşlemleri
 ===================
 
-Şimdi Rust'ta değişken bildirimleri üzerinde duracağız. Rust yeni bir programlama dilidir. Bu nedenle dilin
+Bu bölümde Rust'ta değişken bildirimleri üzerinde duracağız. Rust yeni bir programlama dilidir. Bu nedenle dilin
 terminolojisi de maalesef tam olarak oturtulamamıştır. Bir değişkenin oluşturulmasına yani faaliyet alanına
 sokulmasına bazı dillerde *bildirim (declaration)* bazı dillerde *tanımlama (definition)* denilmektedir. Rust'ta
 da değişkenin faaliyet alanına sokulmasına **bildirim (declaration)** denilmektedir. Ancak bildirim oluştururken
@@ -280,3 +280,30 @@ derleyicilerin *kod optimizasyonu* denilmektedir. Aşağıdaki kodu inceleyiniz:
 
 Bu kodda biz a için ikinci kez farklı bir yer ayrılıp ayrılmadığını anlayamayız. Çünkü kodumuzda bu gözlemi yapabilecek
 bir durum oluşmamıştır. Dolayısıyla derleyici burada tek bir a oluşturup kodu optimize etmeye çalışabilir.
+
+Katı Tür Kontrolü
+=================
+
+Rust katı tür kontrolüne (strict type checking) sahip bir programlama dilidir. Atama sırasında kaynak değerin türüyle
+hedef değerin türünün aynı olması gerekir. Örneğin:
+
+.. code-block:: rust
+
+   let a: i8 = 10;
+   let b: i32;
+
+   b = a;      // error!
+
+Burada her ne kadar i8 türündeki her değer i32 türüyle temsil edilebiliyorsa da başka bir deyişle atamada bilgi kaybının
+oluşması söz konusu değilse de bu atama error ile sonuçlanacaktır. Çünkü kaynak türle hedef tür birbirinden farklıdır.
+Yukarıdaki gibi atamaların C, Java ve C# gibi programlama dillerinde tamamen normal ve geçerli olduğunu anımsayınız.
+
+Rust'ta iki operand'lı operatörlerde operand'ların türleri de aynı olmak zorundadır. Örneğin:
+
+.. code-block:: rust
+
+   let a: i8 = 10;
+   let b: i32 = 20;
+   let c: i32;
+
+   c = a + b;      // error!
