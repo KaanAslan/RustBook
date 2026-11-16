@@ -105,8 +105,8 @@ Rust'ta bu işlem tipik olarak *demet (tuple) kalıbı* ile yapılmaktadır. Ör
 
    let (a, b) = (10, 20);      // geçerli
 
-Değişken İsimlendirme Kuralları ve Yazım Geleneği
-=================================================
+Değişken İsimlendirme Kuralları ve Rust'ın Yazım Geleneği
+=========================================================
 
 Rust *büyük harf küçük harf duyarlılığı olan (case sensitive)* bir programlama dilidir. Yani büyük harfler ve küçük
 harfler farklı karakterler olarak ele alınmaktadır. Rust'ta değişken isimlendirmesinde Unicode tablodaki tüm dillerin
@@ -135,7 +135,8 @@ bana uyarı vmesajı erme* demek istemektedir. Örneğin:
 
 Biz burada artık bu number değişkenini kullanmasak bile derleyici bunun için bize uyarı vermeyecektir.
 
-Rust'ta tek bir ``_`` karakteri bir yer tutucu olarak görev yapmaktadır. Örneğin:
+``let`` deyiminde tek bir ``_`` karakteri kalıp uyuşumunda *joker kalıbı (wildcard pattern)* anlamına gelmektedir. Joker kalıbı
+bir değişken belirtmez, değerin kullanılmayacağını vurgulamak amacıyla kullanılmaktadır. Örneğin:
 
 .. code-block:: rust
 
@@ -151,15 +152,15 @@ içerisinde bir değişken ismi gibi kullanamamaktadır. Örneğin:
 
    println!("{}", _);      // error!
 
-Belli bir versiyondan sonra Rust'ta ``_`` isimli değişken ``let`` anahtar sözcüğü olmadan atama işleminde de kullanılabilir hale 
-gelmiştir. Örneğin:
+Belli bir versiyondan sonra Rust'ta atama operatörüün soluna da ``_`` karakteri getirilebilmektedir. Bu biçimdeki ifadelere *alttire 
+ifadeleri (underscore expression)" denilmektedir. Örneğin:
 
 .. code-block:: rust
 
    _ = foo();
 
-Burada bizim ``_`` isminde bir değişkeni daha önce tanımlamış olmamız gerekmez. Değişken isimleri yerine ``_`` kullanımı
-ile özellikle demet açımlarında sıkça karşılaşılmaktadır. Demetler ileride ele alınacaktır.
+Değişken isimleri yerine ``_`` kullanımı ile özellikle demet açımlarında sıkça karşılaşılmaktadır. Demetler konusu ileride 
+ele alınacaktır.
 
 Rust'ta değişkenlerin maksimum karakter uzunluğu konusunda *The Rust Reference* dokümanlarında bir belirlemede
 bulunulmamıştır. Bu konuda bir belirlemede bulunulmamış olması bu durumun derleyicileri yazanların isteğine bırakıldığı
