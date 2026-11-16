@@ -13,24 +13,15 @@ bir değişkenin faaliyet alanına sokulması için bildirim (declaration) terim
 let Deyimi
 ==========
 
-Rust'ta bir değişkenin faaliyet alanına sokulması (yani bağlanması) let deyimiyle yapılmaktadır. let deyimi *kalıp
-uyuşumu (pattern matching)* özelliği ile çalışır. Bu nedenle let deyiminin genel biçimi biraz ayrıntılıdır. Biz bu
-bölümde kalıp uyuşumu özelliğini göz ardı ederek let deyiminin temel kullanımı üzerinde duracağız.
-
-let deyiminin genel biçimi kabaca şöyledir:
-
-.. code-block:: text
-
-   let <kalıp> = ifade [else {...}]
-
-let deyimi kalıp uyuşumu ile çalışmaktadır. Ancak biz kalıp uyuşumlarını ileride başka bölümlerde ele alacağız. Bu
-bölümde let deyiminin temel kullanım üzerinde duracağız. let deyiminin yalın kullanımının genel biçimi şöyledir:
+Rust'ta bir değişkenin faaliyet alanına sokulması (yani bağlanması) ``let`` deyimiyle yapılmaktadır. let deyimi *kalıp
+uyuşumu (pattern matching)* özelliği ile çalışır. Bu nedenle ``let`` deyiminin genel biçimi biraz ayrıntılıdır. Biz bu
+bölümde kalıp uyuşumu özelliğini göz ardı ederek ``let`` deyiminin temel kullanımı üzerinde duracağız.
 
 .. code-block:: text
 
    let <değişken_ismi> [: <tür>] [= <ilkdeğer>];
 
-let deyiminin üç temel kullanım biçimi vardır:
+``let`` deyiminin üç temel kullanım biçimi vardır:
 
 .. code-block:: text
 
@@ -38,7 +29,7 @@ let deyiminin üç temel kullanım biçimi vardır:
    2) let <değişken_ismi> = <ilkdeğer>;
    3) let <değişken_ismi>: <tür> = ilkdeğer;
 
-let deyimi ile bir değişken bağlanırken değişken isminden sonra ':' atomu ve sonra değişkenin türü belirtilebilir.
+``let`` deyimi ile bir değişken bağlanırken değişken isminden sonra ``':'`` atomu ve sonra değişkenin türü belirtilebilir.
 Örneğin:
 
 .. code-block:: rust
@@ -47,7 +38,7 @@ let deyimi ile bir değişken bağlanırken değişken isminden sonra ':' atomu 
    let b: f64;
    let c: bool;
 
-Eğer bağlanan değişkene ilkdeğer veriliyorsa tür belirtilmeyebilir. Örneğin:
+Eğer bildirilen değişkene ilkdeğer veriliyorsa tür belirtilmeyebilir. Örneğin:
 
 .. code-block:: rust
 
@@ -55,7 +46,7 @@ Eğer bağlanan değişkene ilkdeğer veriliyorsa tür belirtilmeyebilir. Örne�
    let b = 3.14;
    let c = true;
 
-Bu durumda değişkenin türü ona verilen ilkdeğerden hareketle tespit edilmektedir. let deyiminde hem tür belirtilebilir
+Bu durumda değişkenin türü ona verilen ilkdeğerden hareketle tespit edilmektedir. ``let`` deyiminde hem tür belirtilebilir
 hem de değişkene ilkdeğer verilebilir. Örneğin:
 
 .. code-block:: rust
@@ -64,7 +55,7 @@ hem de değişkene ilkdeğer verilebilir. Örneğin:
    let b: f64 = 3.14;
    let c: bool = true;
 
-Rust'ta değişkene ilkdeğer let deyiminde verilmek zorunda değildir. İlkdeğer verme daha sonra atama deyimiyle de
+Rust'ta değişkene ilkdeğer ``let`` deyiminde verilmek zorunda değildir. İlkdeğer verme daha sonra atama deyimiyle de
 yapılabilmektedir. Örneğin:
 
 .. code-block:: rust
@@ -79,10 +70,10 @@ Bu işlem aşağıdakiyle eşdeğerdir:
 
    let a = 10;
 
-Ancak let ile tür belirtmeden bildirim yapıldıktan sonra değişkene ilkdeğer verilmezse bu durum error oluşturmaktadır.
+Ancak ``let`` ile tür belirtmeden bildirim yapıldıktan sonra değişkene ilkdeğer verilmezse bu durum error oluşturmaktadır.
 
-Aslında verilen ilkdeğerden hareketle otomatik tür tespiti pek çok programlama diline sokulmuştur. C'de böyle bir
-özellik yoktur ancak C++11 ile birlikte C++'a auto anahtar sözcüğü ile bu özellik eklenmiştir. Örneğin:
+Aslında verilen ilkdeğerden hareketle otomatik tür tespiti eski pek çok programlama diline zaman içerisinde sokulmuştur.
+ C++11 ile birlikte C++'a, C23 ile de C'ye auto anahtar sözcüğüyle bu özellik eklenmiştir. Örneğin:
 
 .. code-block:: cpp
 
