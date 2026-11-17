@@ -177,7 +177,7 @@ kullanmaktadır. Dolayısıyla Windows sistemlerinde MSVC araçlarının yüklü
 programı bu kontrolü yapmakta ve eğer MSVC aracı yoksa bunu kullanıcıya sorarak yüklemektedir. Ancak Windows
 sistemlerinde *GNU Araç Zinciriyle (GNU Toolchain)* çalışılabilmektedir.
 
-Tıpkı **gcc** ve *clang* derleyicilerinde olduğu gibi *rustc* derleyicisi de bağlama işleminden sonra
+Tıpkı *gcc* ve *clang* derleyicilerinde olduğu gibi *rustc* derleyicisi de bağlama işleminden sonra
 *amaç dosyayı (object file)* silmektedir. Dolayısıyla *rustc* programını çalıştırdıktan sonra bir amaç dosya
 göremezseniz şaşırmayınız.
 
@@ -203,6 +203,22 @@ UNIX/Linux ve macOS sistemlerinde çalıştırılabilen dosyaların belli bir uz
 .. code-block:: bash
 
    rustc -o project sample.rs
+
+Rust programlarının ilk satırında *shebang* de bulunabilmektedir. Böylece temel özellikleri Rust'a benzeyen
+yorumlayıcıların da bu *shebang* yoluyla çalıştırılması sağlanmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    #!/usr/bin/rustx
+
+    fn main() {
+        println!("Hello world");
+    }
+
+Shebang konusunu burada ele almayacağız. Bunun için *UNIX/Linux Sistem Programlama* kitabımızın 9. Bölümüne
+başvurabilirsiniz:
+
+https://unixlinuxsysprogbook.readthedocs.io/tr/latest/exec.html
 
 Sandık ve Paket Kavramları
 ==========================

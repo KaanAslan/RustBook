@@ -2,11 +2,11 @@
 Sabitler
 ========
 
-Statik tür sistemine sahip olan programlama dillerinde yalnızca değişkenlerin değil sabitlerin de (genel olarak tüm
-ifadelerin (expression) de) bir türü vardır. Sabitlerin türleri onların yazım biçimlerine göre ve niceliklerine göre
-(yani değerlerine göre) değişebilmektedir. Bir programlama dilini öğrenirken ilk öğrenilecek konulardan birisi de o
-programlama dilindeki sabitlerin nasıl oluşturulduğu ve türlerinin nasıl belirlendiğidir. Biz de bu bölümde Rust
-dilindeki sabitlerin nasıl oluşturulduğunu ve türlerinin nasıl belirlendiğini ele alacağız.
+Statik tür sistemine sahip olan programlama dillerinde yalnızca değişkenlerin değil sabitlerin de -genel olarak tüm
+ifadelerin (*expression*) de- bir türü vardır. Bir programlama dilini öğrenirken ilk öğrenilecek konulardan birisi de o
+programlama dilindeki sabitlerin nasıl oluşturulduğu ve türlerinin nasıl belirlendiğidir. Sabitlerin türleri onların 
+yazım biçimlerine göre ve niceliklerine göre (yani değerlerine göre) belirlenmektedir.Biz de bu bölümde Rust dilindeki 
+sabitlerin nasıl oluşturulduğunu ve türlerinin nasıl belirlendiğini ele alacağız.
 
 Program içerisinde doğrudan yazılmış olan değerlere *sabit (literal)* denilmektedir. Örneğin:
 
@@ -14,10 +14,11 @@ Program içerisinde doğrudan yazılmış olan değerlere *sabit (literal)* deni
 
    a = b + 10;
 
-Burada a ve b birer değişken 10 ise bir sabittir. Biz burada b'nin içerisindeki değerle doğrudan 10'u topluyoruz.
+Burada ``a`` ve ``b`` birer değişken ``10`` ise bir sabittir. Biz burada ``b``'nin içerisindeki değerle doğrudan ``10``'u 
+topluyoruz.
 
-Tamsayı Sabitleri ve Türleri
-============================
+Tamsayı Sabitleri 
+=================
 
 Rust'ta nokta içermeyen ve sonunda tür eki bulunmayan sabitler onların kullanıldığı bağlama göre gereksinim duyulan
 türün sınırları içerisinde kalıyorsa o türden kabul edilmektedir. Örneğin:
