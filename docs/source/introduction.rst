@@ -209,13 +209,13 @@ yorumlayıcıların da bu *shebang* yoluyla çalıştırılması sağlanmaktadı
 
 .. code-block:: rust
 
-    #!/usr/bin/rustx
+    #!/usr/bin/env rust-script
 
     fn main() {
         println!("Hello world");
     }
 
-Shebang konusunu burada ele almayacağız. Bunun için *UNIX/Linux Sistem Programlama* kitabımızın 9. Bölümüne
+*Shebang* konusunu burada ele almayacağız. Bunun için *UNIX/Linux Sistem Programlama* kitabımızın 9. Bölümüne
 başvurabilirsiniz:
 
 https://unixlinuxsysprogbook.readthedocs.io/tr/latest/exec.html
