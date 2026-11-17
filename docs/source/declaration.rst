@@ -263,7 +263,7 @@ C, C++, Java ve C# gibi pek çok dilde geçerli olmadığını anımsayınız.
 
 Burada iki a'nın adresi alındığında farklı adresler görülecektir. Tabii kodun gözlemlenebilen davranışı değişmedikten
 sonra derleyiciler kodu daha hızlı çalışacak ya da daha az yer kaplayacak biçimde yeniden düzenleyebilirler. Bu sürece
-derleyicilerin "kod optimizasyonu (code optimization)" dendiğini anımsayınız. Aşağıdaki kodu inceleyiniz:
+derleyicilerin *kod optimizasyonu (code optimization)* dendiğini anımsayınız. Aşağıdaki kodu inceleyiniz:
 
 .. code-block:: rust
 
