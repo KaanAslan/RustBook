@@ -152,8 +152,8 @@ içerisinde bir değişken ismi gibi kullanamamaktadır. Örneğin:
 
    println!("{}", _);      // error!
 
-Belli bir versiyondan sonra Rust'ta atama operatörüün soluna da ``_`` karakteri getirilebilmektedir. Bu biçimdeki ifadelere *alttire 
-ifadeleri (underscore expression)" denilmektedir. Örneğin:
+Belli bir versiyondan sonra Rust'ta atama operatörüün soluna da ``_`` karakteri getirilebilmektedir. Bu biçimdeki ifadelere 
+*alttire ifadeleri (underscore expression)"* denilmektedir. Örneğin:
 
 .. code-block:: rust
 
@@ -166,22 +166,23 @@ Rust'ta değişkenlerin maksimum karakter uzunluğu konusunda *The Rust Referenc
 bulunulmamıştır. Bu konuda bir belirlemede bulunulmamış olması bu durumun derleyicileri yazanların isteğine bırakıldığı
 anlamına gelmektedir.
 
-Rust'taki yazım geleneğine ilişkin **Rust Style Guideline** dokümanına aşağıdaki bağlantıdan erişebilirsiniz:
+Rust'taki yazım geleneği **Rust Style Guideline** dokümanında ayrıntılarıyla açıklanmaktadır. Bu dokümana aşağıdaki bağlantıdan 
+erişebilirsiniz:
 
 https://doc.rust-lang.org/stable/style-guide/
 
-Değiştirilemez ve Değiştirilebilir Değişkenler
-==============================================
+Değişkenlerin Değiştirilebilirliği ve Değiştirilemezliği
+========================================================
 
-Rust'ta bir değişken bağlandığında (tanımlandığında) o değişken default olarak *değiştirilemez (immutable)* durumdadır.
-Yani o değişken C'deki const nesne gibidir. Örneğin:
+Rust'ta bir değişken bildirildiğinde değişken varsayılan durumda *değiştirilemez (immutable)* durumdadır. Yani o değişken 
+C'deki const nesne gibidir. Örneğin:
 
 .. code-block:: rust
 
    let a = 10;
 
-Burada a değişkeni default olarak değiştirilemez (immutable) durumdadır. Ancak değiştirilemez bir değişkene ilkdeğer
-verilmesi zorunlu da değildir. Bu değişkene bildirildikten sonra da değer atanabilir. Ancak ne olursa olsun
+Burada ``a`` değişkeni eğiştirilemez (*immutable*) durumdadır. Ancak değiştirilemez bir değişkene ilkdeğer
+verilmesi zorunlu da değildir. Buradaki a değişkenine bildirildikten sonra da değer atanabilir. Ancak ne olursa olsun
 değiştirilemez değişkenlere toplamda yalnızca bir kez değer atanabilmektedir. Örneğin:
 
 .. code-block:: rust
@@ -191,10 +192,10 @@ değiştirilemez değişkenlere toplamda yalnızca bir kez değer atanabilmekted
    a = 10;         // geçerli
    a = 20;         // error!
 
-Değişkenlerin default durumda değiştirilemez olması Rust'a özgü bir özellik değildir. Swift gibi Kotlin gibi yeni
-programlama dillerinde de Erlang ve Haskell gibi fonksiyonel dillerde de değişkenler default durumda değiştirilemez
-biçimdedir. Değişkenin değiştirilebilir (mutable) olmasını sağlamak için değişken isminin soluna mut anahtar sözcüğü
-getirilir. Örneğin:
+Değişkenlerin varsayılan durumda değiştirilemez olması Rust'a özgü bir özellik değildir. Swift gibi Kotlin gibi yeni
+programlama dillerinde de Erlang ve Haskell gibi fonksiyonel dillerde de değişkenler varsayılan durumda değiştirilemez
+biçimdedir. Rust'ta değişkenin değiştirilebilir (*mutable*) olmasını sağlamak için değişken isminin soluna *mut* anahtar sözcüğü
+getirilmektedir. Örneğin:
 
 .. code-block:: rust
 
@@ -210,7 +211,7 @@ getirilir. Örneğin:
 
    let mut a: i32;
 
-   a = 10;
+   a = 10;                         // geçerli
    println!("{}", a);              // 10
    a = 20;                         // geçerli
    println!("{}", a);              // 20
@@ -227,16 +228,16 @@ Java, C# ve yeni tasarlanmış olan bazı dillerde olduğu gibi Rust'ta da henü
 
    println!("{}", a);       // derleme aşamasında error oluşur!
 
-C'de henüz içerisine değer atanmamış nesnelerin kullanılabildiğini ancak bu durumun *tanımsız davranışa (undefined
+C'de ve C++'ta içerisine henüz değer atanmamış nesnelerin kullanılabildiğini ancak bu durumun *tanımsız davranışa (undefined
 behavior)* yol açtığını anımsayınız.
 
-Gölgeleme (Shadowing)
-=====================
+Değişkenlerin Gölgelenmesi
+==========================
 
-Rust'ta C, C++, Java, C# gibi dillerde bulunmayan ismine *gölgeleme (shadowing)* denilen bir faaliyet alanı (scope)
-özelliği vardır. Rust'ta aynı faaliyet alanında aynı isimli değişkenler bağlanabilir (bildirilebilir). Bu durumda ikinci
-bağlamaya kadar ilk değişken faaliyet göstermeye devam eder. İkinci bağlamadan sonra artık ilk değişken kullanılamaz,
-ancak ikinci değişken kullanılabilir. Örneğin:
+Rust'ta C, C++, Java, C# gibi dillerde bulunmayan ismine *gölgeleme (shadowing)* denilen bir faaliyet alanı (*scope*)
+özelliği vardır. Rust'ta aynı faaliyet alanında aynı isimli değişkenler bildirilebilir. Bu durumda ikinci bildirime kadar i
+lk değişken faaliyet göstermeye devam eder. İkinci bildirimden sonra artık ilk değişken kullanılamaz, ancak ikinci değişken 
+kullanılabilir. Örneğin:
 
 .. code-block:: rust
 
@@ -248,7 +249,7 @@ ancak ikinci değişken kullanılabilir. Örneğin:
 
    println!("{}", a);      // 3.14
 
-Burada aynı fonksiyon içerisinde aynı isimli değişken let deyimi ile birden fazla kez bağlanmıştır. Bu tür bildirimlerin
+Burada aynı fonksiyon içerisinde aynı isimli değişken ``let`` deyimi ile birden fazla kez bağlanmıştır. Bu tür bildirimlerin
 C, C++, Java ve C# gibi pek çok dilde geçerli olmadığını anımsayınız.
 
 *The Rust Reference* dokümanlarına göre gölgeleme sırasında türler aynı olsa bile farklı bir değişken yaratılır.
@@ -261,8 +262,8 @@ C, C++, Java ve C# gibi pek çok dilde geçerli olmadığını anımsayınız.
    let a: i32 = 20;
 
 Burada iki a'nın adresi alındığında farklı adresler görülecektir. Tabii kodun gözlemlenebilen davranışı değişmedikten
-sonra derleyiciler kodu daha hızlı çalışacak ya da daha az yer kaplayacak biçimde yeniden düzenleyebilirler. Buna
-derleyicilerin *kod optimizasyonu* denilmektedir. Aşağıdaki kodu inceleyiniz:
+sonra derleyiciler kodu daha hızlı çalışacak ya da daha az yer kaplayacak biçimde yeniden düzenleyebilirler. Bu sürece
+derleyicilerin "kod optimizasyonu (code optimization)" dendiğini anımsayınız. Aşağıdaki kodu inceleyiniz:
 
 .. code-block:: rust
 
@@ -274,13 +275,13 @@ derleyicilerin *kod optimizasyonu* denilmektedir. Aşağıdaki kodu inceleyiniz:
 
    println!("{}", a);      // 20
 
-Bu kodda biz a için ikinci kez farklı bir yer ayrılıp ayrılmadığını anlayamayız. Çünkü kodumuzda bu gözlemi yapabilecek
-bir durum oluşmamıştır. Dolayısıyla derleyici burada tek bir a oluşturup kodu optimize etmeye çalışabilir.
+Bu kodda biz ``a`` için ikinci kez farklı bir yer ayrılıp ayrılmadığını anlayamayız. Çünkü kodumuzda bu gözlemi yapabilecek
+bir durum oluşmamıştır. Dolayısıyla derleyici burada tek bir ``a`` oluşturup kodu optimize etmeye çalışabilir.
 
-Katı Tür Kontrolü
-=================
+Rust'ta Katı Tür Kontrolü
+=========================
 
-Rust katı tür kontrolüne (strict type checking) sahip bir programlama dilidir. Atama sırasında kaynak değerin türüyle
+Rust *katı tür kontrolüne (strict type checking)* sahip bir programlama dilidir. Atama sırasında kaynak değerin türüyle
 hedef değerin türünün aynı olması gerekir. Örneğin:
 
 .. code-block:: rust
@@ -290,7 +291,7 @@ hedef değerin türünün aynı olması gerekir. Örneğin:
 
    b = a;      // error!
 
-Burada her ne kadar i8 türündeki her değer i32 türüyle temsil edilebiliyorsa da başka bir deyişle atamada bilgi kaybının
+Burada her ne kadar i8 türündeki her değer i32 türüyle temsil edilebiliyor olsa da başka bir deyişle atamada bilgi kaybının
 oluşması söz konusu değilse de bu atama error ile sonuçlanacaktır. Çünkü kaynak türle hedef tür birbirinden farklıdır.
 Yukarıdaki gibi atamaların C, Java ve C# gibi programlama dillerinde tamamen normal ve geçerli olduğunu anımsayınız.
 
@@ -303,3 +304,6 @@ Rust'ta iki operand'lı operatörlerde operand'ların türleri de aynı olmak zo
    let c: i32;
 
    c = a + b;      // error!
+
+C, C# ve Java gibi dillerde bu tür durumlarda işlem öncesinde *otomatik tür dönüştürmesinin (implicit type conversion)* 
+uygulandığını anımsayınız.
