@@ -23247,3 +23247,7577 @@ kullanım şöyle olabilir:
            self.text.chars().nth(self.index - 1)
        }
    }
+
+Trait'lerin Birden Fazla Desteklenmesi, Türetme ve İlişkili Türler
+=====================================================================================
+
+Bir Yapının ya da enum Türünün Birden Fazla Trait'i Desteklemesi
+-------------------------------------------------------------------------------------
+
+Bir yapı ya da enum türü birden fazla trait'i de destekleyebilir. Örneğin:
+
+.. code-block:: rust
+
+    trait A {
+        fn foo(&self);
+    }
+
+    trait B {
+        fn bar(&self);
+    }
+
+    struct Sample {
+        val: i32
+    }
+
+    impl A for Sample {
+        fn foo(&self) {
+            println!("foo");
+        }
+    }
+
+    impl B for Sample {
+        fn bar(&self) {
+            println!("bar");
+        }
+    }
+
+Burada ``Sample`` yapısı hem ``A`` trait'ini hem de ``B`` trait'ini desteklemektedir. Tabii ``foo`` ve ``bar``
+metotları yine ``Sample`` yapısının metotları gibi ``Sample`` türünden değişkenlerle ya da değerlerle
+çağrılabilmektedir:
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { val: 12 };
+
+        s.foo();
+        s.bar();
+    }
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { val: 12 };
+
+        s.foo();
+        s.bar();
+    }
+
+    trait A {
+        fn foo(&self);
+    }
+
+    trait B {
+        fn bar(&self);
+    }
+
+    struct Sample {
+        val: i32
+    }
+
+    impl A for Sample {
+        fn foo(&self) {
+            println!("foo");
+        }
+    }
+
+    impl B for Sample {
+        fn bar(&self) {
+            println!("bar");
+        }
+    }
+
+Farklı Trait'lerde Aynı İsimli Metotlar ve İki Anlamlılık Sorunu
+-------------------------------------------------------------------------------------
+
+Farklı trait'lerde aynı isimli metotlar bulunabilir. Bir yapı ya da enum türü bu trait'leri destekleyebilir. Bu durumda
+farklı ``impl`` bloklarında aynı isimli metotlar bulunuyor olacaktır. Örneğin:
+
+.. code-block:: rust
+
+    trait A {
+        fn foo(&self);
+    }
+
+    trait B {
+        fn foo(&self);
+    }
+
+Burada ``A`` ve ``B`` trait'lerinin her ikisinde de ``foo`` metodu vardır. Biz yapımızda bu iki trait'i de aynı anda
+destekleyebiliriz. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32
+    }
+
+    impl A for Sample {
+        fn foo(&self) {
+            println!("A::foo");
+        }
+    }
+
+    impl B for Sample {
+        fn foo(&self) {
+            println!("B::foo");
+        }
+    }
+
+Bu haliyle kod derlendiğinde bir sorun oluşmaz. Ancak ``Sample`` türünden bir değişken ya da değerle ``foo`` metodu
+çağrılırsa derleyici hangi trait için tanımlanmış olan ``foo`` metodunun çağrıldığını anlayamayacak ve çağırma
+sırasında error oluşacaktır. Örneğin:
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { val: 12 };
+
+        s.foo();        // error!
+    }
+
+Rust'ta nesne yönelimli dillerde olduğu gibi
+*farklı parametrik yapılara ilişkin metotlar ve fonksiyonlar (function overloading)* özelliği bulunmamaktadır.
+Dolayısıyla yukarıdaki örneğimizde ``A`` ve ``B`` trait'lerindeki ``foo`` fonksiyonunun imzaları farklı olsaydı da iki
+anlamlılık hatası yine oluşurdu. Örneğin:
+
+.. code-block:: rust
+
+    trait A {
+        fn foo(&self, a: i32);
+    }
+
+    trait B {
+        fn foo(&self);
+    }
+
+    struct Sample {
+        val: i32
+    }
+
+    impl Sample {
+        fn disp(&self) {
+            println!("{}", self.val);
+        }
+    }
+
+    impl A for Sample {
+        fn foo(&self, a: i32) {
+            println!("A::foo");
+        }
+    }
+
+    impl B for Sample {
+        fn foo(&self) {
+            println!("B::foo");
+        }
+    }
+
+Burada ``A`` ve ``B`` trait'lerindeki ``foo`` metotları farklı parametrik yapıya sahiptir. Ancak bu durumun Rust'ta iki
+anlamlılığı çözmeye bir katkısı yoktur. Örneğin:
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { val: 12 };
+
+        s.foo(100);         // error!
+    }
+
+Burada siz şöyle bir beklenti içerisinde olabilirsiniz: *Nasıl olsa* ``B`` *trait'indeki* ``foo``
+*parametresiz, dolayısıyla bu çağrıda bir argüman girildiği için bu olsa olsa* ``A`` *trait'indeki* ``foo``
+*olabilir. Bu durumda derleyici iki anlamlılık hatasını oluşturmayabilir*. Ancak Rust'ta *method overloading* ve
+*function overloading* kavramları yoktur. Dolayısıyla yukarıdaki çağrı yine error oluşturacaktır.
+
+Yukarıda açıkladığımız *iki anlamlılık (ambiguity)* hatası açıkça trait ismi verilerek çağırma yapıldığında ortadan
+kaldırılabilmektedir. Anımsanacağı gibi ``Sample`` türünden bir ``s`` değişkeni ile ``Sample`` türünün ``foo`` metodu
+``s.foo(...)`` biçiminde de ``Sample::foo(&s)`` biçiminde de çağrılabiliyordu. (Buna UFCS
+(*Uniform Function Call Syntax*) da dendiğini anımsayınız.) İşte çağrım bu sentakstaki gibi trait ismi belirtilerek de
+yapılabilmektedir:
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { val: 12 };
+
+        A::foo(&s);         // impl A bloğundaki foo çağrılır
+        B::foo(&s);         // impl B bloğundaki foo çağrılır
+    }
+
+Burada açıkça trait ismi belirtildiği için hangi ``foo`` metodunun çağrıldığı da artık belli olmaktadır.
+
+Peki bir yapı ya da enum türü birtakım trait'leri desteklerken aynı zamanda o trait'lerdeki metotlarla ya da ilişkili
+fonksiyonlarla aynı isimli metotlara ya da ilişkili fonksiyonlara sahip olabilir mi? Evet olabilir. Örneğin:
+
+.. code-block:: rust
+
+    trait A {
+        fn foo(&self);
+    }
+
+    trait B {
+        fn foo(&self);
+    }
+
+    struct Sample {
+        val: i32
+    }
+
+    impl Sample {
+        fn disp(&self) {
+            println!("{}", self.val);
+        }
+
+        fn foo(&self) {
+            println!("Sample::foo");
+        }
+    }
+
+    impl A for Sample {
+        fn foo(&self) {
+            println!("A::foo");
+        }
+    }
+
+    impl B for Sample {
+        fn foo(&self) {
+            println!("B::foo");
+        }
+    }
+
+Burada ``Sample`` yapısı hem ``A`` trait'ini hem de ``B`` trait'ini desteklemektedir. Üstelik bu trait'lerdeki ``foo``
+metoduyla aynı isimli bir metoda da sahiptir. Derleme işleminde herhangi bir sorun oluşmayacaktır. İlgili tür türünden
+değişken ya da değerle bir metot çağrıldığında Rust'taki isim araması kurallarına göre önce türün kendi metotlarına
+bakılmaktadır. Eğer ilgili türde o isimli bir metot varsa iki anlamlılık hatası oluşmaz ve ilgili türdeki o metot
+çağrılır. Örneğin:
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { val: 12 };
+
+        s.foo();        // geçerli, Sample::foo çağrılır
+    }
+
+Buradaki ``s.foo()`` çağrısı herhangi bir soruna yol açmayacaktır. Çünkü zaten ``Sample`` yapısının ``foo`` isimli
+kendi metodu vardır. Tabii yine bu durumda da UFCS sentaksı ile istenilen metot trait ismi belirtilerek çağrılabilir.
+Örneğin:
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { val: 12 };
+
+        Sample::foo(&s);        // Sample::foo çağrılır
+        A::foo(&s);             // A::foo çağrılır
+        B::foo(&s);             // B::foo çağrılır
+    }
+
+Farklı trait'lerden gelen birden fazla aynı isimli ilişkili fonksiyonların ya da metotların belli birini çağırabilmek
+için kullanılan diğer bir sentaks da
+*tür bağlamında nitelikli yol ifadesi (qualified path in a type context)* denilen sentakstır. Bu sentaksın genel
+biçimi şöyledir:
+
+.. code-block:: rust
+
+    <T1 as T2>::fonksiyon_veya_metot_ismi(...);
+
+Burada ``T2`` türünün bir trait belirtmesi zorunludur. Bu ifade ``T1`` *türünde* ``T2`` *trait'i için desteklenen
+fonksiyonu çağır* anlamına gelmektedir. Yukarıdaki örneği bu sentaksı kullanarak şöyle de oluşturabiliriz:
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { val: 12 };
+
+        <Sample as A>::foo(&s);             // A::foo çağrılır
+        <Sample as B>::foo(&s);             // B::foo çağrılır
+    }
+
+Hem UFCS hem de tür bağlamında nitelikli yol ifadesi sentaksları çoğu durumda eşdeğer etki göstermektedir.
+
+Trait'lerin Referans, Demet ve Dizi Türleri İçin Desteklenmesi
+-------------------------------------------------------------------------------------
+
+Bir trait yapı referans, demet ve dizi türleri için de desteklenebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32
+    }
+
+    trait Test {
+        fn foo(self);
+    }
+
+    // 1
+    impl Test for Sample {
+        fn foo(self) {                          // self --> Sample türünden
+            println!("Sample implementation");
+            println!("{}", self.val);
+        }
+    }
+
+    // 2
+    impl Test for &Sample {
+        fn foo(self) {                          // self --> &Sample türünden
+            println!("&Sample implementation");
+            println!("{}", self.val);
+        }
+    }
+
+    // 3
+    impl Test for &mut Sample {
+        fn foo(self) {                          // self --> &mut Sample türünden
+            println!("&mut Sample implementation");
+            self.val = 10;
+        }
+    }
+
+    // 4
+    impl Test for (&Sample, &Sample) {
+        fn foo(self) {                          // self --> (&Sample, &Sample) türünden
+            println!("(&Sample, &Sample) implementation");
+            println!("{}, {}", self.0.val,self.1.val);
+        }
+    }
+
+    // 5
+    impl Test for &[Sample] {
+        fn foo(self) {                          // self --> &[Sample] türünden
+            println!("&[Sample] implementation");
+            for rs in self.into_iter() {
+                println!("{}", rs.val);
+
+            }
+        }
+    }
+
+Burada 1 numaralı desteklemedeki ``self`` parametresi ``Sample`` türünden, 2 numaralı desteklemedeki ``self``
+parametresi ``&Sample`` türünden, 3 numaralı desteklemedeki ``self`` parametresi ``&mut Sample`` türünden, 4 numaralı
+desteklemedeki ``(&Sample, &Sample)`` türünden ve 5 numaralı desteklemedeki ``self`` parametresi ise ``self``
+parametresi ``&[Sample]`` türündendir. Bu çağrımlara şöyle örnekler verebiliriz:
+
+.. code-block:: rust
+
+    fn main() {
+        let mut a = Sample { val: 10} ;
+        a.foo();            // 1
+
+        let b: &Sample = &Sample { val: 10 };
+        b.foo();            // 2
+
+        let mut c: &mut Sample = &mut Sample { val: 10 };
+        c.foo();            // 3
+
+        let mut d: (&Sample, &Sample) = (&Sample { val: 10 }, &Sample { val: 20 });
+        d.foo();            // 4
+
+        let mut e: &[Sample] = &[Sample { val: 10 }, Sample {val: 20}, Sample { val: 30 }];
+        e.foo();            // 5
+    }
+
+Eğer yalnızca ``&Sample`` türü için destekleme yapılmış olsaydı biz o metodu hem ``&Sample`` türüyle hem de
+``&mut Sample`` türüyle çağırabilirdik.
+
+Trait'lerde Türetme
+-------------------------------------------------------------------------------------
+
+Rust'ta yapılar ve enum türleri başka türlerden türetilemez. Yani Rust'ta *türetme (inheritance)* özelliği yoktur.
+Ancak istisna olarak bir trait başka bir trait'ten türetilebilmektedir. Trait'lerdeki türetme sentaksının yalın genel
+biçimi şöyledir:
+
+.. code-block:: text
+
+    trait <türemiş_trait_ismi> : <taban_trait_ismi> {
+        //...
+    }
+
+Buradaki ``':'`` sentaksı C++'ta da kullanılan bir sentakstır. C# da bu sentaksı kullanmaktadır. Örneğin
+
+.. code-block:: rust
+
+    trait A {
+        fn foo(&self);
+    }
+
+    trait B : A {
+        fn foo(&self);
+    }
+
+Burada ``B`` trait'i ``A`` trait'inden türetilmiştir. ``B`` trait'ine *türemiş trait*, ``A`` trait'ine *taban trait*
+denilmektedir. Peki türetme yapmanın anlamı nedir? İşte bir yapı ya da enum türü türemiş trait'i destekleyecekse
+kesinlikle taban trait'i de desteklemek zorundadır. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32
+    }
+
+    impl B for Sample {
+        fn foo(&self) {
+            println!("B::foo");
+        }
+    }
+
+Burada yukarıda belirttiğimiz kurala uyulmamıştır. Dolayısıyla kod derlenirken error oluşacaktır. ``Sample``
+yapısının aynı zamanda ``A`` trait'ini de desteklemesi gerekirdi:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32
+    }
+
+    impl A for Sample {
+        fn foo(&self) {
+            println!("A::foo");
+        }
+    }
+
+    impl B for Sample {
+        fn foo(&self) {
+            println!("B::foo");
+        }
+    }
+
+Tabii türemiş trait'ten de başka trait'ler türetilebilir. Bu destekleme zorunluluğu yukarıya doğru tüm taban
+trait'ler için söz konusu olmaktadır.
+
+Trait'ler İçerisinde Self Anahtar Sözcüğü
+-------------------------------------------------------------------------------------
+
+Bir trait içerisinde kullanılan ``Self`` anahtar sözcüğü (``'S'`` harfinin büyük yazıldığına dikkat ediniz)
+trait'in türünü değil trait'i destekleyen türü belirtmektedir. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        fn foo(&self, item: Self);
+    }
+
+Buradaki ``Self`` anahtar sözcüğü ``Test`` anlamına gelmemektedir. Trait'i destekleyen türü belirtmektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32
+    }
+
+    impl Test for Sample {
+        fn foo(&self, val: Sample) {     // geçerli
+            //...
+        }
+    }
+
+Buradaki destekleme geçerlidir. Burada ``foo`` fonksiyonun ikinci parametresi ``Sample`` türünü belirtmektedir. Tabii
+Rust programcıları destekleme sırasında da ``Self`` anahtar sözcüğünü kullanmayı tercih etmektedir:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32
+    }
+
+    impl Test for Sample {
+        fn foo(&self, val: Self) {     // geçerli
+            //...
+        }
+    }
+
+İlişkili Türler (Associated Types)
+-------------------------------------------------------------------------------------
+
+Trait'ler *ilişkili türlere (associated types)* sahip olabilirler. Trait'lerin ilişkili türleri Rust'a yeni
+başlayanlarda haklı olarak *generic* çağrışımı yaratmaktadır. Gerçekten de *generic* konusu ile *ilişkili türler*
+konusu mantıksal bir çağrışım bağına sahiptir. Biz *generic* konusunu daha ileride ayrı bir bölümde ele alacağız.
+
+Bir trait'teki ilişkili tür ``type`` anahtar sözcüğü ile bildirilmektedir. İlişkili tür bildiriminin genel biçimleri
+şöyledir:
+
+.. code-block:: text
+
+    1) type <tür_ismi>;
+    2) type <tür_ismi> = <default_tür>;
+    3) type <tür_ismi>: <tür_kısıtı>;
+    4) type <tür_ismi>: <tür_kısıtı> = <default_tür>;
+
+İlişkili tür bildirimi tipik olarak ``type`` anahtar sözcüğünden sonra tür ismi belirtilerek yapılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        type Item;
+
+        fn foo(&self);
+    }
+
+Burada ``Item``, ``Test`` isimli trait'in ilişkili türüdür. İlişkili tür -ismi üzerinde- bir tür belirtmektedir. Bu tür
+trait'in içerisinde olduğu için doğrudan değil ancak ``Self`` anahtar sözcüğü ve ``::`` operatörü ile
+kullanılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        type Item;
+
+        fn foo(&self, item: Item);      // error!
+    }
+
+Burada ``foo`` metodundaki ``Item`` ilişkili türünün doğrudan değil ``Self`` ile birlikte ``Self::Item`` biçiminde
+kullanılması gerekirdi:
+
+.. code-block:: rust
+
+    trait Test {
+        type Item;
+
+        fn foo(&self, item: Self::Item);     // geçerli
+    }
+
+Trait'ler içerisindeki ``Self`` anahtar sözcüğü trait türünü değil trait'i destekleyen yapı ya da enum türünü
+belirttiğini söylemiştik. Dolayısıyla buradaki ``Self::Item`` ifadesi *bu trait'i destekleyen yapı ya da enum türünde
+belirtilen* ``Item`` *türü* anlamına gelmektedir. Trait içerisindeki ilişkili türlerin trait ismi ile belirtilmesi
+anlamsızdır ve error oluşturmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        type Item;
+
+        fn foo(&self, item: Test::Item);     // error
+    }
+
+İlişkili türe sahip bir trait desteklenirken bu ilişkili türün gerçekte hangi tür olduğu destekleme yapılırken ``impl``
+bloğu içerisinde açıkça belirtilmek zorundadır. (İlişkili türe sahip trait içerisinde ilişkili tür kullanılmamış olsa
+bile bu trait desteklenirken yine ilişkili türün gerçekte hangi tür olduğu belirtilmek zorundadır.) Bu belirtme
+desteklemenin yapıldığı ``impl`` bloğunun içerisinde aşağıdaki sentaksa uygun olarak yapılır:
+
+.. code-block:: text
+
+    type <tür_ismi> = <gerçek_tür>;
+
+Örneğin yukarıdaki ``Test`` trait'ini ``Sample`` yapısında destekleyecek olalım:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32,
+    }
+
+    impl Test for Sample {
+        type Item = i32;
+
+        fn foo(&self, val: Self::Item) {
+            println!("{}", self.val);
+        }
+    }
+
+Görüldüğü gibi trait'teki ``Item`` türünün ne olduğu ``impl`` bloğu içerisinde açıkça belirtilmiştir. Dolayısıyla
+``foo`` metodunun ikinci parametresi aslında ``i32`` türündendir. Biz parametre bildiriminde ``Self::Item`` yerine
+açıkça ``i32`` de yazabilirdik. Ancak bu türün ``Self::Item`` biçiminde belirtilmesi tercih edilmektedir.
+
+İlişkili Türlere Default Tür Verilmesi
+-------------------------------------------------------------------------------------
+
+Trait bildiriminde ilişkili türe default bir tür de iliştirilebilmektedir. Bu durumda ilişkili türün gerçekte hangi tür
+olduğu onu destekleyen türde belirtilmeyebilir. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        type Item = i32;
+
+        fn foo(&self, item: Self::Item);
+    }
+
+Burada ``Item`` tür ismi default olarak ``i32`` türünü temsil etmektedir. Yani destekleme yapılırken bu türün gerçek
+türü belirtilmemişse ``i32`` olduğu varsayılacaktır. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        type Item = i32;
+
+        fn foo(&self, item: Self::Item);
+    }
+
+    struct Sample {
+        val: i32,
+    }
+
+    impl Test for Sample {
+        fn foo(&self, val: Self::Item) {
+            println!("{}", self.val);
+        }
+    }
+
+Ancak ilişkili türlere default tür iliştirilmesi henüz Rust'a *stable* olarak eklenmemiştir. Yani şimdilik
+*deneysel (nightly)* bir özellik niteliğindedir. Bu nedenle yukarıdaki kodu *stable* sürümlerde (yani bizim
+kullandığımız normal sürümlerde) derlemeye çalışırsanız error oluşacaktır. Biz *deneysel sürümlerin* nasıl
+yükleneceğini ileride açıklayacağız.
+
+Tabii bir trait birden fazla ilişkili türe de sahip olabilir. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        type Item;
+        type Target;
+
+        fn foo(&self, item: Self::Item) -> Self::Target;
+    }
+
+Burada ``Test`` trait'inde ``Item`` ve ``Target`` isimli iki ilişkili tür bulunmaktadır. O halde biz bu trait'i
+desteklerken bu iki ilişkili tür için de gerçek türü belirtmek zorundayız. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32,
+    }
+
+    impl Test for Sample {
+        type Item = i32;
+        type Target = i32;
+
+        fn foo(&self, val: Self::Item) -> Self::Target {
+            println!("{}", self.val);
+            10
+        }
+    }
+
+Tabii ilişkili türler trait'in içerisinde ve desteklemenin yapıldığı ``impl`` bloğunun içerisinde herhangi bir yerde
+belirtilebilir. Ancak bildirimin trait'lerin ve desteklenen ``impl`` bloklarının hemen başında yapılması uygundur.
+
+Burada bir nokta üzerinde de durmak istiyoruz. Trait'lerdeki ``Self`` anahtar sözcüğünün (``'S'`` harfinin büyük harf
+olduğuna dikkat ediniz) ilgili trait'i destekleyen türü belirttiğini söylemiştik. Ancak ilişkili tür belirtilirken
+destekleyen tür ile değil ``Self`` anahtar sözcüğü ile belirtmenin yapılması gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        type Item;
+
+        fn foo(&self, item: Self::Item);
+    }
+
+    struct Sample {
+        val: i32
+    }
+
+    impl Test for Sample {
+        type Item = i32;
+
+        fn foo(&self, item: Sample::Item) {     // error!
+            println!("{}", self.val);
+        }
+    }
+
+Burada ``foo`` metodunun ikinci parametresinin türü ``Sample::Item`` biçiminde değil ``Self::Item`` biçiminde
+belirtilmek zorundadır. Ancak ``Item`` türü ``i32`` anlamına geldiğine göre ``Self::Item`` yerine ``i32``
+
+.. code-block:: rust
+
+    impl Test for Sample {
+        type Item = i32;
+
+        fn foo(&self, item: i32) {     // geçerli
+            println!("{}", self.val);
+        }
+    }
+
+Bir yapı ya da enum türü aynı trait'i farklı ilişkili türler için birden fazla kez destekleyemez. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        type Target;
+
+        fn foo(&self);
+    }
+
+    struct Sample;
+
+    impl Test for Sample {
+        type Target = i32;
+
+        fn foo(&self) {
+            //...
+        }
+    }
+
+    impl Test for Sample {      // error!
+        type Target = i64;
+
+        fn foo(&self) {
+            //...
+        }
+    }
+
+Burada ``Sample`` türü ``Test`` trait'ini farklı ilişkili türler için birden fazla kez desteklemek istemiştir. Ancak bu
+durum geçerli değildir.
+
+İlişkili Türlerde Tür Kısıtları
+-------------------------------------------------------------------------------------
+
+Trait'lerin ilişkili türlerinde *kısıt (bound)* belirtilebilmektedir. Aslında Rust'ta *kısıt oluşturma (bounding)*
+generic'ler konusuyla da ilgili olan genel bir konudur. Biz bu konuyu ayrıntılı olarak generic'leri anlattığımız
+bölümde ele alacağız.
+
+Generic tür parametrelerinde ve ilişkili türlerde *tür kısıtları (type bounds)* gerçek türler belirtilirken onların
+sağlaması gereken koşulları belirtmektedir. Tür kısıtları tipik olarak *belli bir trait'i destekleme* biçiminde
+oluşturulmaktadır. Ancak yukarıda da belirttiğimiz gibi konunun ayrıntıları da vardır. İlişkili türlerde tür kısıtları
+``':'`` sentaksıyla belirtilmektedir:
+
+.. code-block:: text
+
+    type <tür_ismi>: <tür_kısıtı>;
+
+Tür kısıtı trait içerisinde oluşturulmaktadır. Eğer ilişkili türde tür kısıt olarak bir trait belirtilirse
+*bu ilişkili türün gerçekte hangi tür olduğu belirtilirken o gerçek türün sentaksta belirtilen trait'i desteklemesi
+gerekmektedir.* Örneğin:
+
+.. code-block:: rust
+
+    trait A {
+        type Item: B;
+
+        fn foo(&self, item: Self::Item);
+    }
+
+    trait B {
+        fn bar(&self);
+    }
+
+Burada ``A`` trait'indeki ``Item`` isimli ilişkili tür mutlaka ``B`` trait'ini destekleyen bir tür olmak zorundadır.
+Örneğin aşağıdaki destekleme bu kısıtı sağlamadığı için error oluşturacaktır:
+
+.. code-block:: rust
+
+    struct Sample {
+        value: i32,
+    }
+
+    impl A for Sample {
+        type Item = i32;                        // error!
+        fn foo(&self, item: Self::Item) {
+            println!("A::foo");
+        }
+    }
+
+Biz burada ``Item`` türünün gerçekte ``i32`` olduğunu belirttik. Ancak kısıta uymadık. Burada belirteceğimiz türün
+``B`` trait'ini destekliyor olması gerekirdi. Şimdi trait'te belirtilen kısıta uyalım:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32,
+    }
+
+    impl A for Sample {
+        type Item = Mample;             // geçerli, Mample B trait'ini destekliyor
+
+        fn foo(&self, item: Self::Item) {
+            println!("A::foo");
+        }
+    }
+
+    struct Mample {
+        m: i32
+    }
+
+    impl B for Mample {
+        fn bar(&self) {
+            println!("Mample::bar");
+        }
+    }
+
+Burada ``Item`` türü ``Mample`` olarak belirtilmiştir. ``Mample`` yapısı da ``B`` trait'ini desteklemektedir. O halde
+kısıta uyulmuştur.
+
+İlişkili türün birden fazla trait'i desteklemesine ilişkin kısıt da oluşturabilmektedir. Çoklu trait kısıtları
+trait'lerin ``'+'`` atomuyla listelenmesiyle oluşturulmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    trait A {
+        type Item: B + C;
+
+        fn foo(&self, item: Self::Item);
+    }
+
+    trait B {
+        fn bar(&self);
+    }
+
+    trait C {
+        fn tar(&self);
+    }
+
+Burada ``Item`` ilişkili türü yalnızca ``B`` trait'ini değil aynı zamanda ``C`` trait'ini de destekleyen bir tür
+türünden olmalıdır. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32,
+    }
+
+    impl A for Sample {
+        type Item = Mample;                 // geçerli
+        fn foo(&self, item: Self::Item) {
+            println!("Sample::foo");
+        }
+    }
+
+    struct Mample {
+        m: i32
+    }
+
+    impl B for Mample {
+        fn bar(&self) {
+            println!("B::bar");
+        }
+    }
+
+    impl C for Mample {
+        fn tar(&self) {
+            println!("C::tar");
+        }
+    }
+
+Burada ``Mample`` yapısının hem ``B`` trait'ini hem de ``C`` trait'ini desteklediğine dikkat ediniz.
+
+Tür Kısıtlarında İlişkili Türlerin Belirtilmesi
+-------------------------------------------------------------------------------------
+
+``A`` trait'inin ``Item`` isimli ilişkili türünde ``B`` trait'ine ilişkin bir kısıt oluşturduğumuzu düşünelim.
+Örneğin:
+
+.. code-block:: rust
+
+    trait A {
+        type Item: B;
+
+        fn foo(&self, item: Self::Item);
+    }
+
+    trait B {
+        type Target;
+
+        fn bar(&self) -> Self::Target;
+    }
+
+Buradaki ``B`` trait'inin de ilişkili türleri olabilir. Ancak yukarıdaki kısıt ``B``'deki ilişkili türlerin ne olması
+gerektiği konusunda bir kısıt içermemektedir. Yukarıdaki kısıtta *A trait'indeki Item ilişkili türü* ``B``
+trait'ini destekleyen bir tür türünden olmalıdır. Ancak bu destekleme yapılırken *B türündeki Target* herhangi bir tür
+olarak belirlenebilir. İşte biz istersek tür kısıtı oluştururken aynı zamanda desteklenmesi istenen trait'teki ilişkili
+türler için de kısıtlar belirtebiliriz. Bu belirleme aşağıdaki sentaksla yapılmaktadır:
+
+.. code-block:: text
+
+    type tür_ismi = trait_ismi<traitteki_tür_ismi = gerçek_tür>;
+
+Örneğin:
+
+.. code-block:: rust
+
+    trait A {
+        type Item: B<Target=f64>;
+
+        fn foo(&self, item: Self::Item);
+    }
+
+    trait B {
+        type Target;
+
+        fn bar(&self,  item: Self::Target);
+    }
+
+``A`` trait'indeki ``Item`` isimli ilişkili türdeki kısıta dikkat ediniz. Bu kısıt şunu söylemektedir:
+*Bu trait'i destekleyen türde* ``Item`` *ilişkili türünün belirttiği gerçek tür* ``B`` *trait'ini,* ``B``
+*trait'indeki* ``Target`` *ilişkili türü* ``f64`` *olacak biçimde desteklemelidir.* Yani buradaki kısıt
+*hem* ``Item`` *türünün* ``B`` *trait'ini desteklemesi hem de desteklerken de* ``B`` *trait'indeki ilişkili türün*
+``f64`` *olması gerektiği* anlamına gelmektedir.
+
+Trait'lerde Tür Kısıtları, From ve TryFrom Trait'leri ve Başka Türlere Trait Desteği
+=====================================================================================
+
+Karmaşık İlişkili Tür Kısıtlarının Açıklanması
+-------------------------------------------------------------------------------------
+
+Yukarıda açıkladığımız karmaşık ilişkili tür kısıtını maddeler halinde açıklayalım. Trait'ler aşağıdaki gibi olsun:
+
+.. code-block:: rust
+
+    trait A {
+        type Item: B<Target=f64>;
+
+        fn foo(&self, item: Self::Item);
+    }
+
+    trait B {
+        type Target;
+
+        fn bar(&self,  item: Self::Target);
+    }
+
+Burada ``A`` trait'indeki ilişkili tür kısıtına dikkat ediniz:
+
+.. code-block:: rust
+
+    type Item: B<Target=f64>
+
+Bu tür kısıtı şu anlamlara gelmektedir:
+
+1) ``A`` trait'ini destekleyecek yapı ya da enum türünde ``Item`` türü ``B`` trait'ini destekleyen bir tür olmak
+   zorundadır.
+2) ``B`` trait'ini destekleyen türdeki ``Target`` ilişkili türü ``f64`` olmak zorundadır.
+
+Şimdi bu kısıtların sağlanıp sağlanmadığına yönelik örnekler verelim. Aşağıdaki örneğe dikkat ediniz:
+
+.. code-block:: rust
+
+    trait A {
+        type Item: B<Target=f64>;
+
+        fn foo(&self, item: Self::Item);
+    }
+
+    trait B {
+        type Target;
+
+        fn bar(&self,  item: Self::Target);
+    }
+
+    struct Sample;
+
+    impl A for Sample {
+        type Item = Mample;         // error!
+
+        fn foo(&self, item: Self::Item) {
+            println!("A::foo");
+        }
+    }
+
+    struct Mample;
+
+    impl B for Mample {
+        type Target = i32;
+
+        fn bar(&self, target: Self::Target) {
+            println!("B::bar");
+        }
+    }
+
+Burada ``A``'daki ``Item`` kısıtı ``Sample`` yapısında karşılanmamıştır. Evet ``Item`` türü ``B`` trait'ini destekleyen
+``Mample`` türündendir. Ancak ``Mample`` türünde ``B`` desteklenirken ``Target`` ilişkili türünün ``f64`` olarak
+belirtilmesi gerekir. Halbuki örneğimizde ``Target`` türü ``i32`` olacak biçimde destekleme yapılmıştır. Örneğimizde yapı
+elemanlarının bir önemi olmadığı için birimsel yapı kullandığımıza da dikkat ediniz.
+
+Şimdi örneğimizi düzeltelim:
+
+.. code-block:: rust
+
+    trait A {
+        type Item: B<Target=f64>;
+
+        fn foo(&self, item: Self::Item);
+    }
+
+    trait B {
+        type Target;
+
+        fn bar(&self,  item: Self::Target);
+    }
+
+    struct Sample;
+
+    impl A for Sample {
+        type Item = Mample;         // error!
+
+        fn foo(&self, item: Self::Item) {
+            println!("A::foo");
+        }
+    }
+
+    struct Mample;
+
+    impl B for Mample {
+        type Target = i32;
+
+        fn bar(&self, target: Self::Target) {
+            println!("B::bar");
+        }
+    }
+
+Artık ``A`` trait'indeki ``Item`` kısıtına uyulmuştur. Tabii eğer ``A`` trait'indeki tür kısıtı aşağıdaki gibi olsaydı
+bu durumda ``Target`` için bir kısıt aranmayacaktır:
+
+.. code-block:: rust
+
+    trait A {
+        type Item: B;
+
+        fn foo(&self, item: Self::Item);
+    }
+
+Artık ``A`` trait'ini destekleyen yapıdaki ``Item`` ilişkili türünün ``B`` trait'ini desteklemesi yeterlidir. ``B``
+türündeki ``Target`` türü destekleme yapılırken herhangi bir tür olabilir.
+
+Standart Kütüphanede Tür Kısıtları: IntoIterator Trait'i
+-------------------------------------------------------------------------------------
+
+Yukarıdaki gibi tür kısıtlarına Rust'ın standart kütüphanesinde oldukça sık rastlanmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    pub trait IntoIterator {
+        type Item;
+        type IntoIter: Iterator<Item = Self::Item>;
+
+        // Required method
+        fn into_iter(self) -> Self::IntoIter;
+    }
+
+Şimdi bu trait tanımlamasında ne denmek istendiğini madde madde açıklayalım:
+
+1) ``IntoIterator`` türünü destekleyen yapı ya da enum türü mutlaka ``impl`` bloğu içerisinde ``Item`` ve ``IntoIter``
+   türlerinin gerçekte hangi türler olduğunu belirtmek zorundadır.
+
+2) ``IntoIterator`` türünü destekleyen yapı ya da enum türünde ``IntoIter`` türü herhangi bir tür olarak belirlenemez.
+   Mutlaka bu türün ``Iterator`` trait'ini destekliyor olması gerekir. Ancak bu da yetmemektedir. Bu türün ``Iterator``
+   trait'ini desteklerken aynı zamanda ``Iterator`` trait'indeki ``Item`` türünü de kendi belirlediği ``Item``
+   türünden olacak biçimde belirlemesi gerekir.
+
+``Iterator`` trait'i şöyle tanımlanmıştır:
+
+.. code-block:: rust
+
+    pub trait Iterator {
+        type Item;
+
+        // Required method
+        fn next(&mut self) -> Option<Self::Item>;
+        //...
+    }
+
+Görüldüğü gibi ``Iterator`` trait'inde de ``Item`` isimli bir ilişkili tür vardır. Şimdi ``IntoIterator`` trait'ini
+destekleyen bir yapı oluşturup söz konusu kısıtları sağlamaya çalışalım:
+
+.. code-block:: rust
+
+    struct Sample {
+        text: String
+    }
+
+    impl IntoIterator for Sample {
+        type Item = char;
+        type IntoIter = SampleIterator;
+
+        fn into_iter(self) -> Self::IntoIter {
+            SampleIterator {
+                //...
+            }
+        }
+    }
+
+Görüldüğü gibi ``Sample`` yapısında ``Item`` ve ``IntoIter`` türleri belirlenmiştir. ``IntoIter`` türünün
+``SampleIterator`` türü olarak belirtildiğine dikkat ediniz. ``SampleIterator`` yapısı da şöyle tanımlanabilir:
+
+.. code-block:: rust
+
+    struct SampleIterator {
+        //...
+    }
+
+    impl Iterator for SampleIterator {
+        type Item = char;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            None
+        }
+    }
+
+Artık ``IntoIterator`` trait'indeki kısıtların sağlandığını görüyorsunuz.
+
+.. code-block:: rust
+
+    fn main() {
+        //...
+    }
+
+    struct Sample {
+        text: String
+    }
+
+    impl IntoIterator for Sample {
+        type Item = char;
+        type IntoIter = SampleIterator;
+
+        fn into_iter(self) -> Self::IntoIter {
+            SampleIterator {
+                //...
+            }
+        }
+    }
+
+    struct SampleIterator {
+        //...
+    }
+
+    impl Iterator for SampleIterator {
+        type Item = char;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            None
+        }
+    }
+
+Trait'lerde İlişkili Fonksiyonlar ve From Trait'i
+-------------------------------------------------------------------------------------
+
+Biz yukarıdaki örneklerimizde genellikle trait'lerin içerisine metotlar yerleştirdik. Halbuki trait'lerde ilişkili
+fonksiyonlar da bulundurulabilmektedir. Yani trait'teki fonksiyonların ilk parametreleri ``self``, ``&self`` ve
+``&mut self`` olmak zorunda değildir. Örneğin Rust'ın standart kütüphanesinde ``std::convert`` modülünde bulunan
+``From`` isimli generic trait'e dikkat ediniz:
+
+.. code-block:: rust
+
+    pub trait From<T>: Sized {
+       // Required method
+        fn from(value: T) -> Self;
+    }
+
+Biz bu trait'ten ne anlıyoruz? Trait'teki ``from`` bir metot değildir, ilişkili fonksiyondur. Bu fonksiyonun geri dönüş
+değeri bu trait hangi tür tarafından destekleniyorsa o tür türünden olmak zorundadır. Parametresi ise ``T`` türünden
+yani generic parametre türünden olmak zorundadır. ``From`` trait'inin ``Sized`` isimli bir trait'ten türetildiğine de
+dikkat ediniz. Bir trait'i desteklerken onun taban trait'lerinin de desteklenmesi gerektiğini anımsayınız. Ancak
+buradaki ``Sized`` trait'inin içi boştur. Bu tür içi boş derleyici tarafından özel anlamları olan trait'leri
+*marker trait'ler* denilmektedir.
+
+Şimdi kendi yapımız için bu trait'in desteklenmesine bir örnek verelim:
+
+.. code-block:: rust
+
+    struct Sample {
+        value: f64
+    }
+
+    impl Sample {
+        fn disp(&self) {
+            println!("{}",self.value);
+        }
+    }
+
+    impl From<f64> for Sample {
+        fn from(item: f64) -> Sample {
+            Sample {value: item}
+        }
+    }
+
+    impl From<i32> for Sample {
+        fn from(item: i32) -> Sample {
+            Sample {value: item as f64}
+        }
+    }
+
+Generic türün her farklı türden açılımının farklı bir tür belirttiğine dikkat ediniz. ``From<f64>`` ile ``From<i32>``
+farklı yapı türleridir. ``From`` trait'indeki ``from`` bir ilişkili fonksiyon olduğu için yapı türünden bir değişkenle
+değil yapı ismiyle çağrılmalıdır:
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample::from(3.14);
+        s.disp();
+
+        let k = Sample::from(20);
+        k.disp();
+    }
+
+TryFrom Trait'i
+-------------------------------------------------------------------------------------
+
+Rust'ın standart kütüphanesinde ``std::convert`` modülünde ``TryFrom`` isimli bir trait daha vardır. Bu trait de
+aşağıdaki gibi tanımlanmıştır:
+
+.. code-block:: rust
+
+    pub trait TryFrom<T>: Sized {
+        type Error;
+
+        // Required method
+        fn try_from(value: T) -> Result<Self, Self::Error>;
+    }
+
+``TryFrom`` trait'ini destekleyecek olan yapı ya da enum türü ``Error`` ilişkili türünü açıkça belirlemek zorundadır.
+Trait'in ``try_from`` isimli ilişkili fonksiyonuna dikkat ediniz. Bu fonksiyonun parametresi ``T`` türünden, geri dönüş
+değeri ``Result<Self, Self::Error>`` türündendir. Biz ``Result`` türünün bir enum türü olduğunu ve ``Ok`` ile ``Err``
+isimli iki varyantının bulunduğunu görmüştük. Burada ``Ok`` varyantı ``Self`` türünden, ``Err`` varyantı ise bizim
+belirlediğimiz ``Error`` türündendir.
+
+``TryFrom`` trait'i bir yapı ya da enum türüne dönüştürme yapılırken dönüştürmenin kayıplı ya da başarısız olabileceği
+durumlarda kullanılmaktadır. Örneğin aşağıdaki gibi bir ``Sample`` yapımız için ``From<String>`` trait'ini
+destekleyecek olalım:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32
+    }
+
+    trait From<String> for Sample {
+        fn from(item: i32) -> Sample {
+            //
+        }
+    }
+
+Burada ya ``String`` içerisindeki yazı ``i32`` ile ifade edilebilecek bir değer içermiyorsa ne olacaktır? C'deki
+``atoi`` semantiğini uygulamak isteyebilirsiniz. Yani geçersiz yazılar için ``0`` değerini verebilirsiniz. Ancak Rust
+için (aslında C için de) bu semantik uygun değildir. İşte bu tür durumlarda ``From`` trait'i yerine ``TryFrom``
+trait'i tercih edilmektedir. Çünkü yapı türüne yapılacak dönüşüm başarısız olabilmektedir. O halde ``Sample`` yapımız
+için ``From`` trait'ini değil ``TryFrom`` trait'ini destekleyebiliriz:
+
+.. code-block:: rust
+
+    impl TryFrom<String> for Sample {
+        type Error = String;
+
+        fn try_from(value: String) -> Result<Self, Self::Error> {
+            if let Ok(val) = value.parse::<i32>() {
+                Ok(Sample {  value: val })
+            }
+            else {
+                Err("Invalid Value".to_string())
+            }
+        }
+    }
+
+Burada ``Error`` ilişkili türünün ``String`` olarak belirlendiğine dikkat ediniz. Biz burada yazının geçerliliğini
+``String`` yapısının generic ``parse`` metodu ile tespit ettik. ``String`` yapısının generic ``parse`` metodu da
+aslında ``Result`` türüne geri dönmektedir. Ancak bizim geri dönmemiz gereken ``Result`` türü ile ``parse``
+metodunun geri döndüğü ``Result`` türü farklıdır. Bu nedenle biz ``parse`` metodunun geri dönüş değerinin önce ``Ok``
+olup olmadığına baktık. Tabii buradaki ``try_from`` ilişkili fonksiyonunda biz ``match`` deyimini de kullanabilirdik:
+
+.. code-block:: rust
+
+    impl TryFrom<String> for Sample {
+        type Error = String;
+
+        fn try_from(value: String) -> Result<Self, Self::Error> {
+            match value.parse::<i32>() {
+                Ok(val) => Ok(Sample { value: val }),
+                Err(_) => Err("Invalid value".to_string()),
+            }
+        }
+    }
+
+.. code-block:: rust
+
+    fn main() {
+        let s: Sample;
+
+        match Sample::try_from("ankara".to_string()) {
+            Ok(s) => println!("{}", s.value),
+            Err(e) => println!("{}", e),
+        }
+    }
+
+    struct Sample {
+        value: i32
+    }
+
+    impl Sample {
+        fn disp(&self) {
+            println!("{}",self.value);
+        }
+    }
+
+    impl TryFrom<String> for Sample {
+        type Error = String;
+
+        fn try_from(value: String) -> Result<Self, Self::Error> {
+            match value.parse::<i32>() {
+                Ok(val) => Ok(Sample { value: val }),
+                Err(_) => Err("Invalid value".to_string()),
+            }
+        }
+    }
+
+Başka Crate'lerdeki Türlere Trait Desteği Verilmesi
+-------------------------------------------------------------------------------------
+
+Rust'ta biz başka bir crate'te başkaları tarafından yazılmış olan türlerin (hatta ``i32``, ``i64``, ``f32``, ``f64``
+gibi temel türlerin de) kendi trait'lerimizi desteklemesini sağlayabiliriz. Böylece biz adeta başkaları tarafından
+yazılmış olan türlere ve temel türlere metot ve ilişkili fonksiyon eklemiş gibi oluruz. Örneğin:
+
+.. code-block:: rust
+
+    trait Disp {
+        fn disp(&self);
+    }
+
+    impl Disp for i32 {
+        fn disp(&self) {
+            println!("{}", self);
+        }
+    }
+
+Burada ``i32`` türü için ``Disp`` trait'ini destekledik. Halbuki ``i32`` türünü biz oluşturmadık. Artık ``i32``
+türünden bir değişken ya da değerle ``disp`` metodunu da çağırabiliriz. Örneğin:
+
+.. code-block:: rust
+
+    fn main() {
+        let a: i32 = 100;
+
+        a.disp();           // geçerli
+    }
+
+Örneğin:
+
+.. code-block:: rust
+
+    trait Disp {
+        fn disp(&self);
+    }
+
+    impl Disp for str {
+        fn disp(&self) {
+            println!("{}", self);
+        }
+    }
+
+Burada ``disp`` metodundaki ``&self`` aslında ``&str`` türündendir. Yani string dilim referansı belirtmektedir. Biz
+artık örneğin ``"ankara".disp()`` biçiminde bir çağrı yapabiliriz. Buradaki ``"ankara"`` ``str`` türündendir. Ancak bu
+``str`` türü ile ``disp`` metodu çağrıldığında otomatik olarak bu ``str`` değerinin adresi alınıp ``self``
+parametresine yerleştirilecektir.
+
+Ancak Rust'ta başkaları tarafından yazılmış olan türlere trait desteği verebilmek için ya trait'in kendi crate'imizde
+ya da destek vermek istediğimiz yapı ya da enum türünün kendi crate'imizde olması gerekmektedir. Yukarıdaki
+örneklerde ``i32`` ve ``str`` türleri bizim crate'imizde değildir fakat ``Disp`` trait'i bizim crate'imizdedir. Ancak
+örneğin biz başka bir crate'teki yapıyı başka bir crate'teki trait ile destekleyemeyiz.
+
+Şimdi *nasıl olsa bir tür için birden fazla* ``impl`` *bloğu oluşturulabiliyor, o zaman hiç trait desteği olmadan da
+başkaları tarafından yazılmış olan türlere metot ekleyemez miyim* sorusu aklınıza gelebilir. Örneğin:
+
+.. code-block:: rust
+
+    impl String {                   // error!
+        fn disp(&self) {
+            println!("{}", self);
+        }
+    }
+
+İşte Rust'ta başka bir crate içerisinde oluşturulmuş olan tür için başka crate'te ``impl`` bloğu
+oluşturulamamaktadır. O halde bu tür işlemleri ancak trait desteği ile yapabilmekteyiz.
+
+Generic Trait'ler ve Kapsayıcı Destekleme (Blanket Implementation)
+=====================================================================================
+
+Generic Trait'ler
+-------------------------------------------------------------------------------------
+
+Trait'lerin generic olabileceğini açıklamıştık. Bir trait generic olursa trait'lerin içerisindeki metotlarda ve ilişkili
+fonksiyonlarda generic tür parametresi kullanılabilir. Tabii generic bir trait'i kullanırken açısal parantezler
+içerisinde generic tür parametreleri için argüman belirtilmesi gerekir. Örneğin:
+
+.. code-block:: rust
+
+    trait Test<T> {
+        fn foo(&self) -> T;
+    }
+
+Burada ``Test`` generic bir trait'tir. Generic trait, enum, yapı türleri kullanılırken generic parametrenin gerçekte
+hangi türü temsil ettiğinin açısal parantezler içerisinde belirtilmesi gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample;
+
+    impl Test<i32> for Sample {
+        fn foo(&self) -> i32 {
+            println!("Sample::foo");
+            100
+        }
+    }
+
+Burada generic trait'in ``Test<i32>`` biçiminde tür bilgisi ile belirtildiğine dikkat ediniz. Tanımlama şöyle
+olamazdı:
+
+.. code-block:: rust
+
+    impl Test for Sample {      // error
+        //...
+    }
+
+Burada ``Test`` bir generic trait olduğu halde generic parametre için tür belirtilmemiştir.
+
+Rust Standart kütüphanesinde pek çok generic trait bulunmaktadır. Generic parametrelere default türler de
+iliştirilebilmektedir. Bu durumda kullanım sırasında generic parametre için tür belirtilmezse bu default türün
+belirtilmiş olduğu varsayılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    trait Test<T = i32> {
+        fn foo(&self) -> T;
+    }
+
+    struct Sample;
+
+    impl Test for Sample {              // geçerli
+        fn foo(&self) -> i32 {
+            println!("Sample::foo");
+            100
+        }
+    }
+
+Destekleme sırasında artık doğrudan ``Test`` yazılabildiğine dikkat ediniz. Buradaki ``Test`` aslında ``Test<i32>``
+anlamına gelmektedir.
+
+Generic trait'lerle ilgili ve genel olarak generic konusuyla ilgili çeşitli ayrıntılar vardır. Kursumuzda generic'ler
+konusu ayrı bölümde sıfırdan ele alınacaktır.
+
+Kapsayıcı Destekleme (Blanket Implementation)
+-------------------------------------------------------------------------------------
+
+Rust'ta trait'lerin desteklenmesi konusunda *kapsayıcı destekleme (blanket implementation)* denilen bir destekleme
+sentaksı da vardır. Kapsayıcı desteklemeler ilk karşılaşanlara biraz karmaşık gelebilmektedir. Kapsayıcı destekleme
+*eğer ilgili tür* ``A`` *trait'ini destekliyorsa* ``B`` *trait'indeki metotların ve ilişkili fonksiyonların bu
+tanımlamalarına da sahip olsun* anlamına gelmektedir. Kapsayıcı desteklemede iki trait söz konusu olmaktadır. Biz
+bunlara ``A`` ve ``B`` trait'leri diyelim. Eğer bir tür ``A`` trait'ini destekliyorsa ``B`` trait'indeki metotların
+spesifik tanımlamalarını da bünyesinde barındırıyor gibi bir durum oluşturulmaktadır. Kapsayıcı desteklemenin tipik
+sentaksı şöyledir:
+
+.. code-block:: rust
+
+    impl<T: A> B for T {
+        //...
+    }
+
+Buradaki tür sınırlaması ``where`` sentaksıyla da yapılabilmektedir:
+
+.. code-block:: rust
+
+    impl<T> B for T
+    where T: A {
+        //...
+    }
+
+Buradaki ``T`` ismi değişken isimlendirmesine uygun olan herhangi bir isim olabilir. Ancak bu bağlamda ``T`` gibi tek
+harfli isimler çok tercih edilmektedir. Yukarıdaki sentakslar şu anlama gelmektedir:
+
+- ``T`` türü ``A`` trait'ini destekleyen herhangi bir türdür.
+- ``B`` trait'i için destekleme yapılmaktadır. Yani bloğun içerisinde ``B`` trait'indeki metotlar ve ilişkili
+  fonksiyonlar tanımlanmalıdır.
+- Destekleme ``T`` türü için yapılmaktadır. Yukarıda da belirttiğimiz gibi burada ``T`` türü aslında ``A`` trait'ini
+  destekleyen herhangi bir türü belirtmektedir:
+
+Örneğin:
+
+.. code-block:: rust
+
+    trait A {
+        fn foo(&self);
+    }
+
+    trait B {
+        fn bar(&self);
+    }
+
+    impl<T: A> B for T {
+        fn bar(&self) {
+            println!("Blanket B::bar")
+        }
+    }
+
+Burada ``A`` da ``B`` de birer trait'tir. Kapsayıcı destekleme (blanket implementation) sentaksında derleyiciye adeta
+şu denilmektedir: *A trait'ini destekleyen bir tür aynı zamanda B trait'i için tanımlanmış bu fonksiyonlara da sahip
+olsun*. Yani ``A`` trait'ini destekleyen herhangi bir tür sanki aynı zamanda ``B`` trait'ini de destekliyor gibi
+olmaktadır. Şimdi biz ``A`` trait'ini destekleyen bir ``Sample`` yapısı tanımlayalım:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32
+    }
+
+    impl A for Sample {
+        fn foo(&self) {
+            println!("A::foo");
+        }
+    }
+
+İşte artık sanki bu ``Sample`` yapısı ``B`` trait'ini de destekliyormuş ve ``B`` trait'inin metotlarını ve ilişkili
+fonksiyonlarını tanımlamış gibi bir etki oluşmaktadır. Yani burada biz ``Sample`` yapısı türünden bir değişken ya da
+değerle hem ``A`` trait'indeki ``foo`` metodunu hem de ``B`` trait'indeki ``bar`` metodunu da çağırabilmekteyiz.
+Örneğin:
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { val: 10 };
+
+        s.foo();        // geçerli
+        s.bar();        // geçerli
+    }
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { val: 10 };
+
+        s.foo();
+        s.bar();
+    }
+
+    trait A {
+        fn foo(&self);
+    }
+
+    trait B {
+        fn bar(&self);
+    }
+
+    impl<T: A> B for T {
+        fn bar(&self) {
+            println!("Blanket B::bar");
+        }
+    }
+
+    struct Sample {
+        val: i32
+    }
+
+    impl A for Sample {
+        fn foo(&self) {
+            println!("A::foo");
+        }
+    }
+
+Kapsayıcı Desteklemenin Amacı
+-------------------------------------------------------------------------------------
+
+Peki kapsayıcı desteklemenin (blanket implementation) anlamı nedir ve kapsayıcı destekleme ne işe yaramaktadır? İşte
+kapsayıcı desteklemelerde bir trait'teki metotlar başka bir trait'teki metotlar kullanılarak yazılabilmektedir ya da bir
+trait'teki metotları yazabilmek için başka bir trait'teki metotların çağrılması gerekebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    impl<T: A> B for T {
+        fn bar(&self) {
+            //...
+        }
+    }
+
+Burada ``B`` trait'inin ``bar`` metodu ``T`` türü için yazılmak istenmiştir. Ancak bu ``bar`` metodu aslında ``A``
+trait'indeki metotlardan faydalanılarak yazılmaktadır. Örneğimizdeki ``bar`` metodunun ``self`` değişkeni aslında
+``&T`` türündendir. Yani bu ``self`` parametresi aslında ``A``'yı destekleyen tür türünden bir referans
+belirtmektedir. Çünkü neticede bu ``bar`` metodu aslında ``A``'yı destekleyen tür türünden değişken ya da değerlerle
+çağrılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32
+    }
+
+    impl A for Sample {
+        fn foo(&self) {
+            //...
+        }
+    }
+    //...
+
+    let s = Sample { val: 10 };
+
+    s.bar();
+
+Burada ``bar`` metodunun ``self`` parametresinin aslında ``&Sample`` türünden olduğuna dikkat ediniz. İşte örneğimizde
+aslında ``B`` trait'indeki ``bar`` metodu ``self`` üzerinden ``A`` trait'indeki metotlar ya da ilişkili fonksiyonlar
+çağrılarak yazılabilmektedir:
+
+.. code-block:: rust
+
+    impl<T: A> B for T {
+        fn bar(&self) {
+            //...
+            self.foo();     // bu çağrı geçerli
+            //...
+        }
+    }
+
+Burada ``bar`` metodu içerisindeki ``self.foo()`` çağrısı geçerlidir. Çünkü derleyiciye
+*T türünün A trait'ini desteklediği sözü* verilmiştir. Burada bir noktaya dikkat ediniz: ``Sample`` gibi bir yapıyı
+tanımlayan kişi ``foo`` metodunu yazmak zorundadır. Çünkü ``Sample`` yapısı ``A`` trait'ini desteklemektedir. Öte
+yandan ``bar`` metodu zaten ``foo`` kullanılarak yazılabilmektedir. O halde aslında ``bar`` metodu ``A`` trait'ini
+destekleyen tüm türler için ``self.foo()`` çağrısından faydalanılarak yazılabilir. İşte kapsayıcı destekleme sayesinde
+bir trait'i destekleyen programcı artık bu trait kullanılarak yazılabilecek pek çok metoda otomatik biçimde sahip
+olmaktadır.
+
+Standart Kütüphanede Kapsayıcı Destekleme: Display ve Print Örneği
+-------------------------------------------------------------------------------------
+
+Kapsayıcı destekleme Rust'ın standart kütüphanesinde pek çok yerinde karşımıza çıkabilmektedir. Örneğin standart
+kütüphanede ``std::fmt`` modülünde ``Display`` isimli bir trait bulunmaktadır. Bu trait'in ``fmt`` isimli zorunlu
+(required) bir metodu vardır. Trait şöyle tanımlanmıştır:
+
+.. code-block:: rust
+
+    pub trait Display {
+        fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error>;
+    }
+
+Bu ``fmt`` metodu ilgili yere yazdırılacak yazıyı oluşturmaktadır. Aslında ``print!`` ve ``println!`` makroları da
+ilgili değişken ya da değerleri yazdırırken bu ``fmt`` metodundan faydalanmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+Biz ``Point`` türünden bir yapının içeriğini ``print!`` ya da ``println!`` makrolarıyla yazdıramayız:
+
+.. code-block:: rust
+
+    fn main() {
+        let pt = Point { x: 10, y: 20 };
+
+        println!("{}", pt);     // error
+    }
+
+Çünkü aslında bu örnekte ``println!`` makrosu ``pt`` değişkeni ile ``fmt`` metodunu çağırarak elde edilen yazıyı
+yazdırmaktadır. Şimdi biz ``Display`` trait'ini ``Point`` için destekleyelim:
+
+.. code-block:: rust
+
+    impl std::fmt::Display for Point {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "({}, {})", self.x, self.y)
+        }
+    }
+
+Buradaki tanımlamada daha önce görmediğimiz ``Formatter`` yapısını ve ``write!`` makrosunu kullandık. Ancak bu metot
+sezgisel olarak da anlayabileceğiniz gibi ``(x, y)`` biçimindeki bir yazının oluşturulmasına yol açmaktadır. Artık biz
+``Point`` türünden bir değişkeni ya da değeri ``println!`` ile yazdırabiliriz:
+
+.. code-block:: rust
+
+    fn main() {
+        let pt = Point { x: 10, y: 20 };
+
+        println!("{}", pt);     // geçerli
+    }
+
+Şimdi ``Print`` isimli başka bir trait'in olduğunu varsayalım. Bu trait'te ``print`` isimli bir bulunduğunu varsayalım.
+``print`` metodu ``Print`` trait'ini destekleyen türün alanlarını ``stdout`` dosyasına (ekrana) yazdırmakta
+kullanılıyor olsun:
+
+.. code-block:: rust
+
+    trait Print {
+        fn print(&self);
+    }
+
+Şimdi kendi ``Point`` yapımızda ``Print`` trait'ini destekleyelim:
+
+.. code-block:: rust
+
+    trait Print {
+        fn print(&self);
+    }
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl Print for Point {
+        fn print(&self) {
+            println!("({},{})", self.x, self.y);
+        }
+    }
+
+    fn main() {
+        let pt = Point { x: 10, y: 20 };
+
+        pt.print();
+    }
+
+Burada bir noktaya dikkat ediniz. Bir kişi hem ``Display`` trait'ini hem de ``Print`` trait'ini desteklemek isterse
+aslında benzer bir işlemi iki kere yapmak zorunda kalacaktır. Oysa ``print`` metodu aslında ``Display`` trait'indeki
+``fmt`` metodu çağrılarak yazılabilmektedir. O halde ``Print`` trait'ini yazanlar ``Display`` trait'ini destekleyen
+türlere kolaylık olsun diye ``print`` metodunu ``fmt`` metodundan faydalanarak kapsayıcı biçimde yazabilirler.
+Örneğin:
+
+.. code-block:: rust
+
+    impl<T: std::fmt::Display> Print for T {
+        fn print(&self) {
+            println!("{}", self);
+        }
+    }
+
+Buradaki ``print`` metodunun aslında gizli bir biçimde ``fmt`` çağrısı içerdiğine dikkat ediniz. O halde herhangi bir
+tür eğer ``Display`` trait'ini destekliyorsa sanki ``Print`` trait'ini otomatik biçimde desteklemiş gibi olmaktadır.
+
+ToString Trait'i
+-------------------------------------------------------------------------------------
+
+Yukarıdaki örnekte ``Print`` trait'i Rust'ın standart kütüphanesinde var olan bir trait değildir. Ancak ``Display``
+standart kütüphanede bulunan bir trait'tir. Kapsayıcı desteklemeye Rust'ın standart kütüphanesinden basit bir örnek de
+verilebilir. Standart kütüphanedeki ``std::string`` modülü içerisinde aşağıdaki gibi bir ``ToString`` trait'i
+bulunmaktadır:
+
+.. code-block:: rust
+
+    pub trait ToString {
+        // Required method
+        fn to_string(&self) -> String;
+    }
+
+İsminden de anlayabileceğiniz gibi bu trait'teki ``to_string`` metodu belli bir türün içerisindeki bilgiyi yazıya
+dönüştürmektedir. Ancak aslında bu yazıya dönüştürme eylemi ``Display`` trait'i içerisindeki ``fmt`` metodu
+kullanılarak da yapılabilmektedir. O halde bir kişi kendi türü için zaten ``Display`` trait'ini desteklemişse ayrıca
+onun ``ToString`` trait'ini desteklemesine gerek kalmamaktadır. Çünkü standart kütüphanede böyle bir kapsayıcı
+destekleme zaten yapılmış durumdadır:
+
+.. code-block:: rust
+
+    impl<T: Display> ToString for T {
+        fn to_string(&self) -> String {
+            format!("{}", self)
+        }
+    }
+
+O halde bizim ``ToString`` trait'i için ayrıca bir destekleme yapmamıza gerek yoktur. Örneğin:
+
+.. code-block:: rust
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl std::fmt::Display for Point {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "({}, {})", self.x, self.y)
+        }
+    }
+
+Burada ``Point`` yapısı ``Display`` trait'ini desteklemektedir. O halde sanki artık ``ToString`` trait'ini de
+destekliyor gibi olmaktadır:
+
+.. code-block:: rust
+
+    fn main() {
+        let pt = Point { x: 10, y: 20 };
+
+        println!("{}", pt.to_string());         // geçerli
+    }
+
+Buradaki ``to_string`` çağrısı geçerlidir. Çünkü ``Display`` trait'ini destekleyen türler için ``ToString`` trait'i
+kapsayıcı bir biçimde desteklenmiştir.
+
+Kapsayıcı Destekleme Varken Açık Destekleme
+-------------------------------------------------------------------------------------
+
+Rust'ta bir trait için bir kapsayıcı destekleme zaten varsa ayrıca o trait ilgili tür için açıkça
+desteklenememektedir. Örneğin:
+
+.. code-block:: rust
+
+    trait A {
+        fn foo(&self);
+    }
+
+    trait B {
+        fn bar(&self);
+    }
+
+    impl<T: A> B for T {
+        fn bar(&self) {
+            println!("Blanket B::bar")
+        }
+    }
+
+    struct Sample {
+        val: i32
+    }
+
+    impl A for Sample {
+        fn foo(&self) {
+            println!("A::foo");
+        }
+    }
+
+Burada *A trait'ini destekleyen türler için B üzerinde kapsayıcı destekleme* yapılmıştır. Dolayısıyla örneğimizde
+``Sample`` yapısı ``A`` trait'ini desteklediği için sanki ``B`` trait'ini de destekliyor durumdadır. Böyle bir durumda
+biz ``Sample`` yapısının açıkça ``B`` trait'ini desteklemesini sağlayamayız:
+
+.. code-block:: rust
+
+    impl B for Sample {         // error!
+        fn bar(&self) {
+           //...
+        }
+    }
+
+Eğer böyle bir durum mümkün olsaydı sanki aynı trait ikinci kez destekleniyormuş gibi bir durum oluşurdu.
+
+Kapsayıcı Desteklemeyi Kimin Yaptığı
+-------------------------------------------------------------------------------------
+
+Aşağıdaki gibi bir kapsayıcı destekleme söz konusu olsun:
+
+.. code-block:: rust
+
+    impl<T: A> B for T {
+        //...
+    }
+
+Bu kapsayıcı desteklemede ``A`` trait'ini destekleyen türler sanki ``B`` trait'ini de desteklemiş gibi olmaktadır. Peki
+bu kapsayıcı desteklemeyi oluşturmak kimin görevidir? ``A``'nın mı ``B``'nin mi ``T``'nin mi? İşte bu görev bu
+örnekteki ``B``'ye aittir. ``B`` trait'ini oluşturan kişi başkalarının işini kolaylaştırmak için bu kapsayıcı
+desteklemeyi yapar. Yukarıdaki örneğini verdiğimiz ``ToString`` trait'i ``std::string`` modülündedir. ``ToString``
+trait'ini oluşturanlar ``Display`` trait'i üzerinde kapsayıcı destekleme yapmıştır.
+
+Birden Fazla Trait'e Bağlı Kısıtlar ve where Sentaksı
+-------------------------------------------------------------------------------------
+
+Kapsayıcı desteklemede kısıt birden fazla trait'e de bağlı olabilir. Bu durumda daha önce de gördüğümüz gibi söz konusu
+trait'ler ``'+'`` atomuyla belirtilmelidir. Örneğin:
+
+.. code-block:: rust
+
+    impl<T: A + B> C for T {
+        //...
+    }
+
+Artık buradaki koşul ``T``'nin yalnızca ``A``'yı desteklemesi değil hem ``A``'yı hem de ``B``'yi desteklemesi
+biçimindedir. Bu durumda muhtemelen ``C`` trait'indeki metotları yazarken hem ``A`` trait'indeki metotlardan hem de
+``B`` trait'indeki metotlardan faydalanılmıştır.
+
+Yukarıda da belirttiğimiz gibi kapsayıcı desteklemede kısıt belirtilirken ``where`` sentaksı da kullanılabilmektedir.
+Ancak biz ``where`` sentaksını generic'ler konusunda göreceğiz. ``where`` sentaksı açısal parantezler içerisinde
+``':'`` ile kısıt belirtmenin alternatif bir yoludur. Örneğin:
+
+.. code-block:: rust
+
+    impl<T: A> B for T {
+        //...
+    }
+
+Kapsayıcı desteklemesinin ``where`` sentakslı eşdeğeri şöyledir:
+
+.. code-block:: rust
+
+    impl<T> B for T
+    where T: A {
+    }
+
+Genel olarak ``where`` sentaksı açısal parantezler içerisinde ``':'`` ile kısıt belirtme sentaksını kapsamaktadır
+ancak fazlalıkları da vardır.
+
+Fonksiyon Parametrelerinde ve Geri Dönüş Değerlerinde impl Anahtar Sözcüğü
+=====================================================================================
+
+impl Anahtar Sözcüğünün Tür Olarak Kullanımı
+-------------------------------------------------------------------------------------
+
+Fonksiyonların ve metotların parametre değişkenlerinde ve geri dönüş değerlerinde ``impl`` anahtar sözcüğü
+kullanılabilmektedir. Parametre değişkeninde kullanılan ``impl`` anahtar sözcüğü ile geri dönüş değerinde kullanılan
+``impl`` anahtar sözcüğü farklı anlamlara gelmektedir. *The Rust Reference* dokümanlarında bu konu
+*impl Trait Type (10.1.16)* başlığında ele alınmıştır. Yani Rust gramerinde bu bağlamdaki ``impl`` anahtar sözcüğü
+türe ilişkin bir anahtar sözcüktür.
+
+Parametre Değişkeninde impl Trait
+-------------------------------------------------------------------------------------
+
+Parametre değişkeninde ``impl`` anahtar sözcüğü ile bir trait belirtilirse bu durum
+*bu parametre değişkeni söz konusu trait'i destekleyen herhangi bir türden olabilir* anlamına gelmektedir. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        fn test(&self);
+    }
+
+    fn foo(a: impl Test) {
+        //...
+    }
+
+Biz buradaki ``foo`` fonksiyonunu çağırırken parametre değişkeni için ``Test`` trait'ini destekleyen bir türden
+değişken ya da değeri argüman olarak verebiliriz. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        a: i32
+    }
+
+    impl Test for Sample {
+        fn test(&self) {
+            println!("Sample::test");
+        }
+    }
+
+    struct Mample {
+        b: i32
+    }
+
+    impl Test for Mample {
+        fn test(&self) {
+            println!("Mample::test");
+        }
+    }
+
+Burada ``Sample`` yapısı da ``Mample`` yapısı da ``Test`` trait'ini desteklemektedir. O halde biz ``foo``
+fonksiyonunu ``Sample`` türünden de ``Mample`` türünden de bir değişken ya da değerle çağırabiliriz. Örneğin:
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { a: 100 };
+        let m = Mample { b: 200 };
+
+        foo(s);     // geçerli
+        foo(m);     // geçerli
+    }
+
+Burada ``Sample`` türü de ``Mample`` türü de ``Test`` trait'ini desteklemektedir. Bu nedenle ``foo`` çağrımında
+kullanılabilmektedir.
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample {a: 100};
+        let m = Mample {b: 200};
+
+        foo(s);     // geçerli
+        foo(m);     // geçerli
+    }
+
+    trait Test {
+        fn test(&self);
+    }
+
+    fn foo(a: impl Test) {
+        a.test();
+    }
+
+    struct Sample {
+        a : i32
+    }
+
+    impl Test for Sample {
+        fn test(&self) {
+            println!("Sample::test");
+        }
+    }
+
+    struct Mample {
+        b: i32
+    }
+
+    impl Test for Mample {
+        fn test(&self) {
+            println!("Mample::test");
+        }
+    }
+
+impl Trait Parametrelerinin Generic Eşdeğeri
+-------------------------------------------------------------------------------------
+
+Peki yukarıdaki ``foo`` fonksiyonunda parametre değişkeni hangi türdendir? Fonksiyonun tanımına bir kez daha
+bakınız:
+
+.. code-block:: rust
+
+    fn foo(a: impl Test) {
+        //...
+    }
+
+Burada ``a`` parametre değişkeninin ``Test`` türünden olduğunu sanabilirsiniz. Ancak Rust'ta trait'ler türünden
+değişkenler bildirilememektedir. Peki o zaman ``a`` değişkeni hangi türdendir? İşte aslında buradaki ``a`` değişkeni
+bu fonksiyon hangi türle çağrılmışsa o türden olur. Dolayısıyla bu fonksiyon aslında generic bir fonksiyondur. Biz
+henüz generic'ler konusunu görmemiş olsak da bu fonksiyonun tamamen aşağıdakiyle eşdeğer olduğunu belirtmek istiyoruz:
+
+.. code-block:: rust
+
+    fn foo<T: Test>(a: T) {
+        //...
+    }
+
+Tabii ``where`` sentaksı da kullanılabilmektedir:
+
+.. code-block:: rust
+
+    fn foo<T>(a: T)
+    where T: Test  {
+        //...
+    }
+
+Bu nedenle parametredeki ``impl`` anahtar sözcüğü için Rust programcıları *syntactic sugar* terimini kullanmaktadır.
+(Programlamada *syntactic sugar* sözcüğü *bir sentaksı daha kolay bir biçimde oluşturma* anlamına gelmektedir.) İşte
+buradaki ``foo`` generic olduğu için aslında her çağrıldığında farklı bir ``foo`` oluşturulacaktır. (Bu sürece
+*monomorfizasyon* dendiğini anımsayınız.)
+
+Yukarıdaki örnekte ``T`` türü bir yapı ya da enum türü ise bir sahiplik devri de söz konusu olacaktır. Genellikle
+parametrelerdeki ``impl`` trait'ler referans olarak yani ``&impl T`` ya da ``&mut impl T`` (burada ``T`` bir trait
+belirtiyor) biçiminde karşımıza çıkar. Örneğin:
+
+.. code-block:: rust
+
+    fn foo(a: &impl Test) {
+        //...
+    }
+
+Burada yine yukarıdaki semantik uygulanmaktadır. Yani bu fonksiyon ``Test`` trait'ini destekleyen bir değişkenin ya da
+değerin adresiyle çağrılmalıdır. Tabii burada yine ``a`` değişkeni ``Test`` trait'i türünden referans değildir.
+Derleyici bu fonksiyon hangi türden referansla çağrılmışsa o fonksiyondan o tür için ayrı bir tane yazmaktadır.
+Örneğin:
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { a: 100 };
+        let m = Mample { b: 200 };
+
+        foo(&s);     // geçerli
+        foo(&m);     // geçerli
+    }
+
+    fn foo(a: &impl Test) {
+        a.test();
+    }
+
+    trait Test {
+        fn test(&self);
+    }
+
+Burada ``foo`` fonksiyonu iki farklı türle çağrıldığı için derleyici tarafından iki farklı ``foo`` fonksiyonu
+monomorfize edilecektir. Yukarıdaki ``foo`` fonksiyonunun eşdeğeri tamamen şöyledir:
+
+.. code-block:: rust
+
+    fn foo<T: Test>(a: &T) {
+        //...
+    }
+
+Tabii yine ``where`` sentaksı da kullanılabilirdi:
+
+.. code-block:: rust
+
+    fn foo<T>(a: &T) where T: Test {
+        //...
+    }
+
+Parametre ve geri dönüş değerindeki ``impl`` anahtar sözcüklerinin türü nitelediğini yani tür bilgisine dahil olduğunu
+belirtmiştik. Bu nedenle ``mut`` bir referansı ``impl`` anahtar sözcüğü ile bildirirken ``&`` atomundan sonra önce
+``mut`` anahtar sözcüğünün sonra ``impl`` anahtar sözcüğünün getirilmesi gerekir. Yani buradaki tür ``T`` bir trait
+belirtmek üzere ``impl T`` biçimindedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo(a: &mut impl Test) {     // doğru yazım
+        a.test();
+    }
+
+Tabii bu durumda ``Test`` trait'ini destekleyen değişkenin de ``mut`` olması gerekir:
+
+.. code-block:: rust
+
+    fn main() {
+        let mut s = Sample { a: 100 };
+        let mut m = Mample { b: 200 };
+
+        foo(&mut s);     // geçerli
+        foo(&mut m);     // geçerli
+    }
+
+Rust'ta trait'ler türünden referanslar bildirilebilir. Ancak referansların ``dyn`` referanslar olması gerekir.
+İzleyen paragraflarda ``dyn`` referanslar üzerinde duracağız.
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample { a: 100 };
+        let m = Mample { b: 200 };
+
+        foo(&s);     // geçerli
+        foo(&m);     // geçerli
+    }
+
+    fn foo(a: &impl Test) {
+        a.test();
+    }
+
+    trait Test {
+        fn test(&self);
+    }
+
+    struct Sample {
+        a : i32
+    }
+
+    impl Test for Sample {
+        fn test(&self) {
+            println!("Sample::test");
+        }
+    }
+
+    struct Mample {
+        b: i32
+    }
+
+    impl Test for Mample {
+        fn test(&self) {
+            println!("Mample::test");
+        }
+    }
+
+Geri Dönüş Değerinde impl Trait
+-------------------------------------------------------------------------------------
+
+Fonksiyonların ya da metotların geri dönüş değerlerinde ``impl T`` (burada ``T`` bir trait belirtmektedir)
+kullanılırsa parametredeki semantik değişmektedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo(a: i32) -> impl Test {
+        //...
+    }
+
+Buradaki ``foo`` fonksiyonunun geri dönüş değerinin ``Test`` değil ``impl Test`` biçiminde olduğuna dikkat ediniz.
+``foo`` fonksiyonu ``Test`` türünü destekleyen herhangi bir türle geri döndürülebilir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        a : i32
+    }
+
+    impl Test for Sample {
+        fn test(&self) {
+            println!("Sample::test");
+        }
+    }
+
+    fn foo(a: i32) -> impl Test {
+        Sample { a }                 // geçerli
+    }
+
+Burada görüldüğü gibi ``foo`` fonksiyonunda verilen sözde durulmuş ve fonksiyon ``Test`` trait'ini destekleyen bir tür
+türünden değişkenle geri döndürülmüştür. Örneğimizde ``Sample`` türü ``Test`` trait'ini desteklemektedir.
+
+Fonksiyonun geri dönüş değerindeki ``impl`` anahtar sözcüğü yanlış anlaşılmaya müsaittir. Bu biçimdeki fonksiyonlar tek
+bir gerçek türle geri dönmek zorundadır. Örneğin ``Sample`` yapısı da ``Mample`` yapısı da ``Test`` trait'ini
+destekliyor olsun. Biz ``foo`` fonksiyonunu yazarken ``Sample`` türüyle ya da ``Mample`` türüyle geri dönebiliriz.
+Ancak bazı durumlarda ``Sample`` bazı durumlarda ``Mample`` türüyle geri dönemeyiz. Örneğin:
+
+.. code-block:: rust
+
+    fn foo(a: i32) -> impl Test {
+        if a > 0 {
+            Sample {a}
+        }
+        else {
+            Mample {a}          // error!
+        }
+    }
+
+Burada fonksiyonun geri dönüş değeri belli ve tek bir türden olmak zorundadır. ``impl T`` (burada ``T`` bir trait
+belirtiyor) türüyle geri dönen fonksiyonlarda fonksiyonu yazan adeta dış dünyaya şunları söylemektedir:
+*Bu fonksiyon* ``T`` *trait'ini destekleyen herhangi bir somut değerle geri dönüyor. Ancak fonksiyonun gerçekte hangi
+türle geri döndüğünü sana söylemek istemiyorum*.
+
+Biz yukarıda trait'ler türünden değişkenlerin bildirilemeyeceğini belirtmiştik. Bu durumda aşağıdaki gibi bir ``foo``
+fonksiyonunun geri dönüş değeri nasıl kullanılacaktır?
+
+.. code-block:: rust
+
+    fn foo(a: i32) -> impl Test {
+        //...
+    }
+
+Trait türünden değişkenler bildiremediğimize göre bu fonksiyonun geri dönüş değerini ``Test`` türünden bir değişkene de
+atayamayız:
+
+.. code-block:: rust
+
+    let x: Test;            // error!
+
+    x = foo(10);
+
+O zaman ilk akla gelecek durum geri dönüş değerini bir yere atamadan doğrudan kullanmak olabilir. Örneğin:
+
+.. code-block:: rust
+
+    foo(10).test();         // geçerli
+
+Ancak bu biçimdeki kullanım çok kısıtlı bir imkan sunmaktadır. İşte ``let`` deyiminde açıkça tür belirtilmeden bu
+fonksiyonun geri dönüş değeri bir değişkene atanabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    let x = foo(10);
+
+Tabii artık buradaki ``x`` değişkeninin gerçek türünü biz bilmediğimiz için buradaki ``x`` değişkeni ile yalnızca
+``Test`` trait'inin metotlarını çağırabiliriz. ``foo`` fonksiyonunda ``Sample`` türünden bir değerle geri dönüyor olsak
+bile artık ``x`` ile bu ``Sample`` türünün alanlarını kullanamayız, metotlarını çağıramayız. Yalnızca ``Sample``
+türünün desteklediği ``Test`` trait'inin metotlarını çağırabiliriz. Aşağıdaki atamaya yeniden dikkat ediniz:
+
+.. code-block:: rust
+
+    let x = foo(10);
+
+Burada ``x`` değişkeni için ``foo`` fonksiyonu gerçekte hangi türden değerle geri döndürülmüşse o uzunlukta bir yer
+ayrılmalıdır. Bu örnekte biz açıkça ``foo`` fonksiyonunda ``Sample`` türünden bir değer geri döndürüyor olsak bile
+``x``'in türünü ``Sample`` olarak belirtemeyiz:
+
+.. code-block:: rust
+
+    let x: Sample = foo(10);        // error!
+
+Peki derleyici geri dönüş değerinde ``impl`` anahtar sözcüğü kullanıldığında fonksiyonun gerçekte hangi türden değer
+geri döndürdüğünü nasıl bilmektedir? Eğer ``foo`` aynı crate içerisindeyse derleyici zaten crate içerisindeki tüm kaynak
+kodları görebildiği için ``x``'in hangi tür olduğunu kendisi tespit edebilir. Ancak ``foo`` örneğin bir kütüphane
+crate'i içerisindeyse bu durumda derleyici kütüphanenin meta data bilgilerinden fonksiyonun imzasını görür ve kendi
+uyguladığı derleme sistematiği ile (yani ABI ile) geri döndürülen değerin uzunluğunu elde edebilir. (Örneğin fikir
+olarak derleyici bu tür fonksiyonlardan iki değer geri döndürebilir. Değerlerden bir tanesi geri dönüş değerinin
+uzunluğu diğeri ise değerin stack'teki başlangıç adresi olabilir. Derleyicilerin kullandığı bu türden kurallar
+topluluğuna *ABI (Application Binary Interface)* denilmektedir.)
+
+Geri dönüş değerinde ``impl`` anahtar sözcüğü kullanıldığında ve geri döndürülen değer bir değişkene atanıp o
+değişkenle yapının ya da enum türünün trait'lerden gelen metotları çağrılabildiğinden sanki buradaki işlemin sonraki
+paragraflarda ele alacağımız *dynamic dispatch* mekanizmasına benzer yürütüldüğü sanılabilmektedir. Ancak derleyici bu
+tür durumlarda trait'in çağrılacak fonksiyonunu derleme aşamasında belirleyebilmektedir. Dolayısıyla burada bir
+*static dispatch* mekanizması söz konusu olmaktadır. Rust kütüphanelerinde aslında fonksiyonun geri dönüş değerinde
+``impl`` anahtar sözcüğü kullanıldığında onun gerçek türünü de kütüphanenin meta data alanına yazmaktadır.
+
+Birden Fazla Trait Belirtilmesi
+-------------------------------------------------------------------------------------
+
+Parametre değişkeninde ve geri dönüş değerinde belirtilen trait birden fazla olabilir. Bu durumda
+*o trait'lerin hepsinin desteklenmesi* gerekir. Birden fazla trait daha önceden de gördüğümüz gibi ``'+'`` atomuyla
+belirtilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    fn test(t: impl A + B) {
+        //...
+    }
+
+Burada ``t`` parametre değişkeni için hem ``A`` hem de ``B`` trait'ini destekleyen bir tür türünden değişken ya da
+değer argüman olarak verilebilir. Bunun eşdeğer generic karşılığı şöyledir:
+
+.. code-block:: rust
+
+    fn test<T: A + B>(t: T) {
+        //...
+    }
+
+Aynı eşdeğer fonksiyon ``where`` sentaksıyla da oluşturulabilirdi:
+
+.. code-block:: rust
+
+    fn test<T>(t: T) where T: A + B {
+        //...
+    }
+
+Ancak parametre değişkeni ``impl`` anahtar sözcüğü içeren bir referans ise bu durumda ``&`` atomundan sonraki kısım
+parantez içerisine alınmak zorundadır. Örneğin:
+
+.. code-block:: rust
+
+    fn test(t: &(impl A + B)) {         // parantezlere dikkat ediniz
+        //...
+    }
+
+Burada ``&`` atomundan sonraki kısmın paranteze alındığına dikkat ediniz.
+
+``impl`` anahtar sözcüğü fonksiyonun ya da metodun geri dönüş değerinde kullanılıyorsa parantez gerekmemektedir.
+Örneğin:
+
+.. code-block:: rust
+
+    fn test() -> impl A + B {
+        //...
+    }
+
+Burada fonksiyonun geri dönüş değeri hem ``A`` hem de ``B`` trait'ini destekleyen bir tür türünden olmalıdır.
+
+.. code-block:: rust
+
+    fn main() {
+        let x = test();
+
+        x.foo();        // geçerli
+        x.bar();        // geçerli
+    }
+
+    fn test() -> impl A + B {
+        Sample {val: 10}
+    }
+
+    trait A {
+        fn foo(&self);
+    }
+
+    trait B {
+        fn bar(&self);
+    }
+
+    struct Sample {
+        val: i32
+    }
+
+    impl A for Sample {
+        fn foo(&self) {
+            println!("A::foo");
+        }
+    }
+
+    impl B for Sample {
+        fn bar(&self) {
+            println!("B::bar");
+        }
+    }
+
+Çokbiçimlilik (Polymorphism) ve dyn Referanslar
+=====================================================================================
+
+Rust'ta Çokbiçimlilik
+-------------------------------------------------------------------------------------
+
+Rust nesne yönelimli bir dil olmasa da trait'ler yoluyla nesne yönelimli dillerdeki *çokbiçimli (polymorphic)*
+mekanizma Rust'ta kullanılabilmektedir. Çokbiçimlilik (polymorphism) nesne yönelimli programlama tekniğinde
+*gerçek türü bilmeden arayüzleri kullanarak türden bağımsız kod parçalarının oluşturulmasını olanak sağlayan* bir
+mekanizmadır. İşte Rust'ta çokbiçimlilik trait'ler yoluyla oluşturulabilmektedir. Java'da sınıfların bütün metotları
+default durumda çokbiçimlidir. C++ ve C#'ta metotların (C++'ta metot yerine *üye fonksiyon* terimi kullanılmaktadır)
+çokbiçimli olması için onun ``virtual`` anahtar sözcüğüyle bildirilmesi gerekmektedir. Python gibi dinamik tür
+sistemine sahip programlama dilleri zaten doğuştan çokbiçimlidir.
+
+Rust'ta çokbiçimlilik ``dyn`` trait'ler ve referanslar yoluyla sağlanmaktadır.
+
+dyn Referanslar
+-------------------------------------------------------------------------------------
+
+Rust'ta bir trait türünden değişken bildirilemeyeceğini söylemiştik. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        fn foo(&self);
+    }
+
+    //...
+
+    let t: Test;        // error!
+
+Ancak trait'ler türünden referanslar ``dyn`` anahtar sözcüğü kullanılarak bildirilebilmektedir:
+
+.. code-block:: rust
+
+    let t: &dyn Test;           // geçerli
+    let t: &Test;               // error!
+
+``dyn`` anahtar sözcüğünün ``&`` atomuna bitişik yazılması tercih edilmektedir. Eğer referans ``mut`` ise önce ``mut``
+anahtar sözcüğü sonra ``dyn`` anahtar sözcüğü kullanılmak zorundadır. Örneğin:
+
+.. code-block:: rust
+
+    let t: &mut dyn Test;           // geçerli
+
+Burada da tıpkı önceki konuda gördüğümüz ``impl`` anahtar sözcüğünde olduğu gibi ``dyn`` anahtar sözcüğü de türe
+ilişkindir. Örneğin:
+
+.. code-block:: rust
+
+    let t: &dyn Test;
+
+Burada ``t`` değişkeni ``dyn Test`` türündendir. ``dyn`` anahtar sözcüğü türe ilişkin olduğu için trait türünün hemen
+solunda bulundurulmalıdır. Biz ``dyn`` anahtar sözcüğü kullanılarak bildirilen referanslara ``dyn`` *referanslar* da
+diyeceğiz. ``dyn`` anahtar sözcüğü *dynamic* sözcüğünden kısaltılarak uydurulmuştur.
+
+``dyn`` bir referansa ilgili trait'i destekleyen herhangi bir yapı ya da enum türünden değişkenin ya da değerin adresi
+atanabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        fn foo(&self);
+     }
+
+    struct Sample{
+        val: i32
+    }
+
+    impl Test for Sample {
+        fn foo(&self) {
+            println!("Sample::foo");
+        }
+    }
+
+Burada ``Sample`` yapısı ``Test`` trait'ini desteklemektedir. O halde ``Sample`` türünden bir değişkenin adresini biz
+``dyn Test`` türünden bir referansa atayabiliriz:
+
+.. code-block:: rust
+
+    let s = Sample {val: 10};
+    let t: &dyn Test;
+
+    t = &s;     // geçerli
+
+Burada ``t`` referansının içerisinde ``Sample`` değişkenin adresi tutulmaktadır. ``dyn`` trait türünden bir referansa
+programın akışı içerisinde o trait'i destekleyen farklı türlerden değişkenlerin adresleri atanabilmektedir. Örneğin
+``Sample`` yapısının da ``Mample`` yapısının da ``Test`` trait'ini desteklediğini kabul edelim:
+
+.. code-block:: rust
+
+    let s = Sample {val: 10}
+    let m = Mample {val: 20};
+    let mut t: &dyn Test;
+
+    t = &s;     // geçerli
+    //...
+    t = &m;     // geçerli
+
+dyn Referanslar ve Çokbiçimli Mekanizma
+-------------------------------------------------------------------------------------
+
+``dyn`` trait türünden bir referansla o trait'in metotları çağrıldığında o anda o referans hangi türden bir değişkeni
+ya da değeri gösteriyorsa o tür için desteklenen (implemente edilmiş olan) trait metotları çağrılmaktadır. Örneğin
+``Sample`` ve ``Mample`` türlerinin ``Test`` trait'ini desteklediğini varsayalım. Bu durumda ``Sample`` için de
+``Mample`` için de ``Test`` trait'indeki metotlar yazılmıştır. ``Test`` trait'inde ``foo`` metodunun bulunduğunu
+düşünelim:
+
+.. code-block:: rust
+
+    let s = Sample {val: 10};
+    let m = Mample {val: 20};
+    let mut t: &dyn Test;
+
+    t = &s;
+    t.foo();        // Sample::foo çağrılır
+
+    t = &m;
+    t.foo();        // Mample::foo çağrılır
+
+Burada ``t.foo()`` çağrısı yapıldığında ``t`` içerisinde hangi türden bir adres varsa o türün ``foo`` metodu
+çağrılmaktadır. Görüldüğü gibi ``t.foo()`` çağrısı kimi zaman ``Sample`` yapısının ``foo`` metodunun çağrılmasına kimi
+zaman ise ``Mample`` yapısının ``foo`` metodunun çağrılmasına yol açmaktadır.
+
+.. code-block:: rust
+
+    fn main() {
+        let s = Sample {val: 10};
+        let m = Mample {val: 20};
+        let mut t: &dyn Test;
+
+        t = &s;         // geçerli
+        t.foo();        // Sample::foo çağrılır
+
+        t = &m;         // geçerli
+        t.foo();        // Mample::foo çağrılır
+    }
+
+    trait Test {
+        fn foo(&self);
+    }
+
+    struct Sample{
+        val: i32
+    }
+
+    impl Test for Sample {
+        fn foo(&self) {
+            println!("Sample::foo");
+        }
+    }
+
+    struct Mample {
+        val: i32
+    }
+
+    impl Test for Mample {
+        fn foo(&self) {
+            println!("Mample::foo");
+        }
+    }
+
+``dyn`` bir trait referansıyla ilgili trait'in metotları çağrıldığında referansın içerisinde bulunan adresteki türe
+ilişkin desteklenen metodun çağrılmasına *çokbiçimli (polymorphic) mekanizma* denilmektedir. Çokbiçimli mekanizmada söz
+konusu trait aslında *o türü destekleyen herhangi bir tür* işlevini görmektedir. Böylece türden bağımsız kod
+parçalarının yazımı mümkün olmaktadır.
+
+Türden Bağımsız Kod Yazımı ve Fabrika Kalıbı
+-------------------------------------------------------------------------------------
+
+.. figure:: _static/z-shape.png
+   :align: center
+   :alt: ZShape
+
+.. figure:: _static/square-shape.png
+   :align: center
+   :alt: SquareShape
+
+Burada oyunun şekilsel kısmı düşen şeklin türünden bağımsız olarak aşağıdaki pseudo koddaki gibi yazılabilir:
+
+.. code-block:: rust
+
+    let shape: &mut dyn Shape;
+
+    while true {
+        shape = get_random_shape();
+        while true {
+            shape.move_down();
+            match getkey() {
+                Key.LeftArrow => shape.move_left(),
+                Key.RightArrow => shape.move_right(),
+                Key.Enter => shape.rotate(),
+            }
+            //...
+        }
+        //...
+    }
+
+Burada rastgele bir şekil yaratılmış sonra yaratılan o şekil neyse basılan tuşlara göre o şekil hareket ettirilmiştir.
+Bu örnekte oyuna yeni bir şekil nasıl ekleyebiliriz? Tek yapacağımız şey yeni bir şekil yapısı tanımlayıp onun da
+``Shape`` trait'ini desteklemesini sağlamaktır. Tabii ``get_random_shape`` fonksiyonu da artık yeni şekli de dikkate
+alarak rastgele bir şekil vermelidir. Yukarıda ideal durumda
+*daha önce yazılmış kodlarda değişiklik yapmadan hep eklemeler yoluyla geliştirme sürecinin devam ettirilmesi gerektiğini*
+söylemiştik. Peki burada yeni bir şeklin oyuna eklenmesi sırasında ``get_random_shape`` fonksiyonunun içinin de
+değiştirilmesi gerekmiyor mu? İşte aslında bu fonksiyonun içini değiştirmeden bu fonksiyonun yeni eklenen şekli de
+vermesi sağlanabilmektedir. Bu kalıba nesne yönelimli programlama tekniğinde *fabrika kalıbı (factory pattern)*
+denilmektedir. Bu örnekte kodlamanın spesifik şekillere dayalı değil kavramı temsil eden trait'e dayalı yapıldığına
+dikkat ediniz.
+
+Komut Satırı Uygulaması ve dyn Trait Referanslarının Çalışma Mekanizması
+=====================================================================================
+
+Çokbiçimli Mekanizma ile Komut Satırı Uygulaması
+-------------------------------------------------------------------------------------
+
+Şimdi de bir komut satırı (command prompt) uygulaması yapalım. Ekrana (``stdout`` dosyasına) bir komut satırı çıkartıp
+klavyeden (``stdin`` dosyasından) komut alan bir yapı oluşturabiliriz. Ancak komutları işlemeyi çokbiçimli mekanizmayı
+kullanarak ``dyn Trait`` referansı ile bu yapıyı kullanacak kişilere bırakabiliriz. ``CmdLine`` isimli yapı şöyle
+tanımlanabilir:
+
+.. code-block:: rust
+
+    struct CmdLine<'a> {
+        prompt: String,
+        cmd_execute: &'a dyn Execute,
+    }
+
+Burada yapının ``cmd_execute`` alanının bir ``dyn`` referans olduğuna dikkat ediniz. Yapının referans alanları için bir
+ömür bilgisinin iliştirilmesinin zorunlu olduğunu anımsayınız. Bu yapı için ``new`` ilişkili fonksiyonunu ve ``run``
+metodunu şöyle yazabiliriz:
+
+.. code-block:: rust
+
+    impl<'a> CmdLine<'a> {
+        fn new(prompt: &str, cmd_execute: &'a dyn Execute) -> CmdLine<'a> {
+            CmdLine { prompt: prompt.to_string(), cmd_execute: cmd_execute }
+        }
+
+        fn run(&self) {
+            let mut cmd = String::new();
+
+            loop {
+                print!("{}>", self.prompt);
+                io::stdout().flush().unwrap();
+                io::stdin().read_line(&mut cmd).unwrap();
+                if !self.cmd_execute.execute(&cmd) {
+                    break
+                }
+                cmd.clear();
+            }
+        }
+    }
+
+Burada ``new`` metodunun geri dönüş değeri ömür parametresine sahip bir yapı türünden olduğu için geri dönüş
+değerindeki bu ömür bilgisinin fonksiyon parametreleriyle ilişkilendirilmiş olması gerekmektedir. ``run`` metodunda
+sonsuz bir döngü içerisinde önce ekrana (``stdout`` dosyasına) prompt basılmış sonra da klavyeden (``stdin``
+dosyasından) okuma yapılmıştır. Okunan komut yazısı ``self.cmd_execute.execute`` çağrısı ile işletilmiştir.
+Çokbiçimli mekanizma devreye gireceği için burada aslında bizim adresini geçirdiğimiz ``Execute`` trait'ini
+destekleyen yapının ``execute`` metodu çağrılacaktır. Böylece bu yapı komut satırının kabasını oluşturmakta ancak
+komutların işlenmesini dışarıya bırakmaktadır. Biz bu örnekte ``flush`` ve ``read_line`` metotlarının geri dönüş
+değerlerine ``unwrap`` uygulayıp oluşabilecek hatayı ele almadık. Ancak siz bu tür temel kodlarda sıkıcı da olsa bu
+durumları da ele almalısınız. Örneğimizdeki ``CmdLine`` yapısını kullanabilmemiz için bizim ``Execute`` trait'ini
+destekleyen bir yapı ya da enum türünden bir değişken ya da değer oluşturup o değişken ya da değerin adresini
+``CmdLine`` yapısındaki ``cmd_execute`` alanına yerleştirmemiz gerekir. Örneğin:
+
+.. code-block:: rust
+
+    struct CSDProcCmd {
+        //...
+    }
+
+    impl Execute for CSDProcCmd {
+        fn execute(&self, cmd_line: &String) -> bool  {
+            print!("command executes: {}", cmd_line);
+            cmd_line.trim() != "exit"
+        }
+    }
+
+    fn main() {
+        let proc_cmd = CSDProcCmd {
+            //...
+        };
+        let cmd_line = CmdLine::new("CSD", &proc_cmd);
+        cmd_line.run();
+    }
+
+Burada ``CmdLine`` değişkeninin nasıl yaratıldığına dikkat ediniz:
+
+.. code-block:: rust
+
+    let cmd_line = CmdLine::new("CSD", &proc_cmd);
+
+.. code-block:: rust
+
+    use std::io;
+    use std::io::Write;
+
+    fn main() {
+        let proc_cmd = CSDProcCmd {
+            //...
+        };
+        let cmd_line = CmdLine::new("CSD", &proc_cmd);
+        cmd_line.run();
+    }
+
+    trait Execute {
+        fn execute(&self, cmd_line: &String) -> bool;
+    }
+
+    struct CmdLine<'a> {
+        prompt: String,
+        cmd_execute: &'a dyn Execute,
+    }
+
+    impl<'a> CmdLine<'a> {
+        fn new(prompt: &str, cmd_execute: &'a dyn Execute) -> CmdLine<'a> {
+            CmdLine { prompt: prompt.to_string(), cmd_execute: cmd_execute }
+        }
+
+        fn run(&self) {
+            let mut cmd = String::new();
+            loop {
+                print!("{}>", self.prompt);
+                io::stdout().flush().unwrap();
+                io::stdin().read_line(&mut cmd).unwrap();
+                if !self.cmd_execute.execute(&cmd) {
+                    break
+                }
+                cmd.clear();
+            }
+        }
+    }
+
+    // ...
+
+    struct CSDProcCmd {
+        //...
+    }
+
+    impl Execute for CSDProcCmd {
+        fn execute(&self, cmd_line: &String) -> bool  {
+            print!("command executes: {}", cmd_line);
+            cmd_line.trim() != "exit"
+        }
+    }
+
+Dynamic Dispatch ve Sanal Fonksiyon Tablosu
+-------------------------------------------------------------------------------------
+
+Aşağıdaki gibi bir trait bulunuyor olsun:
+
+.. code-block:: rust
+
+    trait Test {
+        fn foo(&self);
+    }
+
+Bu trait türünden ``dyn`` referans parametreli bir fonksiyonun da bulunduğunu varsayalım:
+
+.. code-block:: rust
+
+    fn run(r: &dyn Test) {
+        //...
+        r.foo();
+        //...
+    }
+
+Biz bu fonksiyona ``Test`` trait'ini destekleyen hangi yapı ya da enum türünden adres geçersek fonksiyon aslında o
+türdeki ``foo`` metodunu çağıracaktır. Bu nedenle örneğimizdeki ``run`` fonksiyonu derlenirken derleyici hangi ``foo``
+metodunun çağrılacağını bilemez. Çünkü çağrılacak ``foo`` metodu fonksiyona geçirilecek adresin türüne bağlıdır. O
+halde derleyici bu fonksiyonu gördüğünde nasıl bir kod üretmektedir?
+
+Bu tür çokbiçimli çağrılara C++'ta *late binding*, Rust'ta ise *dynamic dispatch* denilmektedir. Rust'taki
+*dynamic dispatch* mekanizması C++'tan farklı biçimde gerçekleştirilmektedir. Rust'ta ``&dyn`` bir trait referansı
+bildirildiğinde o referans aslında kendi içerisinde bir tane değil iki tane gösterici tutmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    let s = Sample { a: 10, b: 20 };
+    let r: &dyn Test = &s;
+
+    println!("{}", std::mem::size_of_val(&r));      // 16
+
+Burada 64 bitlik makinede ``r`` için ayrılan alanın 16 byte olduğu görülmektedir. (64 bit sistemlerde bir gösterici 8
+byte olduğundan 2 gösterici 16 byte yer kaplamaktadır.) Halbuki normal referanslar aynı sistemde 8 byte yer
+kaplamaktadır:
+
+.. code-block:: rust
+
+    let a: i32 = 10;
+    let r: &i32 = &a;
+
+    println!("{}", std::mem::size_of_val(&r));      // 8
+
+Peki neden Rust'ta ``dyn`` bir trait referansı iki göstericilik yer kaplamaktadır? İşte Rust'ta derleyici ``dyn``
+uyumlu bir trait'i destekleyen bir tür tanımlandığında o tür için bir *sanal fonksiyon tablosu* oluşturmaktadır. Sanal
+fonksiyon tablosu trait'teki desteklenen fonksiyonların adreslerini tutan bir tablodur. (Biz tablo diyoruz ama bu bir
+fonksiyon gösterici dizisidir.) İşte ``dyn`` trait referanslarının iki göstericisinden ilki bu değişken ya da değeri,
+ikincisi ise sanal fonksiyon tablosunu göstermektedir. Örneğin trait'imiz şöyle olsun:
+
+.. code-block:: rust
+
+    trait Test {
+        fn foo(&self);
+        fn bar(&self);
+    }
+
+Bu trait'te iki fonksiyon vardır. Şimdi bu trait'i destekleyen bir ``Sample`` yapısı oluşturalım:
+
+.. code-block:: rust
+
+    struct Sample {
+        a: i32,
+        b: i32
+    }
+
+    impl Test for Sample {
+        fn foo(&self) {
+            //...
+        }
+
+        fn bar(&self) {
+            //...
+        }
+    }
+
+İşte derleyici buradaki ``Sample`` yapısı için aşağıdakine benzer bir sanal fonksiyon tablosu oluşturur:
+
+.. figure:: _static/sample-vtable.png
+   :align: center
+   :alt: Sample Sanal Fonksiyon Tablosu
+
+Şimdi biz ``Sample`` türünden bir değişken yaratıp onun adresini ``dyn Test`` türünden bir referansa atayalım:
+
+.. code-block:: rust
+
+    let s = Sample { a: 10, b: 20 };
+    let r: &dyn Test;
+
+    r = &s;
+
+Burada ``r``'nin içerisinde aslında iki gösterici bulunmaktadır. Birinci gösterici ``s`` değişkenin adresini, ikinci
+gösterici ``Sample`` için oluşturulmuş sanal fonksiyon tablosunu göstermektedir. Şimdi aşağıdaki gibi çokbiçimli bir
+çağrı yapalım:
+
+.. code-block:: rust
+
+    r.foo();
+
+Derleyici burada şöyle bir kod üretecektir: *r referansının içerisindeki ikinci göstericinin gösterdiği yerdeki sanal
+fonksiyon tablosunun ilk elemanında adresi bulunan fonksiyonu çağır, birinci gösterici içerisindeki adresi de*
+``&self`` *parametresine aktar*. Bunun sonucunda da ``Sample`` yapısındaki ``foo`` metodu çağrılacaktır. Şimdi şu
+çağrıyı yapalım:
+
+.. code-block:: rust
+
+    r.bar();
+
+Burada derleyici şöyle bir kod üretecektir: *r referansının içerisindeki ikinci göstericinin gösterdiği yerdeki sanal
+fonksiyon tablosunun ikinci elemanında adresi bulunan fonksiyonu çağır, birinci gösterici içerisindeki adresi de*
+``&self`` *parametresine aktar*.
+
+Şimdi ``Mample`` isminde ``Test`` trait'ini destekleyen benzer başka bir yapının da tanımlanmış olduğunu varsayalım:
+
+.. code-block:: rust
+
+    let m = Mample { a: 30, b: 40 };
+    //...
+
+    r = &m;
+
+Şimdi artık ``r`` referansının ikinci göstericisi ``Mample`` yapısına ilişkin oluşturulmuş olan sanal fonksiyon
+tablosunu gösterecektir. Dolayısıyla artık ``r`` ile ``foo`` ve ``bar`` metotları çağrıldığında ``Mample`` yapısının
+``foo`` ve ``bar`` metotları çağrılmış olacaktır.
+
+Birden Fazla Trait'i Destekleyen Türlerde Sanal Fonksiyon Tabloları
+-------------------------------------------------------------------------------------
+
+Peki bir tür birden fazla trait'i destekliyorsa bu tür için sanal fonksiyon tablosu nasıl oluşturulur? Örneğin:
+
+.. code-block:: rust
+
+    trait A {
+        fn foo(&self);
+        fn bar(&self);
+    }
+
+    trait B {
+        fn tar(&self);
+        fn zar(&self);
+    }
+
+``Sample`` yapısının her iki trait'i de desteklediğini varsayalım:
+
+.. code-block:: rust
+
+    impl A for Sample {
+        //...
+    }
+
+    impl B for Sample {
+        //...
+    }
+
+Böylesi bir durumda derleyicileri yazanlar farklı stratejiler izleyebilirler. Örneğin tipik olarak ``Sample`` yapısı
+için iki ayrı sanal fonksiyon tablosu oluşturabilirler (mevcut Rust derleyicisi böyle yapmaktadır):
+
+.. figure:: _static/sample-a-vtable.png
+   :align: center
+   :alt: A Desteği İçin Sample Yapısının Sanal Fonksiyon Tablosu
+
+.. figure:: _static/sample-b-vtable.png
+   :align: center
+   :alt: B Desteği İçin Sample Yapısının Sanal Fonksiyon Tablosu
+
+``Sample`` türünden bir değişkenin adresinin ``dyn A`` ve ``dyn B`` türlerinden referanslara atandığını düşünelim:
+
+.. code-block:: rust
+
+    let s = Sample {
+        //...
+    };
+    let ra: &dyn A;
+    let rb: &dyn B;
+
+    ra = &s;            // geçerli
+    ra.foo();
+    ra.bar();
+
+    rb = &s;            // geçerli
+    rb.tar();
+    rb.zar();
+
+Burada derleyici ``ra = &s`` atamasında ``ra`` referansının ikinci gösterici kısmına ``Sample`` yapısının ``A``
+desteği için oluşturulan sanal fonksiyon tablosunun adresini, ``rb = &s`` atamasında ise ``rb`` referansının ikinci
+gösterici kısmına ``Sample`` yapısının ``B`` desteği için oluşturulan sanal fonksiyon tablosunun adresini
+yerleştirebilir.
+
+Biz yukarıdaki anlatımlarda ``dyn`` trait türünden referansların ilk gösterici kısmında değişken ya da değerin
+adresinin, ikinci gösterici kısmında ise sanal fonksiyon tablosunun adresinin tutulduğunu söyledik. Ancak
+*The Rust Reference* dokümanları bu konuda bir garanti vermemektedir. (Bu tür standartların bu biçimde
+gerçekleştirime yönelik garantiler vermesi de zaten uygun değildir ve beklenmemelidir.) *The Rust Reference*
+dokümanları bu ``dyn`` trait referanslarının iki parçadan oluştuğunu söylemekte fakat bunların sırası konusunda bir
+belirlemede bulunmamaktadır. *The Rust Reference* dokümanları şöyle demektedir:
+*A trait object is a fat pointer consisting of a pointer to a value of some type T and a pointer to a vtable for the
+trait implemented by T.*
+
+C++'ta (ve diğer pek çok nesne yönelimli programlama dilinde) sanal fonksiyon tablo adresleri gösterici ya da
+referansın içerisinde değil nesnenin içerisinde saklanmaktadır. Bu durum C++'ta
+*bir sınıf bir sanal fonksiyona sahipse o sınıf türünden nesnenin bir göstericilik daha fazla yer kaplamasına* yol
+açmaktadır. C++'ta sanal fonksiyon tablo göstericisinin nesne içerisinde tutulması C++'ın genel tasarımıyla
+uyumludur. Ancak Rust'ta çokbiçimli davranış çok başvurulan bir mekanizma değildir. Bu nedenle sistem programlama
+uygulamaları da göz önüne alındığında sanal fonksiyon tablo göstericilerinin nesne içerisinde değil de referansın
+içerisinde tutulması Rust için daha uygundur.
+
+Dynamic Dispatch ve Static Dispatch
+-------------------------------------------------------------------------------------
+
+Bilindiği gibi derleyiciler *gözlemlenebilen (başka bir deyişle yan etki (side effect) oluşturan)* bir davranış
+değişikliği oluşturmadıktan sonra kodun daha etkin üretilmesi için her türlü optimizasyonu yapabilmektedir. Bu
+bağlamda *dynamic dispatch* yerine bazı durumlarda da derleyici *static dispatch* uygulayan kodlar
+üretebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    let s = Sample { a: 10, b: 20 };
+    let r: &dyn Test;
+
+    r.foo();
+
+Burada her ne kadar çokbiçimli bir çağırma söz konusuysa da aslında ``Sample`` yapısının ``foo`` metodunun
+çağrıldığı görülmektedir. Derleyici bu durumda optimizasyon seçenekleri de açıksa doğrudan ``Sample`` yapısındaki
+``foo`` fonksiyonunu çağıracak bir kod üretebilir. Yani *dynamic dispatch* yerine *static dispatch* uygulayabilir.
+
+dyn Uyumluluk ve Default Trait'i
+=====================================================================================
+
+dyn Uyumlu (Nesne Güvenli) Trait'ler
+-------------------------------------------------------------------------------------
+
+Rust'ta bazı durumlarda trait'ler türünden ``dyn`` referans bildirilememektedir. Başka bir deyişle her trait
+``dyn`` *uyumlu* (``dyn`` *compatible)* değildir. Rust'ta ``dyn`` uyumlu trait'lere *nesne güvenli (object safe)*
+trait'ler de denilmektedir. Trait'lerin ``dyn`` uyumunu bozan birkaç unsur vardır. Bu unsurları açıklayalım:
+
+1) Geri dönüş değerinde ``Self`` olan trait'ler ``dyn`` uyumlu değildir. Örneğin:
+
+   .. code-block:: rust
+
+       trait Test {
+           fn foo(&self) -> Self;
+       }
+
+   Bu trait ``dyn`` uyumlu değildir. Başka bir deyişle *nesne güvenli (object safe)* değildir. Dolayısıyla biz
+   aşağıdaki gibi bir ``dyn`` referans bildirmeye çalışırsak error oluşacaktır:
+
+   .. code-block:: rust
+
+       let r: &dyn Test;       // error!
+
+2) Generic metot içeren trait'ler ``dyn`` uyumlu değildir. Örneğin:
+
+   .. code-block:: rust
+
+       trait Test {
+           fn foo<T>(&self, a: T);
+       }
+
+   Bu trait de ``dyn`` uyumlu değildir. Dolayısıyla bu trait türünden de ``dyn`` referans bildirilemez.
+
+3) Eğer trait'teki bir metodun birinci parametresi ``self`` biçimindeyse (yani ``&self`` ya da ``&mut self``
+   biçiminde değilse) böyle trait'ler de bir süre öncesine kadar ``dyn`` uyumlu değildi.
+
+   .. code-block:: rust
+
+       trait Test {
+           fn foo(&self);
+           fn bar(self);
+       }
+
+       struct Sample {
+           a: i32,
+           b: i32
+       }
+
+       impl Test for Sample {
+           fn foo(&self) {
+               println!("Sample::foo");
+           }
+
+           fn bar(self) {
+               println!("Sample::bar");
+           }
+       }
+       //...
+
+       let s = Sample {a: 10, b: 20};
+       let r: &dyn Test = &s;              // bir süre öncesine kadar bu bağlama error oluşturuyordu.
+
+   Ancak Rust'ta 1.65 sürümü civarında bu konuda bir değişiklik yapılmıştır. Artık ``self`` parametresine sahip
+   trait'ler de ``dyn`` uyumludur ancak bu metotlar ``dyn`` bir referansla çağrılamamaktadır. Örneğin:
+
+   .. code-block:: rust
+
+       let s = Sample {a: 10, b: 20};
+       let r: &dyn Test = &s;          // geçerli
+
+       r.foo();        // geçerli
+       r.bar();        // error!
+
+4) İlişkili fonksiyonlara (yani ilk parametresi ``&self``, ``&mut self`` ya da ``self`` olmayan fonksiyonlara) sahip
+   olan trait'ler de ``dyn`` uyumlu değildir. Örneğin:
+
+   .. code-block:: rust
+
+       trait Test {
+           fn foo(&self);
+           fn bar();       // dikkat! dyn uyumunu bozuyor
+       }
+
+       struct Sample {
+           a: i32,
+           b: i32
+       }
+
+       impl Test for Sample {
+           fn foo(&self) {
+               println!("Sample::foo");
+           }
+
+           fn bar() {
+               println!("Sample::bar");
+           }
+       }
+       //...
+
+       let s = Sample {a: 10, b: 20};
+       let r: &dyn Test = &s;              // error!
+
+   Bu örnekte ``Test`` trait'i türünden ``dyn`` referans bildirilemediği için error oluşacaktır.
+
+Self: Sized Kısıtı ile dyn Uyumluluk Sağlanması
+-------------------------------------------------------------------------------------
+
+Yukarıdaki iki durumda trait ``dyn`` uyumlu olmadığı halde trait'teki metoda ya da ilişkili fonksiyona
+``Self: Sized`` kısıtı iliştirilirse trait ``dyn`` uyumlu hale getirilebilmektedir. Biz birinci maddede ``Self`` ile
+geri dönen metotlara sahip trait'lerin ``dyn`` uyumlu olmadığını söylemiştik. İşte bu trait'lerdeki uyumu bozan
+metotlara ``Self: Sized`` kısıtı iliştirilirse trait ``dyn`` uyumlu hale getirilebilmektedir. Ancak trait bu biçimde
+``dyn`` uyumlu hale getirilebilse de yine ``dyn`` referansla bu kısıt iliştirilmiş metotlar çağrılamamaktadır.
+Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        fn foo(&self);
+        fn bar(&self) -> Self;      // trait dyn uyumlu değil
+    }
+
+Normal olarak bu trait ``bar`` metodu yüzünden ``dyn`` uyumlu değildir. Ancak bu metoda ``Self: Sized`` kısıtı
+iliştirildiğinde artık trait ``dyn`` uyumlu hale getirilebilmektedir:
+
+.. code-block:: rust
+
+    trait Test {
+        fn foo(&self);
+        fn bar(&self) -> Self where Self: Sized;        // trait dyn uyumlu
+    }
+
+Tabii artık biz ``Test`` türünden bir ``dyn`` referans ile ``bar`` metodunu çağıramayız:
+
+.. code-block:: rust
+
+    let s = Sample {a: 10, b: 20};
+    let r: &dyn Test = &s;          // geçerli
+
+    r.foo();                        // geçerli
+    r.bar();                        // error!
+
+Aynı durum ilişkili fonksiyonlara sahip trait'ler için de aynı biçimde geçerlidir. Örneğin:
+
+.. code-block:: rust
+
+    trait Test {
+        fn foo(&self);
+        fn bar();           // trait dyn uyumlu değil
+    }
+
+Bu trait ilişkili fonksiyona sahip olduğu için ``dyn`` uyumlu değildir. Ancak bu fonksiyona ``Self: Sized`` kısıtı
+eklenirse trait ``dyn`` uyumlu hale getirilebilmektedir:
+
+.. code-block:: rust
+
+    trait Test {
+        fn foo(&self);
+        fn bar() where Self: Sized;
+    }
+
+Tabii yine bu ``dyn`` trait referansı ile ``foo`` metodu çağrılabilir ancak ``bar`` metodu çağrılamaz. (Zaten ilişkili
+fonksiyonlar ilgili türden değişken, değer ya da referansla çağrılamamaktadır.)
+
+Default Trait'i
+-------------------------------------------------------------------------------------
+
+Rust'ta yaygın kullanılan trait'lerden biri de ``std::default`` modülündeki ``Default`` isimli trait'tir. Biz bu
+``Default`` trait'ini trait'ler konusundan önce ele almıştık. Burada yeniden bu trait üzerinde durmak istiyoruz.
+``Default`` trait'i şöyle tanımlanmıştır:
+
+.. code-block:: rust
+
+    pub trait Default: Sized {
+        // Required method
+        fn default() -> Self;
+    }
+
+Görüldüğü gibi ``Default`` trait'inin ``default`` isminde tek bir ilişkili fonksiyonu vardır. Bu fonksiyonun parametre
+almadığına geri dönüş değerinin ``Self`` olduğuna dikkat ediniz. ``default`` metodu ilgili tür türünden default bir
+değer veren metottur. Eğer siz de bir yapı ya da enum türü oluşturuyorsanız o yapının ya da enum türünden default bir
+değer vermek için bu trait'i destekleyebilirsiniz. ``Default`` trait'i ``dyn`` uyumlu değildir. Tabii şimdi aklınıza
+*ben kendi türüm için default değer vermek istiyorsam kendi istediğim isimli bir metotla da bunu yapabilirim, neden bu*
+``Default`` *trait'ini destekleyeyim* sorusu gelebilir. İşte bu trait bu default değer verme işlemi herkes için tanıdık
+bir hale getirmektedir. Biz bir türün ``Default`` trait'ini desteklediğini biliyorsak o türün ``default`` metodunun
+olduğunu ve bu metodun da o tür türünden default bir değer verdiğini bilmiş oluruz. Rust'ın temel türlerinin hepsi bu
+``Default`` trait'ini desteklemektedir.
+
+Bir tür türünden default değer o türü oluşturanlar tarafından belirlenir. Ancak bazı türler için default değerleri biz
+sezgisel olarak da tahmin edebiliriz. Örneğin ``i32``, ``i64``, ``f32``, ``f64`` gibi türlerin ilişkili ``default``
+fonksiyonları default değer olarak ``0`` vermektedir. Örneğin:
+
+.. code-block:: rust
+
+    let a = i32::default();
+
+    println!("{}", a);          // 0
+
+``String`` yapısı için default değer içi boş bir yazıdır. Örneğin:
+
+.. code-block:: rust
+
+    let s = String::default();
+
+    println!("{}", s.len());            // 0
+
+Örneğin ``Point`` isimli aşağıdaki gibi bir yapı oluşturmak isteyelim:
+
+.. code-block:: rust
+
+    struct Point {
+        x: i32,
+        y: i32
+    }
+
+Biz bu yapıya default desteği verebiliriz. ``Point`` için default değer ``(0, 0)`` olabilir:
+
+.. code-block:: rust
+
+    struct Point {
+        x: i32,
+        y: i32
+    }
+
+    impl Point {
+        fn new(x: i32, y: i32) -> Self {
+            Point { x: x, y: y }
+        }
+
+        fn disp(&self) {
+            println!("x: {}, y: {}", self.x, self.y);
+        }
+    }
+
+    impl Default for Point {
+        fn default() -> Self {
+            Point{x: 0, y: 0}
+        }
+    }
+    //...
+
+    let pt = Point::default();
+
+    pt.disp();      // x: 0, y: 0
+
+``new`` ilişkili fonksiyonları ile ``default`` ilişkili fonksiyonlarındaki farka dikkat ediniz. ``new`` fonksiyonu
+bizim verdiğimiz argümanlara göre yeni bir değer vermektedir. Halbuki ``default`` fonksiyonu türü oluşturanın istediği
+gibi default bir değer vermektedir.
+
+Daha önce de belirttiğimiz gibi eğer ilgili türün bütün alanları ``Default`` trait'ini destekliyorsa bu durumda ilgili
+tür için ``#[derive(Default)]`` özniteliği ile otomatik ``Default`` desteği verilebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    #[derive(Default)]
+    struct Rectangle {
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32
+    }
+    //...
+
+    let r = Rectangle::default();
+    println!("{}, {}, {}, {}", r.x, r.y, r.width, r.height);        // 0, 0, 0, 0
+
+Tabii yukarıda da belirttiğimiz gibi otomatik ``Default`` desteği verebilmek için alanların hepsinin ``Default``
+trait'ini destekliyor olması gerekir. Aşağıdaki örnekte ``Point`` yapısı ``Default`` trait'ini desteklemediği için
+``Rectangle`` yapısına otomatik ``Default`` desteği verilememektedir:
+
+.. code-block:: rust
+
+    #[derive(Default)]
+    struct Rectangle {
+        pt: Point,      // error! Point trait'i, Default trait'ini desteklemiyor
+        width: i32,
+        height: i32
+    }
+
+    struct Point {
+        x: i32,
+        y: i32
+    }
+
+Generic'ler
+=====================================================================================
+
+Generic'lere Giriş
+-------------------------------------------------------------------------------------
+
+Bu bölümde Rust'ta generic'ler konusunu ele alacağız. Biz daha önce generic'ler konusunu üstünkörü ele almıştık. Ancak
+bu bölümde sıfırdan başlayarak konuyu ayrıntılarıyla ele alacağız.
+
+Farklı türler için benzer işlemlerin yapılması gerektiği pek çok durum vardır. Örneğin sıralama yapan bir fonksiyon
+yazmak isteyelim:
+
+.. code-block:: rust
+
+    fn sort_i32(a: &mut [i32]) {
+        //...
+    }
+
+Burada fonksiyon yalnızca ``i32`` türünden bir diziyi sıraya dizebilmektedir. Eğer biz farklı türden bir diziyi sıraya
+dizmek istiyorsak içi aynı olacak biçimde bu fonksiyondan bir tane daha yazmamız gerekir. Örneğin ``i64`` türünden bir
+diziyi sıraya dizmek için içi aynı olan yeni bir fonksiyon yazmamız gerekir:
+
+.. code-block:: rust
+
+    fn sort_i64(a: &mut [i64]) {
+        //...
+    }
+
+Rust'ta farklı parametrik yapılara ilişkin aynı isimli fonksiyonlar oluşturulamamaktadır. (Rust'ta
+*function overloading* ya da *method overloading* özelliğinin olmadığını anımsayınız. Bu nedenle fonksiyonların içi
+aynı olsa da bunlara farklı isimlerin verilmesi gerekmektedir.) Örneğin ``i32`` türünden bir dizinin en büyük elemanı
+ile geri dönen aşağıdaki gibi bir yazmış olalım:
+
+.. code-block:: rust
+
+    fn get_max_i32(a: &[i32]) -> i32 {
+        //...
+    }
+
+Bu fonksiyonla biz ancak ``i32`` türünden bir dizinin en büyük elemanını bulabiliriz. Biz örneğin ``i64`` türünden bir
+dizinin en büyük elemanını bu fonksiyonla bulamayız. Bunun için bu fonksiyonu içi aynı olacak biçimde ``i64`` türü için
+yeniden yazmamız gerekir:
+
+.. code-block:: rust
+
+    fn get_max_i64(a: &[i64]) -> i64 {
+        //...
+    }
+
+Aynı problemli durum yapılar için de söz konusu olabilmektedir. Bir yapı belli türlerden bilgileri kullanacak biçimde
+oluşturulmuş olabilir. Böyle yapıların başka türler için yeniden tanımlanmaları gerekir. Örneğin sabit büyüklükteki
+``i32`` türünden bir diziyi bir kuyruk sistemi biçiminde kullanan ``Queue`` isimli bir yapı oluşturacak olalım. Bu
+yapıda kuyruğa eklenecek elemanlar ``i32`` türünden olacaktır:
+
+.. code-block:: rust
+
+    struct QueueI32 {
+        queue: [i32; 1024],
+        head: usize,
+        tail: usize
+    }
+
+    impl QueueI32 {
+        //...
+    }
+
+Eğer biz örneğin ``i64`` türünden elemanları tutacak bir kuyruk sistemi oluşturmak istersek bu yapıdan ``i64`` türü
+için yeni bir tane daha tanımlamamız gerekir:
+
+.. code-block:: rust
+
+    struct QueueI64 {
+        queue: [i64; 1024],
+        head: usize,
+        tail: usize
+    }
+
+    impl QueueI64 {
+        //...
+    }
+
+İşte generic'ler bir şablon tanımlaması eşliğinde aynı fonksiyonun ya da struct, enum, trait gibi türlerin otomatik
+olarak derleyici tarafından türe uygun biçimde oluşturulmasını sağlamaktadır. Yani generic'ler içi aynı olan ancak
+farklı türler için tekrar tekrar yazmak zorunda olduğumuz fonksiyonların ve türlerin derleyici tarafından yazılmasını
+sağlamaktadır. Bu da hem yük oluşturan bu sıkıcı işlemleri bizim üzerimizden alır hem kodumuzun daha az karmaşık
+görünmesini sağlar. Bu özellik C++'ta *template*, Java ve C#'ta *generic* ismiyle zaten bulunmaktadır. Diğer modern pek
+çok dil de artık bu mekanizmayı desteklemektedir.
+
+Monomorfizasyon
+-------------------------------------------------------------------------------------
+
+Rust'ta generic fonksiyonların ve türlerin kullanılması durumunda derleyicinin o türlere dayalı olarak o generic
+şablondan hareketle gerçek fonksiyonları ya da türleri oluşturması sürecine *monomorfizasyon (monomorphisation)*
+denilmektedir. (C++'ta bu sürece *template instantiation* denildiğini anımsayınız.) Monomorfizasyon derleme aşamasında
+derleyici tarafından yapılmaktadır. Rust'ta generic türler kütüphanelerde de bulundurulabilmektedir. (C++'ta böyle bir
+durumun mümkün olmadığını anımsayınız.) Derleyici kütüphanelere başvurarak bu generic tanımlamaları elde edip
+monomorfizasyon işlemini derleme aşamasında yapabilmektedir.
+
+Rust'ta fonksiyonlar, metotlar, yapılar, enum türleri ve trait'ler generic biçimde tanımlanabilmektedir. Biz önce
+generic fonksiyonları daha sonra da generic türleri ele alacağız.
+
+Generic Fonksiyonlar ve Tür Çıkarımı
+-------------------------------------------------------------------------------------
+
+Generic fonksiyonlar ve metotlar tanımlanırken fonksiyon isminden sonra açısal parantezler içerisinde generic
+parametreler aralarına ``','`` atomu yerleştirilerek bildirilmektedir. Fonksiyonun ya da metodun generic olduğu bu
+açısal parantezlerden anlaşılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T, K>(x: T, y: K) {
+        //...
+    }
+
+Burada ``foo`` generic bir fonksiyondur, ``T`` ve ``K`` da generic parametrelerdir. Generic parametreler bir tür
+belirtmektedir. Bu parametreler tür gereken her bağlamda kullanılabilmektedir. Generic parametreler genellikle ``T``
+gibi ``K`` gibi ``V`` gibi tek karakterlik büyük harfler kullanılarak isimlendirilmektedir. Ancak isimlendirme herhangi
+bir biçimde yapılabilir.
+
+Generic bir fonksiyon çağrılmak istendiğinde derleyicinin generic parametrelerin gerçekte hangi türleri temsil ettiğini
+belirlemesi gerekir. Buna Rust dünyasında *tür çıkarımı (type inference)* denilmektedir. (C++'ta buna
+*template argument deduction* denildiğini anımsayınız.) Rust derleyicileri generic tür parametrelerinin gerçekte hangi
+türleri temsil ettiğini iki biçimde belirlemektedir:
+
+1) Eğer generic türler programcı tarafından açıkça belirtilmişse derleyici tür çıkarımı yapmaya çalışmaz, programcının
+   belirlediği türleri esas alır.
+
+2) Eğer generic türler programcı tarafından açıkça belirtilmediyse derleyici tür çıkarımını fonksiyonun kullanıldığı
+   bağlamı göz önüne alarak yapar.
+
+Eğer generic tür parametreleri açıkça belirtilmediyse ve derleyici de generic fonksiyonun kullanıldığı bağlamdan tür
+çıkarımını yapamazsa bu durum error oluşturmaktadır.
+
+Generic Parametrelerin Açıkça Belirtilmesi
+-------------------------------------------------------------------------------------
+
+Generic fonksiyon çağrılırken tür parametreleri programcı tarafından fonksiyon isminden sonra ``::`` operatörü ve bunu
+izleyen açısal parantezlerle açıkça belirtilebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T, K>(x: T, y: K) {
+        //...
+    }
+
+Burada biz ``T`` türünün ``i32``, ``K`` türünün ``i64`` olmasını isteyelim. Bu durumda fonksiyonu şöyle çağırırız:
+
+.. code-block:: rust
+
+    foo::<i32, i64>(10, 20);
+
+Bu sentaksı C++'tan geçenler yadırgamaktadır. Çünkü C++'ta fonksiyon şablonlarında çağrım yapılırken tür belirlemesi
+hemen fonksiyon isminden sonra açısal parantezler kullanılarak yapılmaktadır. Örneğin:
+
+.. code-block:: cpp
+
+    foo<int, long>(10, 20);
+
+Halbuki Rust'ta fonksiyon isminden sonra ancak açısal parantezlerden önce ``::`` operatörü kullanılmalıdır.
+
+C++'ta ilk N tane şablon parametresi için açıkça tür belirtilip geri kalanlarının derleyici tarafından akıl yürütme
+yoluyla belirlenmesi sağlanabilmektedir. Örneğin C++'ta ``foo`` fonksiyonunun iki şablon parametresi varsa aşağıdaki
+gibi bir çağrı yapabiliriz:
+
+.. code-block:: cpp
+
+    template <typename T, typename K>
+    void foo(T x, K y)
+    {
+        //...
+    }
+    //...
+
+    foo<int>(10, 3.14);
+
+Burada biz ilk şablon parametresini açıkça belirttik, ancak ikinci şablon parametresinin türünü derleyicinin
+belirlemesini istedik. Rust'ta bu işlem C++'taki gibi yapılmamaktadır. Rust'ta belli generic parametrelerin derleyici
+tarafından çıkarsanması isteniyorsa o tür parametreleri için ``_`` atomu kullanılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    foo::<i32, _>(10, 3.14);
+
+Burada biz birinci generic parametrenin türünü açıkça belirttik. Ancak ikinci generic parametrenin türünü derleyicinin
+tespit etmesini istedik. Tabii ``_`` atomu birden fazla generic parametre için de kullanılabilir. Bu atomun pozisyonu
+önemli değildir. Örneğin:
+
+.. code-block:: rust
+
+    foo::<_, f64>(10, 3.14);        // geçerli
+
+Argümanlardan Tür Çıkarımı
+-------------------------------------------------------------------------------------
+
+Eğer çağrım sırasında generic parametrelerin türleri programcı tarafından açıkça belirtilmemişse derleyici generic
+parametrelerin türlerini argümanların türlerinden ve geri dönüş değerinin türünden hareketle çıkarsamaya çalışmaktadır.
+Örneğin:
+
+.. code-block:: rust
+
+    use std::any::type_name;
+
+    fn foo<T, K>(x: T, y: K) {
+        println!("T: {}", type_name::<T>());
+        println!("K: {}", type_name::<K>());
+    }
+
+Bu örneğimizde ``type_name`` isimli generic fonksiyon generic parametrenin türünü yazı olarak elde etmek için
+kullanılmıştır. ``type_name`` fonksiyonu üzerinde ileride duracağız. Biz burada ``type_name`` fonksiyonunu parametre
+çıkarımını test etme amaçlı kullanacağız. Şimdi ``foo`` fonksiyonunu şöyle çağırmış olalım:
+
+.. code-block:: rust
+
+    foo(10, 3.14);
+
+Derleyici ``10`` sabiti ``i32`` türünden, ``3.14`` sabiti de ``f64`` türünden olduğu için ``T`` türünün ``i32``, ``K``
+türünün de ``f64`` olduğunu çıkarsayacaktır. Dolayısıyla fonksiyondan şöyle bir çıktı elde edilecektir:
+
+.. code-block:: text
+
+    T: i32
+    K: f64
+
+Eğer derleyici argümanlardan hareketle tür çıkarımı yapamazsa bu durumda çağırma ifadesinde error oluşacaktır.
+Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T>(x: T, y: T) {
+        println!("T: {}", type_name::<T>());
+    }
+
+Burada ``x`` ve ``y`` parametre değişkenlerinin her ikisi de ``T`` türündendir. O halde çağırma sırasında iki
+argümanın da aynı türden olması gerekir. Örneğin:
+
+.. code-block:: rust
+
+    foo(3.14, 6.28);        // geçerli
+
+Burada her iki argüman da ``f64`` türünden olduğu için çağrı geçerlidir, ``T`` türü ``f64`` olarak çıkarsanacaktır.
+Ancak örneğin:
+
+.. code-block:: rust
+
+    foo(10, 6.28);        // error!
+
+Burada ``T`` türü derleyici tarafından çıkarsanamayacağı için error oluşacaktır. Ancak örneğin:
+
+.. code-block:: rust
+
+    foo::<i64>(10, 20);     // geçerli
+
+Burada da bir sorun ortaya çıkmayacaktır. Çünkü ``10`` ve ``20`` sabitleri ``i64`` türü için geçerli sabitlerdir.
+
+Geri Dönüş Değerinde Generic Parametre
+-------------------------------------------------------------------------------------
+
+Fonksiyonun geri dönüş değerinde de generic parametreler kullanılabilir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T>() -> T {
+        //...
+    }
+
+Burada artık argümandan hareketle fonksiyonun geri dönüş değerinin türü tespit edilemeyecektir. Örneğin:
+
+.. code-block:: rust
+
+    foo();
+
+Bu tür durumlarda programcının açıkça tür belirlemesi yapması gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+    foo::<i32>();
+
+Ancak Rust derleyicisi geri dönüş değerinin atandığı değişkenden hareketle de tür çıkarımını da yapabilmektedir.
+Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T: Default>() -> T {
+        let a: T = T::default();
+        a
+    }
+    //...
+
+    let a: i32;
+
+    a = foo();      // T türü i32 olarak çıkarsanır
+
+Burada ``foo`` fonksiyonunun geri dönüş değeri ``i32`` türüne atandığı için generic ``T`` parametresi de ``i32``
+olarak çıkarsanacaktır.
+
+Tür Sınırlaması (Type Bounding)
+-------------------------------------------------------------------------------------
+
+Rust'ta generic bir fonksiyon ya da metodun içerisindeki kodların generic parametrelerin türü ne olursa olsun geçerli
+olması gerekir. Örneğin:
+
+.. code-block:: rust
+
+    fn max(a: T, b: T) -> T {           // error!
+        if a > b {
+            a
+        }
+        else {
+            b
+        }
+    }
+
+Buradaki generic ``max`` fonksiyonu derlenemeyecektir. Çünkü fonksiyonun içerisindeki kod olası her ``T`` türü için
+geçerli değildir. Örneğin ``T`` türü ``i32`` olsa ya da ``i64`` olsa bu kod geçerli olurdu. Çünkü ``i32`` ve ``i64``
+türleri ``>`` operatörüyle karşılaştırılabilmektedir. Ancak örneğin bizim oluşturduğumuz ``Point`` türü ``>``
+operatörüyle karşılaştırılamamaktadır. İşte bu tür durumlarda programcı *tür sınırlaması (type bounding)* uygulayarak
+kodun her generic tür için geçerli olmasını sağlamalıdır. (Bu durum Rust'a özgü değildir. C# ve Java'da da benzerdir.
+C++'a da *Concepts* ismiyle C++20 ile eklenmiştir.) Biz yukarıdaki generic fonksiyonda eğer derleyiciye ``T``
+türünün ``>`` operatörünü destekleyeceği sözünü verirsek kod artık geçerli olacaktır. Bu garanti ``PartialOrd`` isimli
+trait ile verilmektedir:
+
+.. code-block:: rust
+
+    fn max<T: PartialOrd>(a: T, b: T) -> T {            // geçerli
+        if a > b {
+            a
+        }
+        else {
+            b
+        }
+    }
+
+Burada açısal parantezler içerisinde ``T: PartialOrd`` sentaksı ile biz derleyiciye ``T`` türünün ``PartialOrd``
+trait'ini destekleyeceği sözünü vermiş olduk. Artık derleyici generic fonksiyonu kabul edecektir. Örneğin:
+
+.. code-block:: rust
+
+    let a = 10;
+    let b = 20;
+    let result: i32;
+
+    result = max(a, b);         // geçerli
+    println!("{}", result);
+
+Burada ``T`` türü ``i32`` olarak çıkarsanacaktır. Derleyiciye verilen söz tutulmuştur. Çünkü ``i32`` türü
+``PartialOrd`` trait'ini desteklemektedir dolayısıyla iki ``i32`` değeri ``>`` operatörüyle karşılaştırılabilmektedir.
+Peki böyle bir söz verildiği halde programcı bu sözde durulmazsa ne olur? Örneğin:
+
+.. code-block:: rust
+
+    let pt1 = Point { x: 1, y: 2 };
+    let pt2 = Point { x: 3, y: 4 };
+    let result: Point;
+
+    result = max(pt1, pt2);         // error!
+
+Burada ``Point`` türü ``PartialOrd`` trait'ini desteklemediği için ``max`` çağrısı error ile sonuçlanacaktır. Tabii
+biz ``Point`` yapısının ``PartialOrd`` trait'ini desteklemesini sağlayabiliriz. Bu durumda ``max`` fonksiyonunu
+``Point`` ile de kullanabiliriz:
+
+.. code-block:: rust
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl Point {
+        fn new(x: i32, y: i32) -> Point {
+            Point { x: x, y: y }
+        }
+
+        fn disp(&self) {
+            println!("x: {}, y: {}", self.x, self.y);
+        }
+    }
+
+    impl PartialEq for Point {
+        fn eq(&self, other: &Point) -> bool {
+            self.x == other.x && self.y == other.y
+        }
+    }
+
+    use std::cmp::Ordering;
+
+    impl PartialOrd for Point {
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            let pt1_len = self.x * self.x + self.y * self.y;
+            let pt2_len = other.x * other.x + other.y * self.y;
+
+            if pt1_len > pt2_len {
+                Some(Ordering::Greater)
+            }
+            else if pt1_len < pt2_len {
+                Some(Ordering::Less)
+            }
+            else {
+                Some(Ordering::Equal)
+            }
+        }
+    }
+
+Biz henüz operatör metotlarını ve dolayısıyla da ``PartialOrd`` trait'ini görmedik. Ancak ``PartialOrd`` trait'i
+``PartialEq`` trait'inden türetilmiştir. Dolayısıyla biz yalnızca ``PartialOrd`` trait'ini değil aynı zamanda
+``PartialEq`` trait'ini de desteklemek zorundayız. Yukarıdaki desteğin nasıl yapıldığını bu aşamada bilmenize gerek
+yoktur. Burada önemli olan nokta artık bizim ``Point`` yapımızın ``>`` operatörünü destekliyor olmasıdır. O halde
+artık biz ``max`` fonksiyonunda ``T`` türü olarak ``Point`` türünü kullanırsak verdiğimiz sözde durmuş oluruz:
+
+.. code-block:: rust
+
+    let pt1 = Point::new(1, 2);
+    let pt2 = Point::new(3, 4);
+    let result: Point;
+
+    result = max(pt1, pt2);         // geçerli
+    result.disp();
+
+O halde Rust'ta bir generic fonksiyon ya da metot yazılırken eğer kod içerisinde yaptığımız birtakım işlemler her
+generic tür için geçerli olamıyorsa bizim tür sınırlamaları uygulayarak kodumuzu geçerli hale getirmemiz gerekir.
+Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T>() -> T {
+        T::default()            // error!
+    }
+
+Bu kod derlenmeyecektir. Çünkü her ``T`` türünün ``default`` isminde bir ilişkili fonksiyonu olmak zorunda değildir.
+Ancak örneğin:
+
+.. code-block:: rust
+
+    fn foo<T: Default>() -> T {
+        T::default()            // geçerli
+    }
+
+Burada artık fonksiyon geçerli hale gelmiştir. Çünkü ``T`` türünün ``Default`` trait'ini destekleyeceği sözü
+verilmiştir. ``T`` türü ``Default`` trait'ini desteklediğine göre zaten ``default`` isimli bir ilişkili fonksiyonun
+bulunuyor olması gerekir. Biz burada ``foo`` fonksiyonunu ``Default`` trait'ini desteklemeyen bir türle kullanamayız.
+Örneğin ``Point`` yapısının ``Default`` trait'ini desteklemediğini varsayalım:
+
+.. code-block:: rust
+
+    let result: Point;
+
+    result = foo::<Point>();        // error!
+
+Derleyici ``foo`` fonksiyonunu ``Point`` için monomorfize edemeyecektir.
+
+Birden Fazla Kısıt ile Generic Fonksiyon: get_max
+-------------------------------------------------------------------------------------
+
+Şimdi de bir dizinin en büyük elemanı ile geri dönen ``get_max`` isimli generic fonksiyonu yazmaya çalışalım.
+Fonksiyonu aşağıdaki gibi yazarsak error oluşacaktır:
+
+.. code-block:: rust
+
+    fn get_max<T>(a: &[T]) -> T {           // error!
+        let mut max = a[0];
+
+        for i in 1..a.len() {
+            if a[i] > max {
+                max = a[i];
+            }
+        }
+        max
+    }
+
+Burada iki sorun vardır. Birincisi derleyiciye ``T`` türünün ``>`` operatörünü destekleyeceği biçiminde bir söz
+verilmemiştir. Buradaki ikinci sorun eğer fonksiyona aktardığımız dizi ``Copy`` türünden değilse fonksiyonun
+içerisindeki kod geçersiz hale gelir. Çünkü anımsayacağınız gibi ``Copy`` türünden olmayan bir dizinin elemanları
+taşınamaz. İşte burada ``T`` türü için derleyiciye iki sözün verilmesi gerekmektedir: ``T`` türünün ``>`` operatörünü
+destekliyor olması sözü ve ``T`` türünün ``Copy`` trait'ini destekliyor olması sözü:
+
+.. code-block:: rust
+
+    fn get_max<T: PartialOrd + Copy>(a: &[T]) -> T {            // geçerli
+        let mut max = a[0];
+
+        for i in 1..a.len() {
+            if a[i] > max {
+                max = a[i];
+            }
+        }
+        max
+    }
+
+Generic Fonksiyonlar, Generic Yapılar ve Tür Sınırlamaları
+=====================================================================================
+
+Generic Fonksiyonlarda Display Sınırlaması
+-------------------------------------------------------------------------------------
+
+Adresiyle aldığı bir değişken ya da değeri ekrana (``stdout`` dosyasına) yazdıran aşağıdaki ``disp`` isimli generic
+fonksiyonun yazımında bir sorun vardır:
+
+.. code-block:: rust
+
+    fn disp<T>(a: &T) {
+        println!("{}", *a);         // error!
+    }
+
+Burada ``T`` türünden değerin ``println!`` makrosu ile yazdırılması için bu ``T`` türünün ``Display`` trait'ini
+destekliyor olması gerekmektedir. O halde yukarıdaki fonksiyon ``T``'nin her olası türü için geçerli olabilecek bir
+fonksiyon değildir. Bu fonksiyonun geçerli olabilmesi için bizim ``T`` türünün ``std::fmt`` modülündeki ``Display``
+trait'ini destekleyeceği sözünü vermemiz gerekir. Bu da tür sınırlaması ile yapılmaktadır:
+
+.. code-block:: rust
+
+    fn disp<T: std::fmt::Display>(a: &T) {
+        println!("{}", *a);         // geçerli
+    }
+
+Temel türlerin hepsi ``Display`` trait'ini desteklemektedir. ``Display`` trait'i ``#[derive(Display)]`` özniteliği ile
+otomatik olarak desteklenememektedir. Bunun için oluşturduğumuz yapı ya da enum türünün açıkça bu trait'i desteklemesi
+gerekir. Biz henüz bu trait'in nasıl destekleneceğini görmemiş olsak da aşağıda bir örnek veriyoruz:
+
+.. code-block:: rust
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl std::fmt::Display for Point {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "({}, {})", self.x, self.y)
+        }
+    }
+
+Artık biz ``Point`` türünü de ``disp`` generic fonksiyonu ile yazdırabiliriz:
+
+.. code-block:: rust
+
+    let pt: Point = Point { x: 10, y: 20 };
+    disp(&pt);
+
+Generic Metotlar
+-------------------------------------------------------------------------------------
+
+Biz yukarıda generic fonksiyonlara örnek verdik. Generic olmayan yapı ve enum türlerinin metotları da generic
+olabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        a: i32,
+        b: i32,
+    }
+
+    impl Sample {
+        fn foo<T>(&self, x: T) {
+            //...
+        }
+    }
+
+Burada ``foo`` generic bir metottur. Yine ``foo`` metodu çağrılırken generic parametrelerin türleri açıkça tür
+belirtilebilir ya da derleyicinin bunu çıkarsaması istenebilir:
+
+.. code-block:: rust
+
+    let s = Sample { a: 10, b: 20 };
+
+    s.foo::<f64>(3.14);     // geçerli
+    s.foo(3.14);            // geçerli
+
+Generic Yapılar
+-------------------------------------------------------------------------------------
+
+Bir yapı generic olabilir. Generic yapılar yapı isminden sonra açısal parantezler içerisinde generic parametreler
+belirtilerek tanımlanmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    struct Point<T> {
+        x: T,
+        y: T
+    }
+
+Burada dikkat edilmesi gereken önemli bir nokta vardır. Aslında biz bunu daha önce de belirtmiştik. Generic türler
+türünden somut türler tür ismi ve hemen sonra açısal parantezler içerisinde tür listesi belirtilerek
+oluşturulmaktadır. Örneğin ``Point<i32>``, ``Point<f64>`` ``Point`` türünden somut türleri belirtmektedir. Ancak
+generic türlerden değer oluştururken ya da generic türlerin metotlarına ve ilişkili fonksiyonlarına erişirken tür
+isminden sonra ``::`` operatörü ve sonra açısal parantezler içerisinde tür listesi belirtilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    let pt: Point<i32>;     // geçerli
+
+Burada ``pt`` değişkeni ``Point<i32>`` türündendir. Burada türün aşağıdaki gibi belirtilmediğine dikkat ediniz:
+
+.. code-block:: rust
+
+    let pt: Point::<i32>;     // error! böyle bir tür ifadesi yok
+
+Ancak örneğin bu ``Point`` türünün ``new`` isimli ilişkili bir fonksiyonu olsun.
+
+.. code-block:: rust
+
+    pt = Point::<i32>::new(10, 20);
+
+Burada aslında bir tür belirtilmemektedir. ``Point`` generic türünün ``i32`` açılımına ilişkin ``new`` ilişkili
+fonksiyonu çağrılmaktadır. Burada ``new`` ilişkili fonksiyonunun şöyle çağrılmadığına dikkat ediniz:
+
+.. code-block:: rust
+
+    pt = Point<i32>::new(10, 20);       // error! böyle bir çağrım yok
+
+Örneğin:
+
+.. code-block:: rust
+
+    let pt: Point<i32> = Point::<i32> { x: 10, y: 20 }     // geçerli
+
+Bu örnekte türü belirtirken ``Point<i32>`` sentaksının kullanıldığına ancak o türe ilişkin bir işlem yaparken
+``Point::<i32>`` sentaksının kullanıldığına dikkat ediniz.
+
+Özellikle C++'tan Rust'a geçen programcılar buradaki hataları sık yapmaktadır.
+
+Generic Yapılarda impl Blokları
+-------------------------------------------------------------------------------------
+
+Generic bir yapının metotları ve ilişkili fonksiyonları tanımlanırken generic parametreler hem ``impl`` anahtar
+sözcüğünden sonra hem de yapı isminden sonra belirtilmek zorundadır. Örneğin:
+
+.. code-block:: rust
+
+    struct Point<T> {
+        x: T,
+        y: T
+    }
+
+    impl<T> Point<T> {
+        //...
+    }
+
+Daha önce de belirttiğimiz gibi aslında ``impl`` bloğunda belirtilen generic parametre isimlerinin yapı
+tanımlamasındaki isimlerle aynı olması da gerekmemektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Point<T> {
+        x: T,
+        y: T
+    }
+
+    impl<K> Point<K> {      // geçerli
+        //...
+    }
+
+Yapı tanımlamasıyla ``impl`` bloğundaki eşleştirme pozisyonel biçimde yapılmaktadır. Tabii Rust programcıları hemen her
+zaman ``impl`` bloğunda da yapı tanımlamasındaki isimleri kullanmaktadır.
+
+Generic yapılardaki generic parametreler ``impl`` bloğu içerisindeki tüm metot ve ilişkili fonksiyonlarda doğrudan
+kullanılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Point<T> {
+        x: T,
+        y: T
+    }
+
+    impl<T> Point<T> {
+        fn new(x: T, y: T) -> Self {
+            Point { x, y }
+        }
+
+        fn set_x(&mut self, x: T) {
+            self.x = x;
+        }
+
+        fn set_y(&mut self, y: T) {
+            self.y = y;
+        }
+    }
+
+Burada ``T`` tür parametresinin metotlarda ve ilişkili fonksiyonlarda doğrudan kullanılabildiğine dikkat ediniz. Yapıyı
+şöyle kullanabiliriz:
+
+.. code-block:: rust
+
+    let mut pt: Point<i32>;
+
+    pt = Point::<i32> { x: 10, y: 20 };
+    println!("{}, {}", pt.x, pt.y);
+
+    pt.set_x(30);
+    pt.set_y(40);
+
+    println!("{}, {}", pt.x, pt.y);
+
+Generic Yapılarda Tür Sınırlamasının Yeri
+-------------------------------------------------------------------------------------
+
+Peki yukarıdaki ``Point`` yapısına ``disp`` isimli bir metot ekleyecek olalım. Bu metotta ``Point`` yapısının ``x`` ve
+``y`` elemanlarını ``println!`` makrosu ile yazdıracaksak ``disp`` metodunun ``Display`` trait'ini destekliyor olması
+gerekir. Pekiyi buna ilişkin tür sınırlaması nerede belirtilmelidir? İşte burada üç seçenek karşımıza çıkmaktadır.
+
+1) Tür sınırlamasının yapıda ya da enum türünde belirtilmesi
+2) Tür sınırlamasının ``impl`` bloğunda belirtilmesi
+3) Tür sınırlamasının metotta ya da ilişkili fonksiyonda belirtilmesi
+
+Burada en kapsayıcı olan sınırlamanın (bounding) yapıda belirtilmesidir. Eğer sınırlama yapıda belirtilirse zaten bu
+sınırlamanın ``impl`` bloğunda da belirtilmesi zorunlu olmaktadır. Eğer sınırlama ``impl`` bloğunda belirtilirse bu
+durumda blok içerisindeki tüm metotlar ve ilişkili fonksiyonlar için bu sınırlama geçerli olmaktadır. Eğer sınırlama
+belli bir metoda ya da ilişkili fonksiyonda belirtilirse sınırlama yalnızca bu metoda ya da ilişkili fonksiyonda
+geçerli olmaktadır. Bu durumu tersten örneklerle açıklayalım. Önce sınırlamayı belli bir metot ya da ilişkili
+fonksiyonla sınırlı tutalım. Bu durumda sınırlama artık açısal parantezler içerisinde değil ``where`` sentaksıyla
+yapılmak zorundadır. Örneğin:
+
+.. code-block:: rust
+
+    struct Point<T> {
+        x: T,
+        y: T
+    }
+
+    impl<T> Point<T> {
+        fn new(x: T, y: T) -> Self {
+            Point { x, y }
+        }
+
+        fn set_x(&mut self, x: T) {
+            self.x = x;
+        }
+
+        fn set_y(&mut self, y: T) {
+            self.y = y;
+        }
+
+        fn disp(&self)
+        where T: std::fmt::Display {
+            println!("{}, {}", self.x, self.y);
+        }
+    }
+
+Burada yalnızca ``disp`` metodu çağrılırken ``T`` türünün ``Display`` trait'ini desteklemesi gerekmektedir. Örneğin
+``Sample`` yapısı ``Display`` trait'ini desteklemiyor olsun:
+
+.. code-block:: rust
+
+    struct Sample {
+        val: i32
+    }
+
+Burada bizim ``Point<Sample>`` türünden bir değişken oluşturmamızda hiçbir sakınca yoktur:
+
+.. code-block:: rust
+
+    let mut pt: Point<Sample>;                                          // geçerli
+    pt = Point::<Sample>::new(Sample { val: 10 }, Sample { val: 20 });    // geçerli
+
+Çünkü ``new`` ilişkili fonksiyonunun ``Display`` trait'ini desteklemesi gerekmemektedir. Ancak aşağıdaki çağrı error
+oluşturacaktır:
+
+.. code-block:: rust
+
+    pt.disp();      // error!
+
+``disp`` metodunda ``T`` türünün ``Display`` trait'ini destekliyor olması gerekir. Ancak örneğimizde ``Sample`` yapısı
+``Display`` trait'ini desteklememektedir. Burada şu noktaya dikkat ediniz: Biz sınırlamayı yalnızca ``disp`` metoduna
+uyguladık. Bu durumda sınırlama kontrolü yalnızca ``disp`` metodu çağrılırken yapılmaktadır.
+
+Şimdi ``Display`` trait'ine ilişkin sınırlamayı ``impl`` bloğuna yerleştirelim:
+
+.. code-block:: rust
+
+    impl<T: std::fmt::Display> Point<T> {
+        fn new(x: T, y: T) -> Self {
+            Point { x, y }
+        }
+
+        fn set_x(&mut self, x: T) {
+            self.x = x;
+        }
+
+        fn set_y(&mut self, y: T) {
+            self.y = y;
+        }
+
+        fn disp(&self) {
+            println!("{}, {}", self.x, self.y);
+        }
+    }
+
+Artık bu kısıt ``impl`` bloğundaki tüm metotlar ve ilişkili fonksiyonlar çağrılırken kontrol edilecektir. Yani
+buradaki sınırlama ``impl`` bloğundaki tüm metotlara ve ilişkili fonksiyonlara uygulanmış gibi olmaktadır. Şimdi
+``Display`` trait'ini desteklemeyen ``Sample`` türü aşağıdaki işlemleri yapmak isteyelim:
+
+.. code-block:: rust
+
+    let mut pt: Point<Sample>;                                              // geçerli
+
+    pt = Point::<Sample>::new(Sample { val: 10 }, Sample { val: 20 });        // error!
+    pt.disp();                                                              // error!
+
+Burada ``Point<Sample>`` tür ifadesi error oluşturmamaktadır. Çünkü sınırlama yapıya değil ``impl`` bloğuna
+uygulanmıştır. Ancak o bloktaki tüm ilişkili fonksiyonlar ve metotlar bunun için bu sınırlama uygulanmış gibi bir
+durum oluşmaktadır. Dolayısıyla ``new`` ilişkili fonksiyonunun çağrılması ve ``disp`` metodunun çağrılması error
+oluşturacaktır.
+
+Anımsanacağı gibi bir yapının ilişkili fonksiyonları ve metotları birden fazla ``impl`` bloğu içerisinde
+tanımlanabiliyordu. O halde bazı ``impl`` blokları sınırlama içerirken bazıları içermeyebilir. Örneğin:
+
+.. code-block:: rust
+
+    impl<T> Point<T> {
+        fn new(x: T, y: T) -> Self {
+            Point { x, y }
+        }
+
+        fn set_x(&mut self, x: T) {
+            self.x = x;
+        }
+
+        fn set_y(&mut self, y: T) {
+            self.y = y;
+        }
+    }
+
+    impl<T: Display> Point<T> {
+        fn disp(&self) {
+            println!("{}, {}", self.x, self.y);
+        }
+    }
+
+Burada ikinci ``impl`` bloğuna sınırlama uygulanmıştır, ilk ``impl`` bloğuna sınırlama uygulanmamıştır:
+
+.. code-block:: rust
+
+    let mut pt: Point<Sample>;                                      // geçerli
+
+    pt = Point::<Sample>::new(Sample { val: 10 }, Sample { val: 20 });    // geçerli
+    pt.disp();                                                      // error!
+
+``impl`` bloğundaki sınırlamalar yalnızca açısal parantezler içerisinde değil ``where`` sentaksıyla da
+yapılabilmektedir. Biz sınırlamaları daha sonra yeniden tümden gözden geçireceğiz. Örneğin:
+
+.. code-block:: rust
+
+    impl<T> Point<T>
+    where T: std::fmt::Display {
+        fn new(x: T, y: T) -> Self {
+            Point { x, y }
+        }
+
+        fn set_x(&mut self, x: T) {
+            self.x = x;
+        }
+
+        fn set_y(&mut self, y: T) {
+            self.y = y;
+        }
+
+        fn disp(&self) {
+            println!("{}, {}", self.x, self.y);
+        }
+    }
+
+Eğer sınırlama yapıya uygulanırsa bu durumda sınırlama bu hem somut tür oluştururken hem de tüm ``impl`` bloklarında
+etkili olmaktadır. Zaten eğer sınırlama yapıya uygulanmışsa tüm ``impl`` bloklarında da bu sınırlamaların belirtilmesi
+zorunlu olmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    struct Point<T: std::fmt::Display> {
+        x: T,
+        y: T
+    }
+
+    impl<T: std::fmt::Display> Point<T> {
+        fn new(x: T, y: T) -> Self {
+            Point { x, y }
+        }
+
+        fn set_x(&mut self, x: T) {
+            self.x = x;
+        }
+
+        fn set_y(&mut self, y: T) {
+            self.y = y;
+        }
+
+        fn disp(&self) {
+            println!("{}, {}", self.x, self.y);
+        }
+    }
+
+Artık biz aşağıdaki bildirimi bile yapamayız:
+
+.. code-block:: rust
+
+    let pt: Point<Sample>;      // error!
+
+Tabii aslında yapıdaki sınırlamalar da ``where`` sentaksıyla oluşturulabilmektedir:
+
+.. code-block:: rust
+
+    struct Point<T> where T: std::fmt::Display {        // geçerli
+        x: T,
+        y: T
+    }
+
+Metot ya da İlişkili Fonksiyon Düzeyinde Sınırlama
+-------------------------------------------------------------------------------------
+
+Tür sınırlaması yalnızca bir metot ya da ilişkili fonksiyon için de söz konusu olabilir. Bu durumda açısal parantez
+sentaksı kullanılamaz kısıtın ``where`` sentaksıyla belirtilmesi gerekir. Örneğin:
+
+.. code-block:: rust
+
+    struct Point<T> {
+        x: T,
+        y: T
+    }
+
+    impl<T> Point<T> {
+        fn new(x: T, y: T) -> Self {
+            Point { x, y }
+        }
+
+        fn set_x(&mut self, x: T) {
+            self.x = x;
+        }
+
+        fn set_y(&mut self, y: T) {
+            self.y = y;
+        }
+
+        fn disp(&self)
+        where T: std::fmt::Display {
+            println!("{}, {}", self.x, self.y);
+        }
+    }
+
+Burada ``Display`` trait sınırlaması yalnızca ``disp`` metoduna uygulanmıştır. Metoda ya da ilişkili fonksiyonlara
+özgü sınırlamaların ancak ``where`` sentaksıyla oluşturulabildiğini bir kez daha vurgulamak istiyoruz.
+
+Örnek: Generic Kuyruk Sistemi
+-------------------------------------------------------------------------------------
+
+Şimdi basit bir FIFO kuyruk sistemini generic bir yapı biçiminde gerçekleştirelim. Yapımız şöyle olabilir:
+
+.. code-block:: rust
+
+    const SIZE: usize = 10;
+
+    struct Queue<T: Default + Copy> {
+        queue: [T; SIZE],
+        head: usize,
+        tail: usize,
+        count: usize
+    }
+
+Aslında bu tür veri yapılarının gerçekleştirilmesinde dizilerin dinamik bir biçimde yani istenilen büyüklükte
+oluşturulması gerekir. Ancak biz örneğimizde şimdilik buradaki diziyi 10 gibi belli bir büyüklükte alıyoruz. Kuyruk
+elemanları bir dizide olacağına göre ve bu elemanlar diziden alınıp verileceğine göre dizinin ``Copy`` türünden olması
+gerekmektedir. Çünkü anımsanacağı gibi ``Copy`` türünden olmayan dizilerin belli elemanları taşınamamaktadır. Dizi
+elemanlarına default değer verilirken generic tür neyse o türden default değerlerin verilmesi anlamlıdır. O halde
+buradaki yapımız ``Default`` trait'ini de desteklemelidir. Yapı türünden bir nesne oluşturan ``new`` ilişkili
+fonksiyonu şöyle tanımlanmıştır:
+
+.. code-block:: rust
+
+    impl<T: Default + Copy> Queue<T> {
+        fn new() -> Self {
+            Queue {
+                queue: [T::default(); SIZE],
+                head: 0,
+                tail: 0,
+                count: 0
+            }
+        }
+        //...
+    }
+
+Kuyruğa eleman ekleyen ve kuyruktan eleman alan metotlar da şöyle tanımlanmıştır:
+
+.. code-block:: rust
+
+    fn pop(&mut self) -> Option<T> {
+        let result: Option<T>;
+        if self.count == 0 {
+            return None;
+        }
+        result = Some(self.queue[self.head]);
+        self.head = (self.head + 1) % SIZE;
+        self.count -= 1;
+
+        result
+    }
+
+    fn pop(&mut self) -> Option<T> {
+           if self.count == 0 {
+            return None;
+        }
+        self.head = (self.head + 1) % SIZE;
+        self.count -= 1;
+
+        Some(self.queue[self.head])
+    }
+
+``push`` metodunun ``bool`` türüne geri dönmesi uygundur. Çünkü bu metot kuyruk doluysa başarısız olacaktır. ``pop``
+metodu ise hem kuyruktaki değeri hem de başarısızsa başarısızlık durumunu bize vermelidir. Bu nedenle ``pop``
+metodunun geri dönüş değeri ``Option`` türündendir. Kuyruk sistemini aşağıdaki gibi bir kodla test edebilirsiniz:
+
+.. code-block:: rust
+
+    let mut q = Queue::<i32>::new();
+
+    for i in 0..100 {
+        if !q.push(i) {
+            println!("queue is full!");
+            break;
+        }
+    }
+
+    while let Some(val) = q.pop() {
+        println!("{}", val);
+    }
+
+Aşağıda yapının gerçekleştirimini bir bütün olarak veriyoruz. Tabii yapıya siz de gerekli başka metotları
+ekleyebilirsiniz.
+
+.. code-block:: rust
+
+    fn main() {
+        let mut q = Queue::<i32>::new();
+
+        for i in 0..100 {
+            if !q.push(i) {
+                println!("queue is full!");
+                break;
+            }
+        }
+
+        while let Some(val) = q.pop() {
+            println!("{}", val);
+        }
+    }
+
+    const SIZE: usize = 10;
+
+    struct Queue<T> {
+        queue: [T; SIZE],
+        head: usize,
+        tail: usize,
+        count: usize
+    }
+
+    impl<T: Default + Copy> Queue<T> {
+        fn new() -> Self {
+            Queue {
+                queue: [T::default(); SIZE],
+                head: 0,
+                tail: 0,
+                count: 0
+            }
+        }
+
+        fn push(&mut self, item: T) -> bool {
+            if self.count >= self.queue.len() {
+                return false;
+            }
+            self.queue[self.tail] = item;
+            self.tail = (self.tail + 1) % SIZE;
+            self.count += 1;
+
+            true
+        }
+
+        fn pop(&mut self) -> Option<T> {
+            let result: Option<T>;
+            if self.count == 0 {
+                return None;
+            }
+            result = Some(self.queue[self.head]);
+            self.head = (self.head + 1) % SIZE;
+            self.count -= 1;
+
+            result
+        }
+
+        fn clear(&mut self) {
+            self.head = 0;
+            self.tail = 0;
+            self.count = 0;
+        }
+
+        fn len(&self) -> usize {
+            self.count
+        }
+
+        fn capacity(&self) -> usize {
+            SIZE
+        }
+    }
+
+const Generic Parametreler, Generic Enum Türleri ve Generic Sınırlamalar
+=====================================================================================
+
+const Generic Parametreler
+-------------------------------------------------------------------------------------
+
+Rust'ta ``const`` generic parametre denilen bir generic parametre türü de vardır. ``const`` generic parametreler
+aşağıdaki genel biçimle bildirilmektedir:
+
+.. code-block:: text
+
+    const <parametre_ismi>: <tür>
+
+Örneğin:
+
+.. code-block:: rust
+
+    const U: i32
+    const V: u64
+
+``const`` generic parametrelerde ``':'`` atomundan sonra belirtilen türün tamsayı türlerine ya da ``char`` ve ``bool``
+türlerine ilişkin olması gerekmektedir. Yani ``const`` generic parametrelerin türleri aşağıdakilerden biri olabilir:
+
+.. code-block:: text
+
+    u8
+    u16
+    u32
+    u64
+    u128
+    usize
+    i8
+    i16
+    i32
+    i64
+    i128
+    isize
+    bool
+    char
+
+``const`` generic parametreler için açıkça sabit ifadesi biçiminde ilgili türden bir değerin açısal parantezler
+içerisinde belirtilmesi gerekir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T, const U: usize>(x: T) {
+        //...
+    }
+
+Burada ``foo`` fonksiyonunun iki generic parametresi vardır: ``T`` ve ``U``. ``T`` parametresi herhangi bir türü
+temsil etmektedir. Ancak ``U`` parametresi ``usize`` türünden bir sabit ifadesini temsil etmektedir. Dolayısıyla bu
+``U`` değeri fonksiyonun içerisinde bir sabit ifadesi gibi kullanılabilir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T, const U: usize>(x: T) {
+        let x: [i32; U] = [0; U];      // geçerli
+        //...
+    }
+
+Dizi uzunluklarının ``usize`` türünden sabit ifadesi belirtmesi gerektiğini anımsayınız. Buradaki ``U`` ``const``
+generic parametre ``usize`` türünden sabit ifadesi belirttiği için fonksiyon içerisindeki dizi bildirimi geçerlidir.
+Aşağıdaki tanımlama da benzer biçimde geçerlidir:
+
+.. code-block:: rust
+
+    fn foo<T: Default, const U: usize>(x: T) {
+        let x: [T; U] = [T::default(); U];      // geçerli
+        //...
+    }
+
+``const`` generic parametreler birer sabit ifadesi belirttiği için fonksiyon ya da metot çağrılırken onlar için açısal
+parantezler içerisinde sabit ifadesi girilmesi gerekir. Örneğin:
+
+.. code-block:: rust
+
+    foo(100);                   // error!
+
+Burada bu çağrıda ``U`` ``const`` generic parametrenin değeri belli değildir. Dolayısıyla çağrı da geçerli değildir.
+Örneğin:
+
+.. code-block:: rust
+
+    foo::<i32, 10>(100);        // geçerli!
+
+Burada çağrı geçerlidir. Artık ``U`` parametresinin değeri bellidir. Tabii ``T`` için tür çıkarımının derleyiciye
+yaptırılması da aşağıdaki gibi sağlanabilir:
+
+.. code-block:: rust
+
+    foo::<_, 10>(100);        // geçerli!
+
+Generic yapılarda ve enum türlerinde de ``const`` generic parametreler kullanılabilir. Örneğin:
+
+.. code-block:: rust
+
+    struct Queue<T, const SIZE: usize> {
+        queue: [T; SIZE],
+        head: usize,
+        tail: usize,
+        count: usize
+    }
+
+Burada artık ``Queue`` yapısının ``queue`` alanındaki dizinin uzunluğunun generic ``const`` parametre yoluyla
+dışarıdan belirlenmesi sağlanabilmektedir. (Dizi uzunluklarının sabit ``usize`` türünden sabit ifadesi belirtmek
+zorunda olduğunu anımsayınız.) Tabii artık ``impl`` bloğunda hem ``T`` parametresinin hem de ``SIZE`` parametresinin
+belirtilmesi gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+    impl<T: Default + Copy, const SIZE: usize> Queue<T, SIZE> {
+        //...
+    }
+
+Yukarıdaki ``Queue`` yapısının ``const`` generic parametre gerçekleştirimini aşağıda veriyoruz.
+
+.. code-block:: rust
+
+    fn main() {
+
+        let mut q = Queue::<i32, 10>::new();
+
+        for i in 0..100 {
+            if !q.push(i) {
+                println!("queue is full!");
+                break;
+            }
+        }
+
+        while let Some(val) = q.pop() {
+            println!("{}", val);
+        }
+    }
+
+    struct Queue<T, const SIZE: usize> {
+        queue: [T; SIZE],
+        head: usize,
+        tail: usize,
+        count: usize
+    }
+
+    impl<T: Default + Copy, const SIZE: usize> Queue<T, SIZE> {
+        fn new() -> Self {
+            Queue {
+                queue: [T::default(); SIZE],
+                head: 0,
+                tail: 0,
+                count: 0
+            }
+        }
+
+        fn push(&mut self, item: T) -> bool {
+            if self.count >= self.queue.len() {
+                return false;
+            }
+            self.queue[self.tail] = item;
+            self.tail = (self.tail + 1) % SIZE;
+            self.count += 1;
+
+            true
+        }
+
+        fn pop(&mut self) -> Option<T> {
+            let result: Option<T>;
+            if self.count == 0 {
+                return None;
+            }
+            result = Some(self.queue[self.head]);
+            self.head = (self.head + 1) % SIZE;
+            self.count -= 1;
+
+            result
+        }
+
+        fn clear(&mut self) {
+            self.head = 0;
+            self.tail = 0;
+            self.count = 0;
+        }
+
+        fn len(&self) -> usize {
+            self.count
+        }
+
+        fn capacity(&self) -> usize {
+            SIZE
+        }
+    }
+
+const Generic Parametrelerin Çıkarsanması
+-------------------------------------------------------------------------------------
+
+``const`` generic parametrelerin değerlerini de derleyici eğer bağlam uygunsa otomatik çıkarsayabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T, const SIZE: usize>(a: [T; SIZE]) {
+        //...
+    }
+
+Burada fonksiyon bir dizi parametresi almaktadır. Fonksiyon parametresindeki ``T`` ve ``SIZE`` derleyici tarafından
+çıkarsanabilecektir. Örneğin:
+
+.. code-block:: rust
+
+    let a: [i32; 5] = [1, 2, 3, 4, 5];
+
+    foo(a);     // geçerli, T = i32, SIZE = 5
+
+Burada derleyici argüman olarak girilen diziden hareketle ``T`` türünün ``i32`` olduğunu, ``SIZE`` değerinin ise
+``5`` olduğunu anlayabilmektedir.
+
+Generic enum Türleri: Option ve Result
+-------------------------------------------------------------------------------------
+
+``enum`` türlerinin de generic olabileceğini belirtmiştik. Örneğin çok kullandığımız ``Option`` ve ``Result`` enum
+türlerinin de generic olduğunu anımsayınız. ``Option`` enum türü şöyle tanımlanmıştır:
+
+.. code-block:: rust
+
+    pub enum Option<T> {
+        None,
+        Some(T)
+    }
+
+Burada enum türünün demetsel ``Some`` varyantının generic parametre türünden olduğuna dikkat ediniz. Generic enum
+türlerinde enum türünün her farklı generic parametresinin varyantları da farklıdır. Varyantlar birimsel olsa da bunlar
+farklıdır. Örneğin ``Option::<i32>::None`` varyantı ile ``Option::<i64>::None`` varyantı farklı türlerdendir. Başka
+bir deyişle burada her ``Option<T>`` türünün farklı bir ``None`` varyantı vardır. Varyantların ilgili enum türünden
+olduğunu anımsayınız. Dolayısıyla burada ``Option::<i32>::None`` varyantı ``Option::<i32>`` türünden,
+``Option::<i64>::None`` varyantı ise ``Option<i64>`` türündendir. Tabii standart prelude içerisinde standart
+kütüphanedeki ``Option`` ve onun içerisindeki ``None`` ve ``Some`` isimleri ``use`` edildiği için biz onları doğrudan
+kullanabilmekteyiz.
+
+Rust derleyicisi atama işleminde eğer hedef generic enum türünün generic parametresini biliyorsa atama işleminde
+varyant belirtilirken türün ayrıca belirtilmesine gerek kalmamaktadır. Örneğin:
+
+.. code-block:: rust
+
+    let mut opt: Option<i32>;
+
+    opt = Some(10);
+    //...
+    opt = None;
+
+Burada biz doğrudan ``Some`` dediğimizde aslında ``Option::<i32>::Some`` demiş olmaktayız. Benzer biçimde doğrudan
+``None`` dediğimizde de aslında ``Option::<i32>::None`` demiş olmaktayız. Farklı generic türlere ilişkin ``Option``
+enum değişkenlerine aynı ``None`` değerin atanması kişilere tuhaf gelebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    let opt1: Option<i32>;
+    let opt2: Option<i64>;
+
+    opt1 = None;
+    opt2 = None;;
+
+Buradaki iki ``None`` değeri aynı ``None`` değeri değildir. Üstteki ``Option::<i32>::None`` alttaki ise
+``Option::<i64>::None`` anlamına gelmektedir. Derleyici yukarıda da belirttiğimiz hedefin türüne bakarak bu tespiti
+yapabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    let opt: Option<i32>;
+
+    opt = Option::<i64>::None;      // error!
+
+Daha önce kullanmış olduğumuz ``Result`` enum türü de aslında iki generic parametre almaktadır:
+
+.. code-block:: rust
+
+    pub enum Result<T, E> {
+        Ok(T),
+        Err(E),
+    }
+
+Yine standart prelude içerisinde ``Result`` ismi, ``Ok`` ve ``Err`` varyant isimleri ``use`` edilmiştir. Dolayısıyla
+biz bu isimleri doğrudan kullanabilmekteyiz. Örneğin:
+
+.. code-block:: rust
+
+    let mut r: Result<i32, &str>;
+
+    r = Ok(10);         // geçerli
+    r = Err("fail");    // geçerli
+
+Buradaki atamalar aslında tamamen aşağıdakilerle eşdeğerdir:
+
+.. code-block:: rust
+
+    r = Result::<i32, &str>::Ok(10);
+    r = Result::<i32, &str>::Err("fail");
+
+Örneğin aşağıdaki gibi generic bir enum söz konusu olsun:
+
+.. code-block:: rust
+
+    enum Fruit<T> {
+        Apple,
+        Banana(T),
+        Orange { x: T, y: T }
+    }
+
+Şimdi bu enum türünden bir değişken bildirelim:
+
+.. code-block:: rust
+
+    let mut f: Fruit<i32>;
+
+Şimdi de bu enum değişkenine bu enum türünün varyantlarını atayalım:
+
+.. code-block:: rust
+
+    f = Fruit::Apple;
+
+Bu atama aşağıdakiyle eşdeğerdir:
+
+.. code-block:: rust
+
+    f = Fruit::<i32>::Apple;
+
+Şimdi de ``f`` değişkenine diğer varyantı atayalım:
+
+.. code-block:: rust
+
+    f = Fruit::Banana(10);
+
+Derleyici yine hedef değişkenin generic parametresinden hareketle bu atamayı aşağıdakiyle eşdeğer kabul edecektir:
+
+.. code-block:: rust
+
+    f = Fruit::<i32>::Banana(10);
+
+Şimdi de ``f`` değişkenine yapısal varyantı atayalım:
+
+.. code-block:: rust
+
+    f = Fruit::Orange { x: 10, y: 20 };
+
+Derleyiciye göre bu atama işlemi de aşağıdakiyle eşdeğerdir:
+
+.. code-block:: rust
+
+    f = Fruit::<i32>::Orange { x: 10, y: 20 };
+
+Bu örnekten de görüldüğü gibi Rust derleyicisi hedef enum değişkenin generic tür parametresini bildiği için varyant
+ataması sırasında programcının ayrıca generic parametreyi açıkça belirtmesine gerek kalmamaktadır.
+
+Generic Yapılar İçin Farklı Türlerden impl Blokları
+-------------------------------------------------------------------------------------
+
+Rust'ta generic bir yapı ya da enum türü için farklı türlerden ``impl`` blokları oluşturulabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample<T> {
+        val: T
+    }
+
+Böyle bir generic yapı için ``impl`` bloğunun aşağıdaki gibi oluşturulduğunu görmüştük:
+
+.. code-block:: rust
+
+    impl<T> Sample<T> {
+        //...
+    }
+
+Eğer istenirse ``T``'nin bazı türleri için ayrı ``impl`` blokları da oluşturulabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample<T> {
+        val: T
+    }
+
+    impl<T> Sample<T> {
+        //...
+    }
+
+    impl Sample<i32> {
+        //...
+    }
+
+    impl Sample<i64> {
+        //...
+    }
+
+Bu biçimde farklı türler için farklı ``impl`` blokları oluşturulurken ``impl`` anahtar sözcüğünden sonra açısal
+parantezler içerisinde türün belirtilmesi zorunlu değildir. Yani örneğin:
+
+.. code-block:: rust
+
+    impl Sample<i32> {
+        //...
+    }
+
+bloğu ile aşağıdaki blok eşdeğerdir:
+
+.. code-block:: rust
+
+    impl<i32> Sample<i32> {
+        //...
+    }
+
+Bu biçimde özelleştirmeler yapılırken ``impl`` bloklarındaki fonksiyonların ve metotların aynı türler için
+çakışmaması gerekir. Örneğin aşağıdaki ikinci ``impl`` bloğu error oluşmasına yol açacaktır.
+
+.. code-block:: rust
+
+    struct Sample<T> {
+        val: T
+    }
+
+    impl<T> Sample<T> {
+        fn foo(&self) {
+            //...
+        }
+    }
+
+    impl Sample<i32> {
+        fn foo(&self) {                 // error!
+            println!("foo i32");
+        }
+    }
+
+Burada birinci ``impl`` bloğu ``T`` üzerinden oluşturulduğu için ve bu ``T`` türü ``i32`` de olabileceğinden dolayı
+sanki ``Sample<i32>`` için aynı isimli iki fonksiyon tanımlanmış gibi bir durum oluşur. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample<T> {
+        val: T
+    }
+
+    impl Sample<f64> {
+        fn foo(&self) {
+            //...
+        }
+    }
+
+    impl Sample<i32> {
+        fn foo(&self) {                 // geçerrli
+            println!("foo i32");
+        }
+    }
+
+Burada iki farklı ``impl`` bloğunda ``foo`` fonksiyonunun bulunmasında bir sorun oluşmayacaktır. Çünkü
+``Sample<i32>`` ile ``Sample<f64>`` farklı türlerdir. Dolayısıyla burada aynı türün içerisinde birden fazla aynı
+isimli fonksiyon bulunmamaktadır. Bu tür durumlarda trait sınırlaması dikkate alınmamaktadır. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample<T> {
+        val: T
+    }
+
+    impl<T: Copy> Sample<T> {
+        fn foo(&self) {
+            //...
+        }
+    }
+
+    impl Sample<String> {
+        fn foo(&self) {         // error!
+            //...
+        }
+    }
+
+Burada ``T`` generic parametresi için ``Copy`` trait sınırlaması yapılmıştır. ``String`` yapısı da ``Copy`` türünden
+değildir. O halde aslında burada bir çakışma olamaz. Ancak Rust derleyicisi karmaşık bir anlamlandırma
+oluşturabileceğinden generic tür sınırlamalarını hiç dikkate almamaktadır. Dolayısıyla yukarıdaki ikinci ``impl``
+bloğu yine error oluşturmaktadır.
+
+Generic Parametreler İçin Default Türler
+-------------------------------------------------------------------------------------
+
+Rust'ta bazı nesne yönelimli programlama dillerinde olduğu gibi generic tür parametreleri için default tür belirlemesi
+yapılabilmektedir. Default tür belirleme işlemi açısal parantezler içerisinde generic tür isminden sonra ``'='``
+atomu kullanılarak yapılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample<T = i32> {
+        val: T
+    }
+
+Burada ``T`` generic parametresi için default tür ``i32`` olarak belirtilmiştir. Default tür,
+*eğer generic parametre için tür belirtilmezse varsayılacak türü* belirtmektedir. Yani yukarıdaki yapıyı biz
+kullanırken ``T`` generic parametresi için tür belirlemesi yapmazsak default olarak ``T`` türü ``i32`` anlamına
+gelecektir. Örneğin:
+
+.. code-block:: rust
+
+    let s: Sample;
+
+Burada ``s`` değişkeni ``Sample<i32>`` türündendir. Çünkü ``Sample`` için ``T`` türünün ne olacağı konusunda bir
+belirlemede bulunulmamıştır.
+
+Rust'ta generic yapılardaki, enum türlerindeki ve trait'lerdeki generic parametrelere default türler
+iliştirilebilmektedir ancak fonksiyonlardaki ve metotlardaki generic parametrelere default türler
+iliştirilememektedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T = i32>(a: T) {     // error! generic fonksiyonlarda defult tür belirtilememektedir
+        //...
+    }
+
+Rust'ta eğer generic bir türün gerçekte hangi tür olduğu çıkarımla belirlenebiliyorsa bu durumda verilen default tür
+dikkate alınmaz. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample<T = i32> {
+        val: T
+    }
+    //...
+
+    let s = Sample { val: 3.14 };
+
+Burada ``s`` artık ``Sample<i32>`` türünden değil ``Sample<f64>`` türündendir. Çünkü ``val`` alanından hareketle
+``T`` için tür çıkarımı yapılmaktadır. Bu tür durumlarda eğer açısal parantezler kullanıp içi boş bırakılırsa
+derleyici default türün kullanılmak istendiğini kabul etmektedir. Örneğin:
+
+.. code-block:: rust
+
+    let s = Sample::<> {val: 3.14};              // error!
+
+Burada açısal parantezlerin içi boş bırakıldığı için default tür devreye sokulmaktadır. Ancak tür yerine ``_``
+atomunun bulundurulması bu bağlamda default türü devreye sokmamaktadır:
+
+.. code-block:: rust
+
+    let s = Sample::<_> {val: 3.14};        // geçerli
+
+Burada ``s`` değişkeni ``Sample<f64>`` türündendir.
+
+Bir generic parametreye default tür verilmişse onun sağındaki generic parametrelerin hepsine default tür verilmek
+zorundadır. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample<T, K = i32> {             // geçerli
+        a: T,
+        b: K
+    }
+
+    struct Sample<T = i32, K> {             // error!
+        a: T,
+        b: K
+    }
+
+    struct Sample<T = i32, K = i64> {       // geçerli
+        a: T,
+        b: K
+    }
+
+Yukarıda da belirttiğimiz gibi generic tür parametreleri için default türlerin devreye girmesi isteniyorsa açısal
+parantezler kullanılmalıdır. Açısal parantezlerin içerisi tamamen boş bırakılabilir ya da açısal parantezlerin
+içerisinde yalnızca ilk N tane generic parametre için tür belirlemesi de yapılabilir. Bu durumda belirtilmeyen türler
+için default türler devreye girecektir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample<T = i32, K = i64> {
+        a: T,
+        b: K
+    }
+    //...
+
+    let s: Sample<f64>;
+
+Burada ``s`` değişkeni ``Sample<f64, i64>`` türündendir. Örneğin:
+
+.. code-block:: rust
+
+    let k: Sample;
+
+Burada ``k`` değişkeni ``Sample<i32, i64>`` türündendir. Yukarıdaki bildirim aşağıdakiyle eşdeğerdir:
+
+.. code-block:: rust
+
+    let k: Sample<>;
+
+Eğer bu örnekte biz türü ``Sample<_, f64>`` biçiminde belirtseydik buradaki ``_`` atomu yukarıda da belirttiğimiz gibi
+*default türü kullan anlamına gelmeyecekti*, *tür çıkarımı yap* anlamına gelecekti. Örneğin:
+
+.. code-block:: rust
+
+    let s: Sample<_, f64>;      // error!
+
+Burada derleyicinin tür çıkarımı yapabilmesi için yapının ``a`` alanının türünü bir biçimde belirleyebilmesi
+gerekmektedir. Aşağıdaki gibi bir sentaks da geçerli değildir:
+
+.. code-block:: rust
+
+    let s: Sample<, f64>;      // error! böyle bir sentaks yok
+
+Default Tür Taşıyan Yapılarda impl Blokları
+-------------------------------------------------------------------------------------
+
+Peki default tür iliştirilen generic yapılar ve enum türlerinde ``impl`` blokları nasıl olacaktır? İşte normal olarak
+``impl`` bloklarının yine generic bir biçimde yazılması gerekir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample<T = i32> {
+        val: T
+    }
+
+    impl<T> Sample<T> {
+        fn foo(&self) {
+            //...
+        }
+    }
+
+Tabii biz ``impl`` bloğunda ``Sample<T>`` değil yalnızca ``Sample`` da diyebilirdik. Bu durum ``i32`` için
+özelleştirme yapmış olduğumuz anlamına gelmektedir. Örneğin:
+
+.. code-block:: rust
+
+    impl Sample {
+        fn foo(&self) {
+            println!("{}", self.val);
+        }
+    }
+
+Bu ``impl`` bloğu tamamen aşağıdakiyle eşdeğerdir:
+
+.. code-block:: rust
+
+    impl Sample<i32> {
+        fn foo(&self) {
+            println!("{}", self.val);
+        }
+    }
+
+Default Tür ve Trait Sınırlaması Birlikte
+-------------------------------------------------------------------------------------
+
+Generic bir yapı ya da enum türünün generic parametresi hem default türe hem de trait sınırlamasına sahip olabilir. Bu
+durumda önce ``':'`` sentaksı ile trait sınırlaması belirtilir sonra da ``'='`` sentaksı ile default tür belirtilir.
+Örneğin:
+
+.. code-block:: rust
+
+    struct Sample<T: Copy = i32> {          // geçerli
+        val: T
+    }
+
+Generic Sınırlamalar (Generic Bounds)
+-------------------------------------------------------------------------------------
+
+Şimdi de generic sınırlamaları (generic bounds) konusunu baştan itibaren ele alalım.
+
+Generic sınırlamaları daha önceden de belirttiğimiz gibi generic fonksiyonların ve metotların söz konusu kısıtlar
+sağlandığında her zaman geçerli olmasını derleme aşamasında garantiye almak için dile eklenmiştir. Yalnızca Rust'ta
+değil C# ve Java gibi diğer dillerde de bu kavram benzer amaçları sağlamak için bulunmaktadır. C++'ta bu kavram C++20
+ile dile eklenmiştir.
+
+Rust'ta generic sınırlamalar iki sentaks ile oluşturulmaktadır:
+
+1) Açısal parantez içerisinde ``':'`` sentaksı ile
+2) ``where`` sentaksı ile
+
+Bu iki sentaks bazı durumlarda tamamen eşdeğerdir. Ancak bazı durumlarda açısal parantez içerisinde sınırlama yetersiz
+kalmakta ve mecburen ``where`` sentaksının kullanılması gerekmektedir.
+
+Açısal parantezdeki ``':'`` sentaksında generic türün desteklemesi gereken trait'ler ``':'`` atomundan sonra
+belirtiliyordu. Eğer birden fazla trait söz konusu ise bunlar ``'+'`` ile belirtiliyordu. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T: Default + Copy>(a: T) {
+        //...
+    }
+
+Birden fazla generic parametrenin olduğu durumda da sentaks aynı biçimdedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T: Default + Copy, K: Clone> (a: T, k: K)  {
+        //...
+    }
+
+``where`` sentaksının genel biçimi de şöyledir:
+
+.. code-block:: text
+
+    where <parametre_ismi>: <sınırlamalar>, <parametre_ismi>: <sınırlamalar>, ....
+
+``where`` sentaksı fonksiyonun ya da metodun parametre parantezinden sonraya yerleştirilmektedir. Hem açısal parantez
+sentaksı hem de ``where`` sentaksı fonksiyonun ya da metodun imzasına dahildir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T, K>(a: T, k: K)
+    where
+        T: Default + Copy,
+        K: Clone
+    {
+        //...
+    }
+
+Rust programcıları genel olarak ``where`` sentaksındaki hizalamayı yukarıda biçimdeki yapmayı tercih etmektedir. Tabii
+aslında atomlar istenildiği gibi peşi sıra getirilebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T, K> (a: T, k: K) where T: Default + Copy, K: Clone {
+        //...
+    }
+
+Pek çok dilde *sentaksta virgüllerle ayrılmış olan listelerde (comma separated lists)* listenin sonunda isteğe bağlı
+son bir ``','`` atomu kullanılabilmektedir. Rust'ta da bu gelenek muhafaza edilmiştir. Bu tür durumlarda sonda bir
+``','`` atomu görürseniz bunun özel bir anlama geldiğini sanmayınız. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T, K>(a: T, k: K)
+    where
+        T: Default + Copy,
+        K: Clone,
+    {
+        //...
+    }
+    //...
+    let a = [10, 20, 30, 40, 50, ];
+    //...
+    bar(10, 20, 30, );
+    //..
+    struct Sample {
+        a: i32,
+        b: i32,
+    }
+
+Bu tür virgülle ayrılmış listelerin bazılarında son virgülün kasten yerleştirilmesi Rust'ta neredeyse gelenek haline
+gelmiştir.
+
+Açısal Parantez ve where Sentaksının Tercihi
+-------------------------------------------------------------------------------------
+
+Peki ``where`` sentaksının zorunlu olduğu durumlar dışında biz hangi sentaksı tercih etmeliyiz? Açısal parantez
+sentaksını mı ``where`` sentaksını mı? Eğer generic parametreler fazla değilse ve sınırlamalar karmaşık değilse açısal
+parantez sentaksı daha pratik olduğundan tercih edilebilir. Ancak çok fazla generic parametre varsa ve sınırlamalar da
+açısal parantez içerecek biçimde karmaşıksa ``where`` sentaksı okunabilirlik bakımından tercih edilmelidir.
+
+Açısal parantez sentaksında önceki generic parametreye ilişkin sınırlama sonra generic parametrelere ilişkin
+olabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    trait Error<T, K> {
+        //...
+    }
+
+    fn foo<T: Error<U, K>, U: Copy, K: Default>() {
+        //...
+    }
+
+Burada ilk generic parametresinin sınırlamasında sonraki generic parametreler kullanılmıştır. Ancak bu tür
+durumlarda ``where`` sentaksı okunabilirlik bakımından tercih edilebilir:
+
+.. code-block:: rust
+
+    fn foo<T, U, K>()
+    where
+        T: Error<U, K>,
+        U: Copy,
+        K: Default
+    {
+        //...
+    }
+
+Generic Sınırlamalar (Devam) ve Operatör Metotlarına Giriş
+=====================================================================================
+
+Açısal Parantez ve where Sentaksının Birlikte Kullanılması
+-------------------------------------------------------------------------------------
+
+Generic tür sınırlamalarının bazıları açısal parantez sentaksıyla bazıları ise ``where`` sentaksıyla
+oluşturulabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T: Copy, K>(a: T, b: K)
+    where
+        K: std::fmt::Debug,             // geçerli
+    {
+        //...
+    }
+
+Burada ``T`` generic parametresi ``Copy`` trait'ini, ``K`` generic parametresi ise ``Debug`` trait'ini desteklemek
+zorundadır. Aynı generic parametre için hem açısal parantezler içerisinde hem de ``where`` sentaksında sınırlama
+yapılabilir. Bu durumda bu sınırlamalar sanki ``+`` ile çoğaltılmış gibi etki göstermektedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T: Copy, K>(a: T, b: K)
+    where
+        T: std::fmt::Debug,
+        K: std::fmt::Debug
+    {
+        //...
+    }
+
+Burada artık ``T`` generic parametresi hem ``Copy`` hem de ``Debug`` trait'ini desteklemek zorundadır. Tabii
+okunabilirlik bakımından hem açısal parantezler içerisinde hem de ``where`` sentaksı içerisinde sınırlama belirtmek
+iyi bir teknik değildir. Rust programcıları ya tüm sınırlamaları açısal parantezler içerisinde ya da ``where``
+sentaksına belirtmeyi tercih etmektedir.
+
+İlişkili Türlere Sahip Trait'lerde Sınırlamalar
+-------------------------------------------------------------------------------------
+
+Trait sınırlamasında bir trait ilişkili türlere sahipse sınırlamada eğer ilişkili türün ne olacağı konusunda bir
+sınırlama yapılmazsa bu durum ilişkili türün herhangi bir olabileceği anlamına gelmektedir. Örneğin ``Test`` trait'i
+şöyle olsun:
+
+.. code-block:: rust
+
+    trait Test {
+        type Item;
+
+        fn test(&self);
+    }
+
+Anımsanacağı gibi bu trait'i destekleyen türlerin ``Item`` türünü ``impl`` bloğu içerisinde belirtmesi gerekmektedir.
+Şimdi aşağıdaki gibi bir generic fonksiyon tanımlamış olalım:
+
+.. code-block:: rust
+
+    fn foo<T>(a: T)
+    where
+        T: Test
+    {
+        //...
+    }
+
+Burada ``T`` generic parametresinin ``Test`` trait'ini destekleyen bir tür türünden olması gerektiğine ilişkin bir
+sınırlamada bulunulmuştur. Ancak bu sınırlamada ``Test`` trait'ini destekleyen türdeki ``Item`` türü hakkında bir
+sınırlama yoktur. O halde ``Test`` trait'ini destekleyen türdeki ``Item`` ilişkili türü hangi tür olursa olsun ``foo``
+fonksiyonuna argüman olarak verilebilir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample(i32);
+
+    impl Test for Sample {
+        type Item = f64;
+
+        fn test(&self) {
+            //...
+        }
+        //...
+    }
+
+Biz ``Sample`` türünden bir değişken yaratıp onunla ``foo`` fonksiyonunu çağırabiliriz:
+
+.. code-block:: rust
+
+    let s = Sample(10);
+
+    foo(s);     // geçerli
+
+Ancak sınırlama yapılırken ilişkili tür için de belirlemede bulunulabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T>(a: T)
+    where
+        T: Test<Item=i32>
+    {
+        //...
+    }
+
+Burada artık sınırlama şu anlama gelmektedir: ``T`` *generic parametresi* ``Test`` *trait'ini* ``Item`` *ilişkili
+türü* ``i32`` *olacak biçimde desteklemek zorundadır.* Örneğin:
+
+.. code-block:: rust
+
+    struct Sample(i32);
+
+    impl Test for Sample {
+        type Item = f64;
+
+        fn test(&self) {
+            //...
+        }
+    }
+    //...
+
+    let s = Sample(10);
+
+    foo(s);     // error!
+
+Burada ``Sample`` yapısı ``Test`` trait'ini desteklemektedir ancak ilişkili ``Item`` türü uygun değildir.
+
+Tabii ilişkili tür belirleme açısal parantezler içerisinde de benzer biçimde yapılabilmektedir:
+
+.. code-block:: rust
+
+    fn foo<T: Test<Item=i32>>(a: T)
+    {
+        //...
+    }
+
+Yukarıda da belirttiğimiz gibi açısal parantezler içerisinde yeniden açısal parantez kullanıldığında okunabilirlik
+biraz bozulabilmektedir. Bu tür durumlarda ``where`` sentaksını tercih edebilirsiniz.
+
+İlişkili türlere sahip olan trait'lerde ilişkili türler için de sınırlamalar oluşturulabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T>(a: T)
+    where
+        T: Test<Item: Copy>
+    {
+        //...
+    }
+
+Buradaki sınırlama şu anlama gelmektedir: ``T`` *generic parametresi* ``Test`` *türünü destekleyen bir tür türünden
+olmalıdır. Ancak o türde* ``Item`` *isimli ilişkili tür de* ``Copy`` *trait'ini desteklemelidir.* Buradaki sentaksta
+artık ``Item`` isminden sonra ``'='`` atomu değil ``':'`` atomunun kullanıldığına dikkat ediniz. Örneğin ``Sample``
+yapısı şöyle tanımlanmış olsun:
+
+.. code-block:: rust
+
+    struct Sample(i32);
+
+    impl Test for Sample {
+        type Item = String;
+
+        fn test(&self) {
+            println!("foo");
+        }
+    }
+
+Biz ``Sample`` türünden bir değerle yukarıdaki ``foo`` fonksiyonunu çağıramayız. Her ne kadar ``Sample`` türü ``Test``
+trait'ini destekliyor olsa da ``Item`` ilişkili türü ``Copy`` türünden değildir:
+
+.. code-block:: rust
+
+    let s = Sample(10);
+
+    foo(s);     // error!
+
+Bu kısıt açısal parantezler içerisinde de oluşturulabilmektedir:
+
+.. code-block:: rust
+
+    fn foo<T: Test<Item: Copy>>(a: T)
+    {
+        //...
+    }
+
+Tabii bu tür sınırlamalar daha karışık hale de gelebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    fn foo<T>(a: T)
+    where
+        T: Test<Item: AnotherTest<AnotherItem: Copy>>
+    {
+        //...
+    }
+
+Burada ``T`` generic parametre için belirtilen kısıt şu anlama gelmektedir: ``T`` *generic parametresi* ``Test``
+*trait'ini destekleyen ancak* ``Item`` *türü de* ``AnotherTest`` *trait'ini destekleyen bir tür türünden olmalıdır.*
+``AnotherTest`` *türünü destekleyen türde ise* ``AnotherItem`` *türü* ``Copy`` *trait'ini desteklemelidir.*
+
+Operatör Metotları
+-------------------------------------------------------------------------------------
+
+Bu bölümde Rust'ta *operatör metotları* konusunu ele alacağız. Operatör metotları ya da operatör fonksiyonları nesne
+yönelimli pek çok programlama dilinde var olan bir özelliktir. Çeşitli diller operatör metotlarını kendilerine uygun
+bir biçimde bünyesine dahil etmiştir. Operatör metotlarının bulunduğu yaygın diller şunlardır:
+
+- C++
+- C#
+- Python
+- Ruby
+- Swift
+- Kotlin
+- Rust
+
+Java her ne kadar C#'a oldukça benzese de operatör metotlarına sahip değildir.
+
+Operatör Metotlarının Amacı
+-------------------------------------------------------------------------------------
+
+Operatör metotları aslında dile ek bir işlevsellik kazandırmamaktadır. Yalnızca okunabilirliği artıran bir işlev
+görmektedir. Operatör metotları sayesinde programcının kendi oluşturduğu türler ``+``, ``-``, ``*``, ``/``, ``>``,
+``<`` gibi operatörlerle kullanılabilmektedir. Örneğin karmaşık sayıları temsil eden bir yapı tanımlamış olalım:
+
+.. code-block:: rust
+
+    #[derive(Copy, Clone)]
+    struct Complex {
+        real: f64,
+        imag: f64,
+    }
+
+Biz iki karmaşık sayıyı toplayan bir fonksiyon yazmak isteyelim. Tabii bu fonksiyon ``Complex`` yapısıyla ilgili olduğu
+için ``Complex`` yapısının ilişkili fonksiyonu biçiminde yazılabilir:
+
+.. code-block:: rust
+
+    impl Complex {
+        fn new(real: f64, imag: f64) -> Complex {
+            Complex { real, imag }
+        }
+
+        fn add(left: Complex, right: Complex) -> Complex {
+            let real = left.real + right.real;
+            let imag = left.imag + right.imag;
+
+            Complex { real, imag }
+        }
+
+        fn disp(&self) {
+            println!("{}+{}i", self.real, self.imag)
+        }
+    }
+
+Artık biz iki karmaşık sayıyı bu ``add`` metodunu kullanarak toplayabiliriz:
+
+.. code-block:: rust
+
+    let x = Complex::new(3., 2.);
+    let y = Complex::new(4., 3.);
+    let result: Complex;
+
+    result = Complex::add(x, y);
+    result.disp();
+
+Buradaki toplama işlemini yapan satıra dikkat ediniz:
+
+.. code-block:: rust
+
+    result = Complex::add(x, y);
+
+Eğer biz bu işlemi doğrudan ``+`` operatörünü kullanarak yapabilseydik kodumuz matematiksel alana daha yakın hale
+gelirdi, dolayısıyla daha okunabilir olurdu:
+
+.. code-block:: rust
+
+    result = x + y;
+
+İşte operatör metotları bunu sağlamaktadır. Yani operatör metotları sayesinde biz kendi türümüzü sanki onlar temel
+türlerdenmiş gibi operatörlerle kullanabilir hale gelmekteyiz. Tabii aslında yukarıdaki örneğimizde derleyici
+``x + y`` ifadesini gördüğünde ``x`` ve ``y`` değişkenlerini operatör metodu denilen metoda argüman olarak geçirip o
+metodu çağırmaktadır. Yani aslında ``x + y`` ifadesi bir metodun çağrılmasına yol açmaktadır. ``x + y`` ifadesinden
+elde edilen değer bu operatör metodunun geri dönüş değeridir. Başka bir deyişle:
+
+.. code-block:: rust
+
+    result = x + y;
+
+işlemini derleyici adeta aşağıdaki ile eşdeğer kabul etmektedir:
+
+.. code-block:: rust
+
+    result = x.add(y);
+
+Aşağıdaki örnekte iki ``Complex`` sayı ``Complex`` yapısının ``add`` isimli ilişkili fonksiyonuyla toplanmaktadır.
+
+.. code-block:: rust
+
+    fn main() {
+        let x = Complex::new(3., 2.);
+        let y = Complex::new(4., 3.);
+        let result: Complex;
+
+        result = Complex::add(x, y);
+        result.disp();
+    }
+
+    #[derive(Copy, Clone)]
+    struct Complex {
+        real: f64,
+        imag: f64,
+    }
+
+    impl Complex {
+        fn new(real: f64, imag: f64) -> Complex {
+            Complex { real, imag }
+        }
+
+        fn add(left: Complex, right: Complex) -> Complex {
+            let real = left.real + right.real;
+            let imag = left.imag + right.imag;
+
+            Complex { real, imag }
+        }
+
+        fn disp(&self) {
+            println!("{}+{}i", self.real, self.imag)
+        }
+    }
+
+Operatör Metotları ve Add Trait'i
+=====================================================================================
+
+Operatör Metotlarının Trait Tabanlı Olması
+-------------------------------------------------------------------------------------
+
+Rust'ta operatör metotları trait tabanlıdır. Yani operatör metotlarını oluşturabilmek için özel bazı trait'lerin
+desteklenmesi gerekmektedir. Rust derleyicisi ilgili tür bu özel trait'leri destekliyorsa bu türlere ilişkin
+operatörler kullanıldığında türde desteklenen trait'lerin ilgili metotlarını çağırmaktadır. Örneğin ``Sample`` yapısı
+eğer ``std::ops::Add`` trait'ini destekliyorsa bu trait'te bulunan ``add`` metodunu barındırmak zorundadır. Derleyici
+de iki ``Sample`` değerinin ``+`` operatörüyle toplandığını gördüğünde bu ``add`` metodunu çağırır. Yani Rust
+derleyicisi aslında operatörleri metot çağrılarına dönüştürmektedir. Tutarlılığın sağlanması için ``i32``, ``i64``,
+``f64`` gibi temel türlerin de bu trait'leri desteklediği varsayılmaktadır. Yani örneğin ``a`` ve ``b`` ``i32``
+türündense ``a + b`` işlemi Rust'a göre ``i32`` yapısının ``add`` metodu tarafından yapılmaktadır. Tabii aslında temel
+türler için Rust bir metot çağırmaz. Ancak semantik bütünlük sağlansın diye sanki temel türler de birer yapı gibi ele
+alınmıştır.
+
+Rust'ta operatör metotlarının yazılması için gereken tüm trait'ler ``std::ops`` modülünde bulunmaktadır. Biz
+genellikle örneklerimizde bu trait'leri nitelikli olarak değil ``use`` deyimi ile niteliksiz olarak kullanacağız.
+
+Rust'ta operatörlerin çoğu için operatör metodu yazılabilmektedir. Ancak aşağıdaki operatörler için operatör metotları
+yazılamamaktadır:
+
+.. code-block:: text
+
+    =
+    &&
+    ||
+    ..
+    ..=
+    .
+
+Biz kursumuzda operatörleri tek tek ele alıp bunlar için hangi trait'lerin desteklenmesi gerektiğini tek tek
+açıklayacağız.
+
+Örnek Yapı: Rational
+-------------------------------------------------------------------------------------
+
+Operatör metotları konusunu birkaç örnek yapı ile ele alacağız. Bunlardan biri rasyonel sayıları temsil eden
+``Rational`` yapısıdır. Bilindiği gibi rasyonel sayılar ``a`` ve ``b`` tamsayı olmak üzere ``a / b`` biçimindeki
+sayılardır. Tabii burada ``b``'nin ``0`` olmaması gerekir. ``Rational`` yapısının iskeleti şöyle oluşturulabilir:
+
+.. code-block:: rust
+
+    struct Rational {
+        a: i64,
+        b: i64
+    }
+
+    impl Rational {
+        fn new(mut a: i64, mut b: i64) -> Result<Rational, &'static str>  {
+            if b == 0 {
+                return Err("invalid rational number");
+            }
+            if b < 0 {
+                a = -a;
+                b = -b;
+            }
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            Ok(result)
+        }
+
+        fn gcd(mut a: i64, mut b: i64) -> i64 {
+            if a == 0 { return b; }
+            if b == 0 { return a; }
+            while b != 0 {
+                let r = a % b;
+                a = b;
+                b = r;
+            }
+            a
+        }
+
+        fn simplify(&mut self) {
+            let gcd = Self::gcd(self.a.abs(), self.b.abs());
+
+            self.a /= gcd;
+            self.b /= gcd;
+        }
+
+        fn disp(&self) {
+            if self.a == 0 {
+                println!("0");
+            }
+            else if self.b == 1 {
+                println!("{}", self.a);
+            }
+            else {
+                println!("{}/{}", self.a, self.b);
+            }
+        }
+    }
+
+Burada rasyonel sayılar ``new`` ilişkili fonksiyonuyla yaratılmalıdır. Bu iskelet yapıyı aşağıdaki gibi bir kodla test
+edebiliriz:
+
+.. code-block:: rust
+
+    fn main() {
+        let x = Rational::new(4, 8).unwrap();
+
+        x.disp();           // 1/2
+    }
+
+Add Trait'i ile Toplama Operatörü
+-------------------------------------------------------------------------------------
+
+``+`` operatörü için ``std::ops`` modülündeki ``Add`` trait'i kullanılmaktadır. ``Add`` trait'i şöyle
+tanımlanmıştır:
+
+.. code-block:: rust
+
+    pub trait Add<Rhs = Self> {
+        type Output;
+
+        // Required method
+        fn add(self, rhs: Rhs) -> Self::Output;
+    }
+
+``Add`` trait'inin generic olduğuna dikkat ediniz. Bu trait'in ``Rhs`` ismi generic parametresi default olarak
+``Self`` türünü almıştır. Buradaki ``Self`` ``Add`` anlamına gelmemektedir. Bu trait'i destekleyen tür anlamına
+gelmektedir. Yani örneğin bu ``Add`` trait'ini eğer ``Rational`` yapısı desteklerse buradaki ``Rhs`` default olarak
+``Rational`` anlamına gelir. Ayrıca trait'in ``Output`` isimli bir ilişkili türü de vardır. ``Add`` trait'ini
+destekleyen türde ``add`` metodu yazılmak zorundadır. ``add`` metodunun ilk parametresi trait'i destekleyen tür
+türündendir. İkinci parametresi ``Rhs`` türünden olduğuna göre default olarak o da ``Add`` trait'ini destekleyen tür
+türündendir. Metodun geri dönüş değeri ilişkili tür türündendir. O halde biz ``Rational`` yapımızda ``Add``
+trait'ini şöyle destekleyebiliriz:
+
+.. code-block:: rust
+
+    impl Add for Rational {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            let a = self.a * other.b + self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+Burada yalnızca ``Add`` demekle ``Add<Rational>`` demek arasında bir fark yoktur. Bu durumda ``add`` metodunun her
+iki parametresi de ``Rational`` türündendir. ``add`` metodunun geri dönüş değerinin türünün ``Output`` ilişkili
+türüyle belirlendiğini anımsayınız. Bu durumda bu metodun geri dönüş değeri de ``Rational`` türündendir. Özetle
+buradaki ``add`` metodu iki ``Rational`` değerini alıp bunları toplar ve toplamaya ilişkin ``Rational`` değeriyle geri
+döner.
+
+``Add`` trait'inde ``self`` parametresinin ``&self`` biçiminde olmadığına ``self`` biçiminde olduğuna dikkat ediniz.
+Benzer biçimde ``add`` metodunun ikinci parametresi de referans değildir. O halde ``add`` metoduna biz ``Rational``
+değişkenlerini geçirdiğimizde ``Rational`` türü ``Copy`` türünden olmadığı için sahiplik devri yapmış oluruz. Yani
+``add`` metodundan sonra artık bu değişkenleri kullanamayız. Buradaki aktarımın ödünç alma biçiminde değil de taşıma
+biçiminde yapıldığına dolayısıyla da çağrımın *call by reference* biçiminde değil *call by value* biçiminde yapıldığına
+dikkat ediniz.
+
+Aşağıda ``Add`` trait'ini destekleyen ``Rational`` örneği bir bütün olarak verilmiştir.
+
+.. code-block:: rust
+
+    use std::ops::Add;
+
+    fn main() {
+        let x = Rational::new(1, 3).unwrap();
+        let y = Rational::new(2, 4).unwrap();
+        let result: Rational;
+
+        result = x.add(y);      // result = x + y;
+        result.disp();
+    }
+
+    struct Rational {
+        a: i64,
+        b: i64
+    }
+
+    impl Rational {
+        fn new(mut a: i64, mut b: i64) -> Result<Rational, &'static str>  {
+            if b == 0 {
+                return Err("invalid rational number");
+            }
+            if b < 0 {
+                a = -a;
+                b = -b;
+            }
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            Ok(result)
+        }
+
+        fn gcd(mut a: i64, mut b: i64) -> i64 {
+            if a == 0 { return b; }
+            if b == 0 { return a; }
+            while b != 0 {
+                let r = a % b;
+                a = b;
+                b = r;
+            }
+            a
+        }
+
+        fn simplify(&mut self) {
+            let gcd = Self::gcd(self.a.abs(), self.b.abs());
+
+            self.a /= gcd;
+            self.b /= gcd;
+        }
+
+        fn disp(&self) {
+            if self.a == 0 {
+                println!("0");
+            }
+            else if self.b == 1 {
+                println!("{}", self.a);
+            }
+            else {
+                println!("{}/{}", self.a, self.b);
+            }
+        }
+    }
+
+    impl Add for Rational {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            let a = self.a * other.b + self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+Operatör Metotları: Operand'lar, Taşıma ve Farklı Türlerle İşlemler
+=====================================================================================
+
+Operatör Metotlarının Çağrılma Biçimi
+-------------------------------------------------------------------------------------
+
+``std::ops`` modülündeki bir operatöre ilişkin trait bir yapı ya da enum türü tarafından desteklendiğinde artık metot
+çağrısı yerine doğrudan metodun temsil ettiği operatör kullanılabilir. Bu durumda derleyici operatör ifadesini
+gördüğünde operatörün operand'larını trait metoduna argüman olarak geçirir ve operatör metodunu çağırır. Çağrılan
+metodun geri dönüş değeri operatörün ürettiği değeri oluşturmaktadır.
+
+``Op`` trait'inin iki operand'lı bir operatöre ilişkin trait olduğunu bunun da metodunun ``op`` isminde olduğunu kabul
+edelim. Bu durumda aşağıdaki iki ifade eşdeğerdir:
+
+.. code-block:: rust
+
+    a op b
+    a.op(b)
+
+Yani örneğin ``a + b`` ifadesi aslında ``a.add(b)`` ifadesiyle eşdeğerdir. İki operand'lı operatörlerde derleyici her
+zaman sol taraftaki operand'ın türüne ilişkin türde ilgili operatör metodunu aramaktadır. Yani örneğin ``a + b``
+ifadesinde ``a`` operand'ının ``Sample`` isimli yapı türünden olduğunu varsayalım. Bu durumda ifadenin geçerli olması
+için ``Sample`` yapısının ``std::ops::Add`` trait'ini destekliyor olması gerekmektedir. Buradaki metodun ``self``
+parametresine ``b`` ise diğer parametresine aktarılacaktır. İki operand'lı operatörlere ilişkin trait metotlarının
+toplamda iki parametresinin olduğuna dikkat ediniz. Parametrelerden biri ``self`` parametresidir ve bu parametre
+soldaki operand'ı temsil eder. Diğer parametre ise sağdaki operand'ı temsil eder.
+
+Şimdi de ``Op`` trait'inin tek operand'lı bir operatöre ilişkin olduğunu varsayalım. Yine bu ``Op`` trait'inin operatör
+işlemini yapan ``op`` isimli metodu bulunuyor olsun. Bu durumda aşağıdaki iki ifade birbirleriyle eşdeğerdir:
+
+.. code-block:: rust
+
+    op a
+    a.op()
+
+Burada artık operatör metodunun yalnızca ``self`` parametresinin olduğuna dikkat ediniz. operand doğrudan metodun
+``self`` parametresine atanmaktadır.
+
+Operatörlerin Kombine Edilmesi
+-------------------------------------------------------------------------------------
+
+``op1`` ve ``op2`` iki operand'lı iki operatör belirtiyor olsun. ``a op1 b op2 c`` ifadesinde operatör önceliğine göre
+önce ``a op1 b`` işleminin yapıldığını varsayalım. Bu durumda ``a op1 b`` işleminden elde edilen değerin türü de ilgili
+operatör metodunu destekliyorsa ``a op1 b op2 c`` işlemi geçerli olur. Bu da ``a.op1(b).op2(c)`` ifadesiyle eşdeğer
+olacaktır. Örneğin ``a + b + c`` ifadesinin eşdeğeri ``a.add(b).add(c)`` biçimindedir. Yani operatörler bu biçimde
+kombine edilebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    let x = Rational::new(1, 3).unwrap();
+    let y = Rational::new(1, 2).unwrap();
+    let z = Rational::new(3, 2).unwrap();
+    let result: Rational;
+
+    result = x + y + z;     // result = x.add(y).add(z);
+    result.disp();
+
+Burada ``x + y + z`` ifadesinin ``x.add(y).add(z)`` ile eşdeğer olduğuna dikkat ediniz.
+
+Taşıma ve Copy Türleri
+-------------------------------------------------------------------------------------
+
+Yukarıda da belirttiğimiz gibi ``add`` metodunun parametrik yapısında ``self`` parametresi ve diğer parametre referans
+değildir. Dolayısıyla eğer söz konusu tür ``Copy`` türünden değilse değişkenler taşınır. Biz de artık bu değişkenleri
+işlem sonrasında kullanamayız. Örneğin:
+
+.. code-block:: rust
+
+    let x = Rational::new(1, 3).unwrap();
+    let y = Rational::new(1, 2).unwrap();
+    let z = Rational::new(3, 2).unwrap();
+    let mut result: Rational;
+
+    result = x + y + z;             // result = x.add(y).add(z);
+    result.disp();
+
+    x.disp();                       // error!
+    y.disp();                       // error!
+    z.disp();                       // error!
+
+Burada ``x``, ``y`` ve ``z`` değişkenleri taşındığı için ``x + y + z`` işleminden sonra onları kullanamayız. Tabii
+biz ``Rational`` yapısını ``Copy`` türü olarak tanımlarsak bu durumda artık değişkenler taşınmaz. Dolayısıyla
+yukarıdaki kod error oluşturmaz:
+
+.. code-block:: rust
+
+    #[derive(Copy, Clone)]
+    struct Rational {
+        a: i64,
+        b: i64
+    }
+
+Farklı Türlerle Toplama
+-------------------------------------------------------------------------------------
+
+Biz yukarıdaki örnekte iki rasyonel sayıyı toplayacak bir ``add`` metodu yazdık. Peki bir rasyonel sayı ile o rasyonel
+sayının türü ile uyumlu olan (örneğimizde ``i64``) bir tamsayıyı toplayabilir miyiz? Örneğin:
+
+.. code-block:: rust
+
+    let x = Rational::new(1, 3).unwrap();
+    let result: Rational;
+
+    result = x + 1;         // error!
+
+Bu işlem matematikte geçerlidir. Ancak bizim yazmış olduğumuz ``add`` metodu bu işlem için kullanılamaz:
+
+.. code-block:: rust
+
+    impl Add for Rational {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            let a = self.a * other.b + self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+Çünkü bu ``add`` metodu ikinci operand'ı ``Rational`` beklemektedir. İşte bu işlemin yapılabilmesini ``Add``
+trait'ini desteklerken açıkça generic türü belirterek sağlayabiliriz. Anımsayacağınız gibi iki operand'lı operatör
+metotlarına ilişkin trait'lerin generic parametreleri sağ taraftaki operand'ın türünü belirtiyordu. Bu durumda
+``x + 1`` gibi bir işlemin de yapılabilmesini şöyle sağlayabiliriz:
+
+.. code-block:: rust
+
+    impl Add<i64> for Rational {
+        type Output = Rational;
+
+        fn add(self, other: i64) -> Rational {
+            let a = other * self.b + self.a;
+            let b = self.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+Buradaki ``add`` metodu artık bir ``Rational`` değeri ile ``i64`` değerini toplayıp sonucu ``Rational`` olarak
+vermektedir. Burada bizim ``Rational`` yapımızdaki pay ve payda değerleri (``a`` ve ``b`` alanlarını kastediyoruz)
+``i64`` türündendir. Dolayısıyla Rust'ın *aynı türler üzerinde işlem yapabilme* tasarımına uygun bakımından bir
+``Rational`` değeri ile ``i64`` türünden bir değeri toplayacak operatör metodunun yazılması uygun olur. Peki biz aynı
+zamanda bir ``Rational`` değeri ile ``i32`` değerini de toplayabilmek istersek bunu nasıl sağlayabiliriz? En basit
+yöntem ``i32`` türü için yeni bir ``impl`` bloğu oluşturmaktır:
+
+.. code-block:: rust
+
+    impl Add<i32> for Rational {
+        type Output = Rational;
+
+        fn add(self, other: i32) -> Rational {
+            let a = other as i64 * self.b + self.a;
+            let b = self.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+Tabii aslında bu metodunun içi zaten var olan operatör metodunu çağıracak biçimde de yazılabilir:
+
+.. code-block:: rust
+
+    impl Add<i32> for Rational {
+        type Output = Rational;
+
+        fn add(self, other: i32) -> Rational {
+        self + other as i64
+        }
+    }
+
+Peki buradaki ``add`` metodunu da generic yapabilir miydik? Biz operatör metotlarının generic'lerle kullanılması
+konusunu ileride ele alacağız.
+
+Temel Türlerin Operatör Trait'lerini Desteklemesi
+-------------------------------------------------------------------------------------
+
+Biz Rust'taki ``i32``, ``i64``, ``f64`` gibi temel türlerin de (primitive types) birer yapı belirttiğini söylemiştik.
+Daha önceden de bu türlerle ``sqrt`` gibi ``abs`` gibi metotları çağırdığımızı anımsayınız. İşte aynı zamanda bu
+türler Rust'ta bu operatör trait'lerini desteklemektedir. Örneğin:
+
+.. code-block:: rust
+
+    let a = 10;
+    let b = 20;
+    let result: i32;
+
+    result = a + b;
+
+Tıpkı diğer yapılarda olduğu gibi ``a + b`` ifadesi yine ``i32`` yapısı için de ``a.add(b)`` ifadesiyle eşdeğerdir.
+Örneğin:
+
+.. code-block:: rust
+
+    result = a.add(b);      // geçerli
+
+Rust'ta aşağıdaki gibi bir ifade geçerlidir:
+
+.. code-block:: rust
+
+    result = 10.add(20);      // geçerli
+
+Sabitler de aslında ilgili türden değer belirttiğine göre doğrudan sabitler kullanılarak da metotlar
+çağrılabilmektedir.
+
+Aklınıza şöyle bir soru gelebilir: ``a`` ve ``b`` örneğin ``i32`` türünden olsa ``a + b`` işlemini yapmak için
+derleyici gerçekten bir metot mu çağırmaktadır? Tabii ki hayır. Kodun gözlemlenebilir işlevi değişmedikten sonra
+derleyici kodu istediği gibi değiştirebilir. Biz Rust'ta ``a.add(b)`` yapmış olsak bile Rust derleyicisi yine tek bir
+makine komutu ile bu iki sayıyı toplayacaktır. Özetle her ne kadar Rust'taki temel türler birer yapıysa da aslında kod
+üretimi bakımından bunların C'deki temel türlerden bir farkı yoktur.
+
+Değişme Özelliği
+-------------------------------------------------------------------------------------
+
+Bilindiği gibi matematikte ``+`` ve ``*`` gibi işlemlerin değişme özelliği vardır. Yani örneğin matematikte ``a + b``
+ile ``b + a`` arasında hiçbir farklılık yoktur. İşte operatör metotlarını yazarken eğer operatörün değişme özelliği
+varsa bu değişme özelliğini sizin sağlamanız iyi bir tekniktir. Örneğin yukarıdaki örnekte bir ``Rational`` değeri ile
+bir ``i64`` değeri ``x + 1`` gibi bir ifade ile toplanabilmektedir. O halde bunun tersinin de sağlanması iyi bir
+tekniktir. Yani nasıl ``x + 1`` geçerliyse ``1 + x``'te geçerli olmalıdır. Örneğin ``x`` ``Rational`` yapısı türünden
+``a`` da temel türlerden olsun. ``x + a`` ifadesinin eşdeğeri ``x.add(a)`` biçimindedir. Ancak ``a + x`` ifadesinin
+eşdeğeri ``a.add(x)`` biçimindedir. Temel türlerde ``add`` metodu bulunmaktadır. Ancak parametresi ``Rational`` olan
+bir ``Add`` metodu bulunmamaktadır. İşte ``a + x`` gibi bir ifadenin yazılabilmesi için bizim ``a`` değerinin ilişkin
+olduğu yapı için kendimizin bir ``add`` metodu yazmamız gerekir. Örneğin:
+
+.. code-block:: rust
+
+    impl Add<Rational> for i64 {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            other + self
+        }
+    }
+
+``Add`` trait'inin generic parametresinin sağdaki operand'ın türünü belirttiğini anımsayınız. O halde burada sağdaki
+operand ``Rational`` türünden olacaktır. soldaki ``self`` operand'ı destek verdiğimiz yapıya ilişkindir. Yani
+örneğimizde ``i64`` türündendir. O halde buradaki ``add`` metodu sol taraftaki operand'ı ``i64`` olan, sağ taraftaki
+operand'ı ``Rational`` olan ve ``Rational`` türünden bir değerle geri dönen metottur. Tabii biz zaten daha önce
+``Rational + i64`` işlemini yapan metodu yazmıştık. O halde bu metodun içini yeniden yazmak yerine yazmış olduğumuz
+metodu çağırmak daha uygundur. Peki ``x`` ``Rational`` türünden olmak üzere ``1 + x`` işlemindeki ``1`` derleyici için
+hangi türden ele alınacaktır. Anımsanacağı gibi Rust'ta bu tür durumlarda sabit için tür belirlemesi bağlamdan
+hareketle tespit edilmektedir. ``1 + x`` işlemini yapabilecek ``add`` metodu ``i64`` yapısı için yazıldığından dolayı
+derleyici buradaki ``1`` değerinin ``i32`` türünden değil ``i64`` türünden olduğunu kabul edecektir. Yani bir sorun
+oluşmayacaktır. Tabii biz bu örneğimizde hem ``i32`` için hem de ``i64`` için ``add`` metodunu yazmış olsaydık
+``1 + x`` gibi bir işlemde artık ``i32`` türü için yazdığımız ``add`` kullanılacaktı.
+
+Aşağıda açıkladığımız durumların gerçekleştirildiği örneği bir bütün olarak veriyoruz.
+
+.. code-block:: rust
+
+    use std::ops::Add;
+
+    fn main() {
+        let x = Rational::new(1, 3).unwrap();
+        let result: Rational;
+
+        result = 1 + x;
+        result.disp();
+    }
+
+    #[derive(Copy, Clone)]
+    struct Rational {
+        a: i64,
+        b: i64
+    }
+
+    impl Rational {
+        fn new(mut a: i64, mut b: i64) -> Result<Rational, &'static str>  {
+            if b == 0 {
+                return Err("invalid rational number");
+            }
+            if b < 0 {
+                a = -a;
+                b = -b;
+            }
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            Ok(result)
+        }
+
+        fn gcd(mut a: i64, mut b: i64) -> i64 {
+            if a == 0 { return b; }
+            if b == 0 { return a; }
+            while b != 0 {
+                let r = a % b;
+                a = b;
+                b = r;
+            }
+            a
+        }
+
+        fn simplify(&mut self) {
+            let gcd = Self::gcd(self.a.abs(), self.b.abs());
+
+            self.a /= gcd;
+            self.b /= gcd;
+        }
+
+        fn disp(&self) {
+            if self.a == 0 {
+                println!("0");
+            }
+            else if self.b == 1 {
+                println!("{}", self.a);
+            }
+            else {
+                println!("{}/{}", self.a, self.b);
+            }
+        }
+    }
+
+    impl Add for Rational {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            let a = self.a * other.b + self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Add<i64> for Rational {
+        type Output = Rational;
+
+        fn add(self, other: i64) -> Rational {
+            let a = other * self.b + self.a;
+            let b = self.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Add<i32> for Rational {
+        type Output = Rational;
+
+        fn add(self, other: i32) -> Rational {
+            let a = other as i64 * self.b + self.a;
+            let b = self.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Add<Rational> for i64 {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            other + self
+        }
+    }
+
+    impl Add<Rational> for i32 {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            other + self
+        }
+    }
+
+Operatör Metotlarında Parametre Aktarımı
+-------------------------------------------------------------------------------------
+
+Operatör metotlarına ilişkin trait'lerdeki metotların parametreleri referans değildir. Bu durumda daha önceden de
+belirttiğimiz gibi *call by value* işlemi yapılmaktadır. Tabii eğer söz konusu türler ``Copy`` türünden değilse aslında
+derleyici gerçek anlamda bir taşıma işlemi yapmaz. Arka planda bir görmüyor olsak bile aktarımı adres yoluyla
+yapabilmektedir. Söz konusu tür ``Copy`` türünden olsa bile eğer parametre değişkenleri ``mut`` değilse derleyici yine
+optimizasyon yaparak *call by value* yerine *call by reference* uygulayabilmektedir. Yani Rust'ta aslında çoğu durumda
+biz *call by value* semantiğini uyguluyor olsak bile derleyici arka planda *call by reference* uygulayabilmektedir.
+Dolayısıyla aslında *call by value* durumunun yaratacağı dezavantaj çoğu durumda derleyicilerin optimizasyonu sayesinde
+elimine edilmektedir. Bu durumu şöyle özetleyebiliriz:
+
+- Parametre ``Copy`` türünden değil referans da değil: Derleyici optimizasyon sırasında *call by reference* yapabilir.
+- Parametre ``Copy`` türünden ancak parametre ``mut`` değil: Derleyici optimizasyon sırasında *call by reference*
+  yapabilir.
+- Parametre ``Copy`` türünden değil ancak ``mut``: Derleyici optimizasyon sırasında *call by reference* yapamaz.
+
+Peki yine de biz operatör metotlarına aktarımı açıkça *call by reference* ile yapabilir miyiz? Aslında yapabiliriz.
+Ancak Rust'taki referansların C++'taki referanslar gibi olmadığını anımsayınız. Rust'ta bir referansa atama yapılırken
+atanacak değer referans türünden değilse açıkça bizim ``&`` operatörüyle adres almamız gerekir. Operatör
+fonksiyonlarının *call by reference* biçiminde çağrılmasını sağlayabilmek için akla gelen ilk yöntem trait'teki
+generic parametreyi referans yapmaktır. Tabii desteklenecek türün de referans yapılması gerekir. Örneğin:
+
+.. code-block:: rust
+
+    impl Add<&Rational> for &Rational {
+        type Output = Rational;
+
+        fn add(self, other: &Rational) -> Rational {
+            let a = self.a * other.b + self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+Burada trait kurallarına uyulmuştur. ``Add`` trait'inin generic parametresi ``&Rational`` biçimdedir. O halde artık
+``add`` metodunun ikinci parametresi ``Rational`` türünden değil ``&Rational`` türünden olacaktır. ``add`` metodunun
+``self`` parametresini ``&self`` biçiminde yazamayız. Çünkü bu durum trait'te belirtilen imzaya uymamaktadır. Birinci
+parametreyi ``self`` biçiminde tutarak onun referans belirtmesini sağlamak için desteğin referans türüne yapılması
+gerekmektedir. Destek sentaksındaki ``for`` anahtar sözcüğünün sağındaki türün ``Rational`` olmadığına ``&Rational``
+olduğuna dikkat ediniz. Bu durumda ``self`` parametresi artık ``&Rational`` türünden olacaktır. Görüldüğü gibi artık
+her iki operand'ın da aktarımı *call by reference* biçiminde yapılmaktadır. Bu aktarım biçimi C++'taki operatör
+fonksiyonlarına benzer hale gelmiştir. Ancak maalesef Rust'ta böyle bir tasarım okunabilirliği oldukça bozmaktadır.
+Çünkü bu tasarımda biz iki ``Rational`` değerini toplayabilmemiz için onların adreslerini açıkça bizim gerekir.
+Örneğin:
+
+.. code-block:: rust
+
+    let x = Rational::new(1, 3).unwrap();
+    let y = Rational::new(1, 2).unwrap();
+    let result: Rational;
+
+    result = x + y;         // error!
+
+Bizim artık bu işlemi şöyle yapmamız gerekir:
+
+.. code-block:: rust
+
+    result = &x + &y;         // geçerli
+
+Biz operatör metotları okunabilirlik ifade gücü sağlamak amacıyla kullanılmaktadır. Halbuki bu son durum
+okunabilirliği tamamen bozmaktadır. Peki bu işlemi gerçekten ``x + y`` ifadesiyle yapabilmenin bir yolu yok mudur?
+
+Yukarıdaki referanslı biçimde aslında generic parametrenin belirtilmesine gerek yoktur. Generic parametrenin default
+türü ``Self`` olduğuna göre ve buradaki ``Self`` de ``&Rational`` anlamına geleceğine göre generic tür
+belirtilmeyebilir. Örneğin:
+
+.. code-block:: rust
+
+    impl Add for &Rational {
+        type Output = Rational;
+
+        fn add(self, other: &Rational) -> Rational {
+            let a = self.a * other.b + self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+Burada zaten generic parametre ``&Rational`` türündendir. Tabii biz her zaman ``impl`` bloğu içerisinde ``impl`` türü
+için ``Self`` anahtar sözcüğünü de kullanabiliriz. Yani ``add`` metodunun ikinci parametresi için ``&Rational``
+yerine ``Self`` de diyebilirdik:
+
+.. code-block:: rust
+
+    impl Add for &Rational {
+        type Output = Rational;
+
+        fn add(self, other: Self) -> Rational {
+            let a = self.a * other.b + self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+Aritmetik ve Karşılaştırma Operatörleri
+=====================================================================================
+
+Dört Temel Aritmetik Operatör ve Rem Operatörü
+-------------------------------------------------------------------------------------
+
+Biz yukarıda ``+`` operatörü için operatör metodu yazdık. Ancak dört temel aritmetik operatörün yazımı birbirine çok
+benzerdir. Yalnızca trait'ler farklıdır. Örneğin çıkartma ``-`` operatörü için ``Sub`` trait'i, ``*`` operatörü için
+``Mul`` trait'i, ``/`` operatörü için ise ``Div`` trait'i kullanılmaktadır. Yukarıda da belirttiğimiz gibi temel
+aritmetik operatörlere ilişkin bu trait'lerin genel kullanımı birbirine çok benzerdir. Yalnızca metotlar isimleri
+farklıdır. Aşağıda bu dört trait'in tanımını veriyoruz:
+
+.. code-block:: rust
+
+    pub trait Add<Rhs = Self> {
+        type Output;
+
+        // Required method
+        fn add(self, rhs: Rhs) -> Self::Output;
+    }
+
+    pub trait Sub<Rhs = Self> {
+        type Output;
+
+        // Required method
+        fn sub(self, rhs: Rhs) -> Self::Output;
+    }
+
+    pub trait Mul<Rhs = Self> {
+        type Output;
+
+        // Required method
+        fn mul(self, rhs: Rhs) -> Self::Output;
+    }
+
+    pub trait Div<Rhs = Self> {
+        type Output;
+
+        // Required method
+        fn div(self, rhs: Rhs) -> Self::Output;
+    }
+
+Şimdi ``Rational`` yapımıza ``-`` operatör desteğini verelim. Bunun için yazmamız gereken ``impl`` blokları şöyledir:
+
+.. code-block:: rust
+
+    impl Sub for Rational {
+        type Output = Rational;
+
+        fn sub(self, other: Rational) -> Rational {
+            let a = self.a * other.b - self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Sub<i64> for Rational {
+        type Output = Rational;
+
+        fn sub(self, other: i64) -> Rational {
+            let a = -other * self.b + self.a;
+            let b = self.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Sub<Rational> for i64 {
+        type Output = Rational;
+
+        fn sub(self, other: Rational) -> Rational {
+            let a = self * other.b - other.a;
+            let b = other.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+Şimdi de ``Rational`` yapımıza ``*`` operatörü desteği verelim. Yazmamız gereken ``impl`` blokları da şöyledir:
+
+.. code-block:: rust
+
+    impl Mul for Rational {
+        type Output = Rational;
+
+        fn mul(self, other: Rational) -> Rational {
+            let a = self.a * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Mul<i64> for Rational {
+        type Output = Rational;
+
+        fn mul(self, other: i64) -> Rational {
+            let a = self.a * other;
+            let b = self.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Mul<Rational> for i64 {
+        type Output = Rational;
+
+        fn mul(self, other: Rational) -> Rational {
+            other * self
+        }
+    }
+
+Rasyonel sayılarda bölme işleminin sağdaki operand'ın tersiyle çarpma anlamına geldiğini anımsayınız. Bu durumda
+``Rational`` yapımıza bölme desteğini vermek için yazmamız gereken ``impl`` blokları şöyledir:
+
+.. code-block:: rust
+
+    impl Div for Rational {
+        type Output = Rational;
+
+        fn div(self, other: Rational) -> Rational {
+            let a = self.a * other.b;
+            let b = self.b * other.a;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Div<i64> for Rational {
+        type Output = Rational;
+
+        fn div(self, other: i64) -> Rational {
+            let a = self.a;
+            let b = self.b * other;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Div<Rational> for i64 {
+        type Output = Rational;
+
+        fn div(self, other: Rational) -> Rational {
+            let a = self * other.b;
+            let b = other.a;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+``%`` operatörü için ``Rem`` (*Remainder* isminden geliyor) isimli trait kullanılmaktadır. Bu trait aşağıdaki gibi
+tanımlanmıştır:
+
+.. code-block:: rust
+
+    pub trait Rem<Rhs = Self> {
+        type Output;
+
+        // Required method
+        fn rem(self, rhs: Rhs) -> Self::Output;
+    }
+
+Kullanım biçiminin diğer aritmetik operatörlerle aynı olduğuna dikkat ediniz.
+
+``Rational`` yapımıza ``%`` operatörü desteği vermek biraz zorlama olacaktır. Ancak biz yine de ``z`` bir ``Rational``
+değeri ``k`` da ``i64`` türünden olmak üzere ``z % k`` işlemini yapan bir ``%`` operatör metodunu ``Rational``
+yapısına ekleyelim. Bu işlemin sonucu da rasyonel sayının gerçek sayı karşılığının ``k`` değerine bölümünden elde
+edilen kalan olsun. Bu işlemin ürettiği değerin ``f64`` olması daha anlamlıdır:
+
+.. code-block:: rust
+
+    impl Rem<i64> for Rational {
+        type Output = f64;
+
+        fn rem(self, other: i64) -> f64 {
+            (self.a as f64 / self.b as f64) % other as f64
+        }
+    }
+
+Aşağıda beş operatörü destekleyen ``Rational`` yapısını bir bütün olarak veriyoruz.
+
+.. code-block:: rust
+
+    use std::ops::{Add, Sub, Mul, Div, Rem};
+
+    fn main() {
+        let x = Rational::new(20, 3).unwrap();
+        let y = Rational::new(1, 3).unwrap();
+        let result: f64;
+
+        result = x % 2;
+        println!("{} ", result);
+
+
+    }
+
+    #[derive(Copy, Clone)]
+    struct Rational {
+        a: i64,
+        b: i64
+    }
+
+    impl Rational {
+        fn new(mut a: i64, mut b: i64) -> Result<Rational, &'static str>  {
+            if b == 0 {
+                return Err("invalid rational number");
+            }
+            if b < 0 {
+                a = -a;
+                b = -b;
+            }
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            Ok(result)
+        }
+
+        fn gcd(mut a: i64, mut b: i64) -> i64 {
+            if a == 0 { return b; }
+            if b == 0 { return a; }
+            while b != 0 {
+                let r = a % b;
+                a = b;
+                b = r;
+            }
+            a
+        }
+
+        fn simplify(&mut self) {
+            let gcd = Self::gcd(self.a.abs(), self.b.abs());
+
+            self.a /= gcd;
+            self.b /= gcd;
+        }
+
+        fn disp(&self) {
+            if self.a == 0 {
+                println!("0");
+            }
+            else if self.b == 1 {
+                println!("{}", self.a);
+            }
+            else {
+                println!("{}/{}", self.a, self.b);
+            }
+        }
+    }
+
+    impl Add for Rational {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            let a = self.a * other.b + self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Add<i64> for Rational {
+        type Output = Rational;
+
+        fn add(self, other: i64) -> Rational {
+            let a = other * self.b + self.a;
+            let b = self.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Add<Rational> for i64 {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            other + self
+        }
+    }
+
+    impl Sub for Rational {
+        type Output = Rational;
+
+        fn sub(self, other: Rational) -> Rational {
+            let a = self.a * other.b - self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Sub<i64> for Rational {
+        type Output = Rational;
+
+        fn sub(self, other: i64) -> Rational {
+            let a = -other * self.b + self.a;
+            let b = self.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Sub<Rational> for i64 {
+        type Output = Rational;
+
+        fn sub(self, other: Rational) -> Rational {
+            let a = self * other.b - other.a;
+            let b = other.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Mul for Rational {
+        type Output = Rational;
+
+        fn mul(self, other: Rational) -> Rational {
+            let a = self.a * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Mul<i64> for Rational {
+        type Output = Rational;
+
+        fn mul(self, other: i64) -> Rational {
+            let a = self.a * other;
+            let b = self.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Mul<Rational> for i64 {
+        type Output = Rational;
+
+        fn mul(self, other: Rational) -> Rational {
+            other * self
+        }
+    }
+
+    impl Div for Rational {
+        type Output = Rational;
+
+        fn div(self, other: Rational) -> Rational {
+            let a = self.a * other.b;
+            let b = self.b * other.a;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Div<i64> for Rational {
+        type Output = Rational;
+
+        fn div(self, other: i64) -> Rational {
+            let a = self.a;
+            let b = self.b * other;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Div<Rational> for i64 {
+        type Output = Rational;
+
+        fn div(self, other: Rational) -> Rational {
+            let a = self * other.b;
+            let b = other.a;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Rem<i64> for Rational {
+        type Output = f64;
+
+        fn rem(self, other: i64) -> f64 {
+            (self.a as f64 / self.b as f64) % other as f64
+        }
+    }
+
+Karşılaştırma Operatörleri: PartialEq ve PartialOrd
+-------------------------------------------------------------------------------------
+
+Karşılaştırma operatörlerine ilişkin operatör metotları için ``PartialEq`` ve ``PartialOrd`` trait'leri
+kullanılmaktadır. ``PartialOrd`` trait'i zaten ``PartialEq`` trait'inden türetilmiştir. Yani ``PartialOrd``
+trait'ini destekleyenler mecburen ``PartialEq`` trait'ini de desteklemesi gerekir. Bu trait'ler ``std::cmp`` modülünde
+(``std::ops`` modülünde değil) aşağıdaki gibi tanımlanmışlardır:
+
+.. code-block:: rust
+
+    pub trait PartialEq<Rhs = Self>
+    where
+        Rhs: ?Sized,
+    {
+        // Required method
+        fn eq(&self, other: &Rhs) -> bool;
+
+        // Provided method
+        fn ne(&self, other: &Rhs) -> bool { ... }
+    }
+
+    pub trait PartialOrd<Rhs = Self>: PartialEq<Rhs>
+    where
+        Rhs: ?Sized,
+    {
+        // Required method
+        fn partial_cmp(&self, other: &Rhs) -> Option<Ordering>;
+
+        // Provided methods
+        fn lt(&self, other: &Rhs) -> bool { ... }
+        fn le(&self, other: &Rhs) -> bool { ... }
+        fn gt(&self, other: &Rhs) -> bool { ... }
+        fn ge(&self, other: &Rhs) -> bool { ... }
+    }
+
+Trait isimlerindeki *Partial* öneki kafanızı karıştırabilir. Trait'lere bu *Partial* önekleri
+*kısmi sıralama ilişkisini (partial ordering relation)* vurgulamak içindir. Sıralama teorisinde bir kümenin elemanları
+belli bir sıraya göre konumlandırılabilmektedir. Eğer kümenin tüm elemanları birbirleriyle sırasal olarak
+karşılaştırılabiliyorsa buna matematikte *tam sıralama (total ordering)* denilmektedir. Eğer kümenin bazı elemanları
+birbirleriyle sırasal olarak karşılaştırılamıyorsa buna da *kısmi sıralama (partial ordering)* denilmektedir. Örneğin
+tamsayılar kümesinde ``<=`` işlemini ele alalım. Biz bu işlemle tüm tamsayıları bir sıraya dizebiliriz. Biz ``<=``
+operatörünü kullanarak tüm tamsayıları sıraya dizebiliriz. Ancak bilgisayardaki ``f64`` gibi gerçek sayı türleri
+``<=`` operatörü dikkate alındığında tam sıralama değil kısmi sıralama özelliğine sahiptir. Çünkü her ``f64`` türünden
+değer ``<=`` operatörüyle karşılaştırılamamaktadır. Çünkü anımsayacağınız gibi ``f64`` türü IEEE 754 standartlarına
+uymaktadır. Dolayısıyla bazı ``f64`` değerleri ``NaN`` (Not a Number) olabilmektedir. ``NaN`` değeri ile bir gerçek
+sayı değeri ``<=`` operatörüyle karşılaştırılamaz. O halde *kısmi sıralama (partial ordering)* söz konusu olduğunda iki
+değeri karşılaştırdığımızda dört durum oluşabilmektedir:
+
+.. code-block:: text
+
+    Büyüktür
+    Küçüktür
+    Eşittir
+    Karşılaştırılamaz
+
+İşte bu nedenle izleyen paragraflarda göreceğimiz gibi ``PartialOrd`` işleminden bir ``Option<Ordering>`` değeri elde
+edilmektedir.
+
+``PartialEq`` ve ``PartialOrd`` trait'lerinin ilk parametresine dikkat ediniz. Bu ilk parametre ``self`` biçiminde
+değil ``&self`` biçimindedir. Yani karşılaştırma işlemlerinde sahiplik devredilmemektedir. Bu operatör metotlarının
+ikinci parametreleri de referans biçimindedir. Yani *call by reference* durumu söz konusudur.
+
+``PartialEq`` ve ``PartialOrd`` trait'lerinde tek bir metodun zorunlu olduğuna dikkat ediniz. Çünkü bu zorunlu metotlar
+programcı tarafından yazılırsa zaten diğer metotlar bu zorunlu metot kullanılarak yazılabilmektedir. Örneğin
+``PartialEq`` trait'inde zorunlu metot ``eq`` metodudur. Eğer programcı ``eq`` metodunu yazarsa ``ne`` metodunu
+yazmayabilir. Çünkü zaten ``eq`` metodu çağrılarak ``ne`` değeri elde edilebilmektedir. ``PartialOrd`` trait'indeki
+zorunlu metoda dikkat ediniz:
+
+.. code-block:: rust
+
+    fn partial_cmp(&self, other: &Rhs) -> Option<Ordering>;
+
+Bu metot ``Option<Ordering>`` değerine geri dönmektedir. ``Ordering`` bir enum türüdür ve ``std::cmp`` modülünde
+aşağıdaki gibi tanımlanmıştır:
+
+.. code-block:: rust
+
+    pub enum Ordering {
+        Less = -1,
+        Equal = 0,
+        Greater = 1,
+    }
+
+O halde aslında ``Option<Ordering>`` türü ``Less``, ``Equal``, ``Greater`` ya da ``None`` değeri veren bir türdür.
+Programcı bu zorunlu metodu yazarken eğer iki değer karşılaştırılamaz biçimdeyse ``Option<Ordering>::None`` değerine
+geri dönmektedir. ``PartialOrd`` trait'inde ``lt``, ``le``, ``gt``, ``ge`` metotları ``partial_cmp`` metodu
+kullanılarak yazılmıştır. Dolayısıyla bu trait'te programcının tek yazması gereken metot ``partial_cmp`` metodudur.
+Aşağıda karşılaştırma işlemlerinin eşdeğer metot karşılıkları verilmiştir:
+
+.. code-block:: text
+
+    a == b  eşdeğeri a.eq(&b)
+    a != b  eşdeğeri a.ne(&b)
+    a < b   eşdeğeri a.lt(&b)
+    a <= b  eşdeğeri a.le(&b)
+    a > b   eşdeğeri a.gt(&b)
+    a >= b  eşdeğeri a.ge(&b)
+
+Rust'taki temel türlerin hepsi ``PartialEq`` ve ``PartialOrd`` trait'lerini desteklemektedir.
+
+Rational Yapısına Karşılaştırma Desteği
+-------------------------------------------------------------------------------------
+
+Şimdi ``Rational`` yapısı için ``PartialEq`` trait'ini destekleyerek iki ``Rational`` yapısının ``==`` ve ``!=``
+operatörleriyle karşılaştırılmasını sağlayalım. Bunun için yalnızca zorunlu ``eq`` metodunu yazmamız yeterlidir:
+
+.. code-block:: rust
+
+    impl PartialEq for Rational {
+        fn eq(&self, other: &Rational) -> bool {
+            self.a == other.a && self.b == other.b
+        }
+    }
+
+Biz rasyonel sayıları sadeleştirerek ``a`` ve ``b`` alanlarında tuttuğumuz için iki rasyonel sayısının eşitliğini
+yukarıdaki gibi sorgulayabilmekteyiz.
+
+Şimdi de ``Rational`` yapısına ``<``, ``>``, ``<=`` ve ``>=`` operatör desteğini verelim. Bunun için ``PartialOrd``
+trait'indeki ``partial_cmp`` metodunu yazmamız gerekir. ``partial_cmp`` metodu ``Option`` değerine geri dönmektedir.
+Ancak rasyonel sayılar zaten *tam sıralamaya (total ordering)* uygundur. Dolayısıyla bizim ``partial_cmp`` metodumuz
+aslında hiç ``None`` değerine geri dönmeyecektir. Peki iki rasyonel sayıyı nasıl karşılaştırabiliriz? Akla gelecek ilk
+yöntem bu rasyonel sayıların payını paydasına bölüp bunlardan gerçek sayı elde etmek ve bu gerçek sayıları
+karşılaştırmaktır. Bu yöntem çoğu durumda yeterli olabilir. Ancak yuvarlama hatalarından dolayı farklı iki değer aynı
+değere yuvarlanabilmektedir. Daha sağlam bir yol bu iki rasyonel sayının paydalarını eşitleyip paylarını
+karşılaştırmaktır. Örneğin ``a/b`` rasyonel sayısı ile ``c/d`` rasyonel sayısını bu yöntemle karşılaştıracak olalım.
+``a/b`` kesrinin payını ve paydasını ``d`` ile ``c/d`` kesrinin payını ve paydasını da ``b`` ile çarparsak paydaları
+eşitleyebiliriz. O halde aslında karşılaştırmayı ``a * d`` ile ``b * c`` arasında yapabiliriz:
+
+.. code-block:: rust
+
+    impl PartialOrd for Rational {
+        fn partial_cmp(&self, other: &Rational) -> Option<Ordering> {
+            let x = self.a * other.b;
+            let y = other.a * self.b;
+
+            if x > y {
+                Some(Ordering::Greater)
+            }
+            else if x < y {
+                Some(Ordering::Less)
+            }
+            else {
+                Some(Ordering::Equal)
+            }
+        }
+    }
+
+Aslında yukarıdaki yazım daha sade hale de getirilebilir. Tüm temel türlerin ``PartialEq`` ve ``PartialOrd``
+trait'lerini desteklediğini belirtmiştik:
+
+.. code-block:: rust
+
+    impl PartialOrd for Rational {
+        fn partial_cmp(&self, other: &Rational) -> Option<Ordering> {
+            let left = self.a * other.b;
+            let right = other.a * self.b;
+
+            left.partial_cmp(&right)
+        }
+    }
+
+Aşağıda ``Rational`` yapısının son hali bir bütün olarak verilmiştir.
+
+.. code-block:: rust
+
+    use std::ops::{Add, Sub, Mul, Div, Rem};
+    use std::cmp::{PartialEq, PartialOrd, Ordering};
+
+    fn main() {
+        let x = Rational::new(1, 2);
+        let y = Rational::new(1, 3);
+
+        if x < y {
+            println!("x < y");
+        }
+        else if x > y {
+            println!("x > y");
+        }
+        else if x == y {
+            println!("x == y");
+        }
+    }
+
+    #[derive(Copy, Clone)]
+    struct Rational {
+        a: i64,
+        b: i64
+    }
+
+    impl Rational {
+        fn new(mut a: i64, mut b: i64) -> Result<Rational, &'static str>  {
+            if b == 0 {
+                return Err("invalid rational number");
+            }
+            if b < 0 {
+                a = -a;
+                b = -b;
+            }
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            Ok(result)
+        }
+
+        fn gcd(mut a: i64, mut b: i64) -> i64 {
+            if a == 0 { return b; }
+            if b == 0 { return a; }
+            while b != 0 {
+                let r = a % b;
+                a = b;
+                b = r;
+            }
+            a
+        }
+
+        fn simplify(&mut self) {
+            let gcd = Self::gcd(self.a.abs(), self.b.abs());
+
+            self.a /= gcd;
+            self.b /= gcd;
+        }
+
+        fn disp(&self) {
+            if self.a == 0 {
+                println!("0");
+            }
+            else if self.b == 1 {
+                println!("{}", self.a);
+            }
+            else {
+                println!("{}/{}", self.a, self.b);
+            }
+        }
+    }
+
+    impl Add for Rational {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            let a = self.a * other.b + self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Add<i64> for Rational {
+        type Output = Rational;
+
+        fn add(self, other: i64) -> Rational {
+            let a = other * self.b + self.a;
+            let b = self.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Add<Rational> for i64 {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            other + self
+        }
+    }
+
+    impl Sub for Rational {
+        type Output = Rational;
+
+        fn sub(self, other: Rational) -> Rational {
+            let a = self.a * other.b - self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Sub<i64> for Rational {
+        type Output = Rational;
+
+        fn sub(self, other: i64) -> Rational {
+            let a = -other * self.b + self.a;
+            let b = self.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Sub<Rational> for i64 {
+        type Output = Rational;
+
+        fn sub(self, other: Rational) -> Rational {
+            let a = self * other.b - other.a;
+            let b = other.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Mul for Rational {
+        type Output = Rational;
+
+        fn mul(self, other: Rational) -> Rational {
+            let a = self.a * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Mul<i64> for Rational {
+        type Output = Rational;
+
+        fn mul(self, other: i64) -> Rational {
+            let a = self.a * other;
+            let b = self.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Mul<Rational> for i64 {
+        type Output = Rational;
+
+        fn mul(self, other: Rational) -> Rational {
+            other * self
+        }
+    }
+
+    impl Div for Rational {
+        type Output = Rational;
+
+        fn div(self, other: Rational) -> Rational {
+            let a = self.a * other.b;
+            let b = self.b * other.a;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Div<i64> for Rational {
+        type Output = Rational;
+
+        fn div(self, other: i64) -> Rational {
+            let a = self.a;
+            let b = self.b * other;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Div<Rational> for i64 {
+        type Output = Rational;
+
+        fn div(self, other: Rational) -> Rational {
+            let a = self * other.b;
+            let b = other.a;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Rem<i64> for Rational {
+        type Output = f64;
+
+        fn rem(self, other: i64) -> f64 {
+            (self.a as f64 / self.b as f64) % other as f64
+        }
+    }
+
+    impl PartialEq for Rational {
+        fn eq(&self, other: &Rational) -> bool {
+            self.a == other.a && self.b == other.b
+        }
+    }
+
+    impl PartialOrd for Rational {
+        fn partial_cmp(&self, other: &Rational) -> Option<Ordering> {
+            let left = self.a * other.b;
+            let right = other.a * self.b;
+
+            left.partial_cmp(&right)
+        }
+    }
+
+Eq ve Ord Trait'leri
+-------------------------------------------------------------------------------------
+
+Biz Rust'ta kısmi sıralamanın (partial ordering) ``PartialEq`` ve ``PartialOrd`` trait'leriyle temsil edildiğini
+söyledik. Rust'ta tam sıralama da (total ordering) ``Eq`` ve ``Ord`` (başında ``Partial`` sözcüğünün olmadığına dikkat
+ediniz) trait'leriyle temsil edilmektedir. Bu trait'lerin operatör metotlarıyla bir ilgisi yoktur. Ancak burada biz
+mantıksal çağrışım nedeniyle bu iki trait üzerinde de durmak istiyoruz. Bu iki trait'te ``std::cmp`` modülü
+içerisindedir. ``Eq`` trait'inin aslında ``PartialEq`` trait'inden bir farkı yoktur. ``Eq`` trait'i ``PartialEq``
+trait'inden türetilmiştir ve elemana sahip değildir:
+
+.. code-block:: rust
+
+    pub trait Eq: PartialEq { }
+
+Kısmi sıralamada ``==`` ve ``!=`` operatörlerinin ``Option`` üretmediğini anımsayınız. Çünkü bir kümenin iki elemanının
+karşılaştırılamaz olması zaten ``==`` karşılaştırmasında doğrudan ``false`` ``!=`` karşılaştırmasında da ``true``
+elde edilmesi anlamına gelmektedir. Dolayısıyla ``==`` ve ``!=`` operatörleri için kısmi sıralamayla tam sıralama
+davranışı arasında fark yoktur.
+
+``Ord`` trait'i ise ``Eq`` ve ``PartialOrd`` trait'lerinden türetilmiştir:
+
+.. code-block:: rust
+
+    pub trait Ord: Eq + PartialOrd {
+        // Required method
+        fn cmp(&self, other: &Self) -> Ordering;
+
+        // Provided methods
+        fn max(self, other: Self) -> Self
+        where Self: Sized { ... }
+        fn min(self, other: Self) -> Self
+        where Self: Sized { ... }
+        fn clamp(self, min: Self, max: Self) -> Self
+        where Self: Sized { ... }
+    }
+
+Yani ``Ord`` trait'ini destekleyen bir yapı ya da enum türü ``Eq`` (dolayısıyla ``PartialEq``) ve ``PartialOrd``
+trait'lerini de desteklemek zorundadır. ``Ord`` trait'inde ``cmp`` isimli zorunlu bir metot olduğuna dikkat ediniz.
+(``PartialOrd`` trait'indeki zorunlu metodun ``partial_cmp`` biçiminde olduğunu anımsayınız.) ``cmp`` metodu
+``Option<Ordering>`` türünden değil doğrudan ``Ordering`` türünden bir değerle geri dönmektedir. Tam sıralamada
+kümenin tüm elemanları sıralanabilir olduğu için ``cmp`` metodunun geri dönüş değerinin ``Option`` olmasına gerek
+kalmamıştır.
+
+Rust'ın ``i32`` gibi, ``i64`` gibi temel tamsayı türlerinin hepsi aynı zamanda ``Ord`` trait'ini de destekliyor
+durumdadır. Ancak ``f32`` ve ``f64`` türleri yukarıda da belirttiğimiz gerekçelerle bu trait'i desteklememektedir.
+
+``Eq`` ve ``Ord`` trait'lerinin türetme durumunu aşağıdaki şekille özetleyebiliriz:
+
+.. figure:: _static/eq-ord-turetme.png
+   :align: center
+   :alt: PartialEq, PartialOrd, Eq ve Ord trait'lerinin türetme ilişkisi
+
+İşaret Operatörü: Neg Trait'i
+-------------------------------------------------------------------------------------
+
+İşaret ``-`` operatörü için ``std::ops`` modülündeki ``Neg`` isimli trait kullanılmaktadır. Trait şöyle
+tanımlanmıştır:
+
+.. code-block:: rust
+
+    pub trait Neg {
+        type Output;
+
+        // Required method
+        fn neg(self) -> Self::Output;
+    }
+
+Burada ``Neg`` trait'inin generic olmadığına ve ``neg`` metodunun parametresinin ``self`` biçiminde olduğuna dikkat
+ediniz. Yani ``neg`` metodu sahipliği almaktadır. Metodun geri dönüş değeri ``Output`` türündendir. Bu ``Output`` türü
+hemen her zaman ``Self`` türüyle aynı olmaktadır. Yani örneğin bir ``Rational`` değerinin negatifini biz yine
+``Rational`` olarak elde ederiz.
+
+Neg, Bileşik Atama ve Index Operatör Trait'leri
+=====================================================================================
+
+Rational Yapısı İçin Neg Desteği
+-------------------------------------------------------------------------------------
+
+``Rational`` yapısı için ``-`` operatör metodu şöyle yazılabilir:
+
+.. code-block:: rust
+
+    impl Neg for Rational {
+        type Output = Rational;
+
+        fn neg(self) -> Rational {
+            Rational { a: -self.a, b: self.b }
+        }
+    }
+
+Bir rasyonel sayının negatifinin pay kısmının negatifi alınarak oluşturulduğuna dikkat ediniz. Örneğin:
+
+.. code-block:: rust
+
+    let x = Rational::new(1, 2).unwrap();
+    let y: Rational;
+
+    y = -x + x;
+
+    y.disp();           // 0
+
+Bileşik Atama Operatörleri
+-------------------------------------------------------------------------------------
+
+``+=``, ``*=``, ``/=``, ``%=`` gibi bileşik atama operatörleri için de operatör metotları yazılabilmektedir. (Ancak
+Rust'ta zaten sahiplik devri olduğu için atama operatörüne yönelik bir operatör metodu yazılamamaktadır.) Biz
+operatörler konusunda ``a += b`` gibi bir işlemin ``a = a + b`` işlemiyle eşdeğer olduğunu belirtmiştik. Aslında biraz
+daha ayrıntıya girdiğimizde bu iki işlem birbirine eşdeğer değildir. Çünkü bu işlemde farklı operatör metotları
+çağrılmaktadır. Biz bir yapı ya da enum türü için ``+`` operatör metodunu yazmış olsak bile ``+=`` operatörünü
+kullanamayız. Bu operatör metodunun ayrıca yazılması gerekmektedir. Örneğin biz ``Rational`` yapısı için ``+`` operatör
+metodunu yazmıştık. Ancak aşağıdaki işlemi ``+=`` operatör metodunu ayrıca yazmadıktan sonra yapamayız:
+
+.. code-block:: rust
+
+    let mut x = Rational::new(1, 2).unwrap();
+    let y = Rational::new(1, 3).unwrap();
+
+    x += y;         // error!
+    x = x + y;      // geçerli
+
+Peki neden operatörlerin normal biçimleri ve bileşik biçimleri birbirinden ayrılmıştır? Örneğin ``+`` operatörüne
+ilişkin operatör metodunu yazdığımızda ``x += y`` neden derleyici tarafından ``x = x + y`` biçiminde ele
+alınmamaktadır? İşte bazen ``x = x + y`` işlemiyle ``x += y`` işlemi arasında semantik farklılıklar
+oluşturulabilmektedir. Örneğin ``x = x + y`` işleminde ``x + y`` yeni bir değer yaratırken ``x += y`` bir ekleme
+işleminin yapılmasını sağlayabilmektedir.
+
+Bileşik Atama Trait'leri
+-------------------------------------------------------------------------------------
+
+Aritmetik operatörlere ilişkin bileşik operatörlerin ilişkin olduğu trait'ler şunlardır:
+
+.. code-block:: text
+
+    AddAssign
+    SubAssign
+    MulAssign
+    DivAssign
+    RemAssign
+
+Bu trait şöyle tanımlanmıştır:
+
+.. code-block:: rust
+
+    pub trait AddAssign<Rhs = Self> {
+        // Required method
+        fn add_assign(&mut self, rhs: Rhs);
+    }
+
+    pub trait SubAssign<Rhs = Self> {
+        // Required method
+        fn sub_assign(&mut self, rhs: Rhs);
+    }
+
+    pub trait MulAssign<Rhs = Self> {
+        // Required method
+        fn mul_assign(&mut self, rhs: Rhs);
+    }
+
+    pub trait DivAssign<Rhs = Self> {
+        // Required method
+        fn div_assign(&mut self, rhs: Rhs);
+    }
+
+    pub trait RemAssign<Rhs = Self> {
+        // Required method
+        fn rem_assign(&mut self, rhs: Rhs);
+    }
+
+Bu trait'lerin hepsi ``std::ops`` modülünde tanımlanmıştır. Trait'lere baktığımızda bu bileşik operatör metotlarının
+normal operatör metotlarından farklılıklarının şunlar olduğunu görmekteyiz:
+
+- Bu operatörlerde bir ``Output`` ilişkili türü yoktur. Çünkü bu operatörler aslında sol taraftaki operand üzerinde
+  güncelleme işlemi yapmaktadır.
+
+- Bu trait metotlarının geri dönüş değerleri yoktur. Yani ``()`` biçimindedir.
+
+- Bu trait metotlarının ``self`` parametreleri ``&mut self`` biçimindedir. Yani bu operatörlerin sol tarafındaki
+  operand ``mut`` olmak zorundadır.
+
+- Bu trait metotlarının ikinci parametresini oluşturan operand'ın sahipliği devredilmektedir.
+
+- Bu trait metotlarının ismi ``op_assign`` biçimindedir.
+
+Yine trait'lerin generic parametreleri sağ taraftaki operand'ın türünü belirtmektedir. Default tür yine sol taraftaki
+operand'ın türündendir.
+
+Örneğin biz ``Rational`` yapısı için ``+=`` operatör metodunu aşağıdaki gibi yazabiliriz:
+
+.. code-block:: rust
+
+    impl AddAssign for Rational {
+        fn add_assign(&mut self, other: Rational) {
+            self.a = self.a * other.b + self.b * other.a;
+            self.b = self.b * other.b;
+
+            self.simplify();
+        }
+    }
+
+Burada metodun bir değere geri dönmediğine doğrudan sol taraftaki operand'ı güncellediğine dikkat ediniz. Tabii biz
+eğer ``+`` operatör metodunu yazmışsak (``Rational`` yapımızda yazmıştık) aynı işlemi şöyle de yapabiliriz:
+
+.. code-block:: rust
+
+    impl AddAssign for Rational {
+        fn add_assign(&mut self, other: Rational) {
+            *self = *self + other;
+        }
+    }
+
+Eğer derleyici hiç optimizasyon yapmasaydı ilk biçim ikinci biçimden daha hızlı çalışırdı. Ancak Rust derleyicileri
+bu tür durumları iyi bir biçimde optimize etmektedir. Dolayısıyla pratikte iki gerçekleştirim arasında bir fark
+oluşmamaktadır. Şimdi ``Rational`` yapısı için diğer bileşik atama operatörlerini yazalım:
+
+.. code-block:: rust
+
+    impl SubAssign for Rational {
+        fn sub_assign(&mut self, other: Rational) {
+            *self = *self - other;
+        }
+    }
+
+    impl MulAssign for Rational {
+        fn mul_assign(&mut self, other: Rational) {
+            *self = *self * other;
+        }
+    }
+
+    impl DivAssign for Rational {
+        fn div_assign(&mut self, other: Rational) {
+            *self = *self / other;
+        }
+    }
+
+Biz ``Rational`` yapımızda genel olarak bir ``Rational`` değerle ``i64`` türünden değeri işleme sokuyorduk. Bu
+durumda aynı desteği bileşik atama operatörlerine de vermemiz uygun olur:
+
+.. code-block:: rust
+
+    impl AddAssign<i64> for Rational {
+        fn add_assign(&mut self, other: i64) {
+            *self = *self + other;
+        }
+    }
+
+    impl SubAssign<i64> for Rational {
+        fn sub_assign(&mut self, other: i64) {
+            *self = *self - other;
+        }
+    }
+
+    impl MulAssign<i64> for Rational {
+        fn mul_assign(&mut self, other: i64) {
+            *self = *self * other;
+        }
+    }
+
+    impl DivAssign<i64> for Rational {
+        fn div_assign(&mut self, other: i64) {
+            *self = *self / other;
+        }
+    }
+
+Rational Yapısının Son Hali
+-------------------------------------------------------------------------------------
+
+Geldiğimiz noktaya kadar ``Rational`` yapısının son halini aşağıda veriyoruz.
+
+.. code-block:: rust
+
+    use std::ops::{Add, Sub, Mul, Div, Rem, Neg, AddAssign, SubAssign, MulAssign, DivAssign, Not};
+    use std::cmp::{PartialEq, PartialOrd, Ordering};
+
+    fn main() {
+        //...
+    }
+
+    #[derive(Copy, Clone)]
+    struct Rational {
+        a: i64,
+        b: i64
+    }
+
+    impl Rational {
+        fn new(mut a: i64, mut b: i64) -> Result<Rational, &'static str>  {
+            if b == 0 {
+                return Err("invalid rational number");
+            }
+            if b < 0 {
+                a = -a;
+                b = -b;
+            }
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            Ok(result)
+        }
+
+        fn gcd(mut a: i64, mut b: i64) -> i64 {
+            if a == 0 { return b; }
+            if b == 0 { return a; }
+            while b != 0 {
+                let r = a % b;
+                a = b;
+                b = r;
+            }
+            a
+        }
+
+        fn simplify(&mut self) {
+            let gcd = Self::gcd(self.a.abs(), self.b.abs());
+
+            self.a /= gcd;
+            self.b /= gcd;
+        }
+
+        fn disp(&self) {
+            if self.a == 0 {
+                println!("0");
+            }
+            else if self.b == 1 {
+                println!("{}", self.a);
+            }
+            else {
+                println!("{}/{}", self.a, self.b);
+            }
+        }
+    }
+
+    impl Add for Rational {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            let a = self.a * other.b + self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Add<i64> for Rational {
+        type Output = Rational;
+
+        fn add(self, other: i64) -> Rational {
+            let a = other * self.b + self.a;
+            let b = self.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Add<Rational> for i64 {
+        type Output = Rational;
+
+        fn add(self, other: Rational) -> Rational {
+            other + self
+        }
+    }
+
+    impl Sub for Rational {
+        type Output = Rational;
+
+        fn sub(self, other: Rational) -> Rational {
+            let a = self.a * other.b - self.b * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b};
+            result.simplify();
+            result
+        }
+    }
+
+    impl Sub<i64> for Rational {
+        type Output = Rational;
+
+        fn sub(self, other: i64) -> Rational {
+            let a = -other * self.b + self.a;
+            let b = self.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Sub<Rational> for i64 {
+        type Output = Rational;
+
+        fn sub(self, other: Rational) -> Rational {
+            let a = self * other.b - other.a;
+            let b = other.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Mul for Rational {
+        type Output = Rational;
+
+        fn mul(self, other: Rational) -> Rational {
+            let a = self.a * other.a;
+            let b = self.b * other.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Mul<i64> for Rational {
+        type Output = Rational;
+
+        fn mul(self, other: i64) -> Rational {
+            let a = self.a * other;
+            let b = self.b;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Mul<Rational> for i64 {
+        type Output = Rational;
+
+        fn mul(self, other: Rational) -> Rational {
+            other * self
+        }
+    }
+
+    impl Div for Rational {
+        type Output = Rational;
+
+        fn div(self, other: Rational) -> Rational {
+            let a = self.a * other.b;
+            let b = self.b * other.a;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Div<i64> for Rational {
+        type Output = Rational;
+
+        fn div(self, other: i64) -> Rational {
+            let a = self.a;
+            let b = self.b * other;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Div<Rational> for i64 {
+        type Output = Rational;
+
+        fn div(self, other: Rational) -> Rational {
+            let a = self * other.b;
+            let b = other.a;
+
+            let mut result = Rational { a, b };
+            result.simplify();
+            result
+        }
+    }
+
+    impl Rem<i64> for Rational {
+        type Output = f64;
+
+        fn rem(self, other: i64) -> f64 {
+            (self.a as f64 / self.b as f64) % other as f64
+        }
+    }
+
+    impl PartialEq for Rational {
+        fn eq(&self, other: &Rational) -> bool {
+            self.a == other.a && self.b == other.b
+        }
+    }
+
+    impl PartialOrd for Rational {
+        fn partial_cmp(&self, other: &Rational) -> Option<Ordering> {
+            let left = self.a * other.b;
+            let right = other.a * self.b;
+
+            left.partial_cmp(&right)
+        }
+    }
+
+    impl Neg for Rational {
+        type Output = Rational;
+
+        fn neg(self) -> Rational {
+            Rational { a: -self.a, b: self.b }
+        }
+    }
+
+    impl AddAssign for Rational {
+        fn add_assign(&mut self, other: Rational) {
+            *self = *self + other;
+        }
+    }
+    impl SubAssign for Rational {
+        fn sub_assign(&mut self, other: Rational) {
+            *self = *self - other;
+        }
+    }
+
+    impl MulAssign for Rational {
+        fn mul_assign(&mut self, other: Rational) {
+            *self = *self * other;
+        }
+    }
+
+    impl DivAssign for Rational {
+        fn div_assign(&mut self, other: Rational) {
+            *self = *self / other;
+        }
+    }
+
+    impl AddAssign<i64> for Rational {
+        fn add_assign(&mut self, other: i64) {
+            *self = *self + other;
+        }
+    }
+
+    impl SubAssign<i64> for Rational {
+        fn sub_assign(&mut self, other: i64) {
+            *self = *self - other;
+        }
+    }
+
+    impl MulAssign<i64> for Rational {
+        fn mul_assign(&mut self, other: i64) {
+            *self = *self * other;
+        }
+    }
+
+    impl DivAssign<i64> for Rational {
+        fn div_assign(&mut self, other: i64) {
+            *self = *self / other;
+        }
+    }
+
+Köşeli Parantez Operatörü
+-------------------------------------------------------------------------------------
+
+Bir yapı ya da enum türünden değerle ``[]`` operatörünü kullanmak isteyebiliriz. Örneğin ``x`` bizim oluşturduğumuz
+yapı türünden bir değişken olsun. Biz bu ``x`` değişkenini ``x[n]`` biçiminde ya da ``x[n] = val`` biçiminde
+kullanmak isteyebiliriz. Tabii bir yapının ya da enum türünün ``[]`` operatörüyle kullanılabilmesi için onun bir dizi
+değer tutuyor olması gerekir. Örneğin yukarıda tanımladığımız ``Rational`` türünden bir değerin ``[]`` operatörüyle
+kullanılmasının bir anlamı yoktur. ``[]`` operatörü çağrışımsal olarak ``O(1)`` karmaşıklıktaki erişimlerde
+kullanılmaktadır. Örneğin dinamik büyütülen bir diziyi temsil eden bir yapıda ``[]`` operatörü anlamlıdır. Ancak
+elemanlara sıralı erişimin yapıldığı bir bağlı listede ``[]`` operatörü yanlış anlaşılmalara yol açabilir.
+
+Index ve IndexMut Trait'leri
+-------------------------------------------------------------------------------------
+
+Örneğin aşağıdaki gibi bir ``Date`` yapımız olsun:
+
+.. code-block:: rust
+
+    struct Date {
+        day: i32,
+        month: i32,
+        year: i32,
+    }
+
+    impl Date {
+        fn new(day: i32, month: i32, year: i32) -> Self {
+            Date { day, month, year }
+        }
+
+        fn disp(&self) {
+            println!("{}/{}/{}", self.day, self.month, self.year);
+        }
+    }
+
+Biraz zorlama olsa da biz yapıya ``[]`` operatörü desteğini vermek isteyelim. ``[]`` içerisindeki değer ``0``, ``1``,
+ya da ``2`` olabilsin. ``0`` indeksi yapının ``day`` elemanına, ``1`` indeksi ``month`` elemanına ve ``2`` indeksi de
+``year`` elemanına erişmek için kullanılacak olsun. ``[]`` operatör desteği verebilmek için iki trait
+kullanılmaktadır:
+
+.. code-block:: rust
+
+    pub trait Index<Idx>
+    where
+        Idx: ?Sized,
+    {
+        type Output: ?Sized;
+
+        // Required method
+        fn index(&self, index: Idx) -> &Self::Output;
+    }
+
+    pub trait IndexMut<Idx>: Index<Idx>
+    where
+        Idx: ?Sized,
+    {
+        // Required method
+        fn index_mut(&mut self, index: Idx) -> &mut Self::Output;
+    }
+
+``Index`` trait'i ``[]`` operatörüyle değer elde etmek için, ``IndexMut`` trait'i ise değer yerleştirmek için
+kullanılmaktadır. Yani biz köşeli parantez ifadesini atama operatörünün sağında kullanırsak ``index`` metodu, solunda
+kullanırsak ``index_mut`` metodu çağrılacaktır.
+
+``x`` bir yapı ya da enum türünden bir değişken ya da değeri belirtiyor olsun. ``y = x[i]`` işleminin eşdeğeri
+şöyledir:
+
+.. code-block:: rust
+
+    y = *std::ops::Index::index(&x, i);
+
+Benzer biçimde ``x[i] = y`` ifadesinin eşdeğeri de şöyledir:
+
+.. code-block:: rust
+
+    *std::ops::IndexMut::index_mut(&x, i) = y;
+
+Bu eşdeğerlik *The Rust Reference* dokümanlarında *8.2.6 Array and slice indexing expressions* başlığı altında şöyle
+açıklanmıştır:
+
+*For other types an index expression a[b] is equivalent to \*std::ops::Index::index(&a, b), or
+\*std::ops::IndexMut::index_mut(&mut a, b) in a mutable place expression context. Just as with methods, Rust will also
+insert dereference operations on a repeatedly to find an implementation.*
