@@ -13151,3 +13151,10099 @@ Demetsel yapılardaki alanların isimleri olmadığı için onlara erişim isim 
 
     let per: Person = Person(String::from("Ali Kale"), 123);
     println!("{}, {}", per.0, per.1);
+
+=================================================================
+Birimsel Yapılar, Yapıların Fonksiyonlara Aktarılması ve Metotlar
+=================================================================
+
+Yapılar (Devam)
+===============
+
+Birimsel Yapılar (unit like structs)
+------------------------------------
+
+Normal yapıların ve demetsel yapıların yanı sıra Rust'ta bir de *birimsel yapılar (unit like structs)* denilen
+yapılar da vardır. Birimsel yapılar yalnızca ``struct`` anahtar sözcüğü ve yapı isminden oluşmaktadır. Yani bu yapılar
+tanımlanırken küme parantezleri hiç kullanılmaz. Dolayısıyla bu yapılar alanlara da sahip değildir. Birimsel yapı
+tanımlamanın genel biçimi şöyledir:
+
+.. code-block:: text
+
+    struct <yapı_ismi>;
+
+Örneğin:
+
+.. code-block:: rust
+
+    struct Sample;
+    struct Test;
+
+Birimsel yapıları tanımlarken tanımlamanın sonunda ``;`` atomunun bulundurulduğuna dikkat ediniz. Birimsel yapılar
+alanlara sahip olmadığına göre bunlar türünden değişkenler nasıl tanımlanmaktadır? İşte birimsel yapılarda yapının
+ismi aynı zamanda o türden bir değer gibi de kullanılmaktadır. Dolayısıyla aşağıdaki gibi bir değişken tanımlaması
+geçerlidir:
+
+.. code-block:: rust
+
+    struct Sample;
+    //...
+
+    let s: Sample = Sample;
+
+Burada ``Sample`` hem birimsel yapının tür ismini hem de bu türden değeri belirtmektedir. Tabii biz aynı bağlamayı
+şöyle de yapabilirdik:
+
+.. code-block:: rust
+
+    let s = Sample;
+
+Aslında birimsel yapılar türünden değerler boş küme parantezleriyle de oluşturulabilmektedir:
+
+.. code-block:: rust
+
+    let s = Sample {};
+
+Ancak küme parantezlerinin kullanılmasına gerek yoktur.
+
+Peki mademki birimsel yapılar hiç alan içermiyor bunlara neden gereksinim duyulmaktadır? İşte birimsel yapılar alan
+içermese de metotlara sahip olabilmektedir ve trait'leri destekleyebilmektedir. (Bunu C++'taki veri elemanına sahip
+olmayan ancak üye fonksiyonlara sahip olan sınıflara benzetebilirsiniz.) Birimsel yapılar *marker* amacıyla yani
+generic türlerde koşul belirtmek amacıyla da kullanılabilmektedir.
+
+Peki mademki birimsel yapılar alan içermiyor bu türden değişkenler için yine de yer ayrılır mı? Örneğin:
+
+.. code-block:: rust
+
+    struct Sample;
+    //...
+
+    let s = Sample;
+    let k = Sample;
+
+Burada ``s`` ve ``k`` için yer ayrılmakta mıdır? İşte bu tür durumlarda derleyici yine de bu değişkenler için kendi
+belirlediği bir uzunluk kadar (örneğin ``1`` byte) bellekte yer ayırmaktadır. Yani burada yine ``s`` ve ``k``'nın birer
+bellek adresi vardır. Ancak Rust'ın ``std::mem::size_of`` ve ``std::mem::size_of_val`` fonksiyonları birimsel yapılar
+için ``0`` byte uzunluk bildirmektedir.
+
+Peki aşağıdaki iki yapı tanımlaması arasında bir fark var mıdır?
+
+1) ``struct Sample;``
+2) ``struct Sample {}``
+
+Aslında bu iki tanımlamada da ``Sample`` yapısının alanı yoktur. Dolayısıyla bu iki tanımlama çok benzer etkilere yol
+açacaktır. Ancak yine de bu iki tanımlama arasında şu farklar vardır:
+
+- Birinci tanımlamanın ``;`` atomu ile sonlandırıldığına ikinci tanımlamanın ``;`` atomu ile sonlandırılmadığına
+  dikkat ediniz.
+
+- Birinci tanımlamada birimsel yapı türünden değeri yalnızca yapı ismiyle belirtebiliriz. Ancak ikinci tanımlamada bunu
+  yapamayız. Örneğin:
+
+  .. code-block:: rust
+
+      struct Sample;
+      //...
+
+      let s = Sample;     // geçerli
+
+  Fakat örneğin:
+
+  .. code-block:: rust
+
+      struct Sample {}
+      //...
+
+      let s = Sample;     // error!
+
+  İkinci biçimde bu yapı türünden değer boş küme parantezleriyle oluşturulmak zorundadır. Örneğin:
+
+  .. code-block:: rust
+
+      struct Sample {}
+      //...
+
+      let s = Sample {};     // geçerli
+
+- Birimsel yapı tanımlamasında bazı öznitelikler yapıya iliştirilememektedir.
+
+Rust'ta bu nedenden dolayı boş küme parantezlerinden oluşan yapılara *birimsel yapı (unit like structs)*
+denilmemektedir, *alansız yapı (field-less) struct* denilmektedir.
+
+Birimsel yapılar türünden nesnelerin yaratılması için yapı isminin yazılması yeterli olduğuna göre onların metotları da
+doğrudan yapı ismiyle çağrılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample;
+
+    impl Sample {
+        fn foo(&self) {
+            println!("foo");
+        }
+
+        fn bar() {
+            println!("bar");
+        }
+    }
+    //...
+
+    Sample.foo();
+
+Burada ``Sample.foo`` ifadesine dikkat ediniz. Artık bu ifade *Sample türünden bir değer oluştur ve onunla foo
+metodunu çağır* anlamına gelmektedir. Yani bu çağrı aşağıdakiyle eşdeğerdir:
+
+.. code-block:: rust
+
+    Sample {}.foo();
+
+``Sample`` birimsel yapısının ilişkili fonksiyonunu da şöyle çağırabiliriz:
+
+.. code-block:: rust
+
+    Sample::bar();
+
+Burada ``Sample`` isminden sonra ``::`` geldiği için artık buradaki ``Sample`` ismi yapının tür ismini
+belirtmektedir.
+
+Yapıların Fonksiyonlara Aktarılması
+-----------------------------------
+
+Bir yapı fonksiyonlara tıpkı ``enum`` türlerinde olduğu iki biçimde aktarılabilmektedir:
+
+1) Atama (kopyalama ya da taşıma) yoluyla aktarım (call by value)
+2) Adres yoluyla aktarım (call by reference)
+
+Atama yoluyla aktarımda fonksiyonun parametre değişkeni bir yapı türünden olur. Fonksiyon da aynı yapı türünden bir
+değişken ya da değerle çağrılır. Bu durumda yapının tüm alanları (elemanları) karşılıklı olarak parametre değişkenine
+atanacaktır. (İki yapı değişkeni birbirine atandığında padding byte'larının da kopyalandığını belirtmiştik.) Bu atama
+işlemi derleyici tarafından bit düzeyinde kopyalamayla sağlanmaktadır. Ancak ileride de ele alacağımız gibi yapılar
+default durumda ``Copy`` türünden olmadığı için böylesi aktarım sonrasında artık argüman olarak kullanılan yapı
+değişkeni taşındığı için kullanılamamaktadır. Örneğin:
+
+.. code-block:: rust
+
+    fn main() {
+        let date = Date { day: 10, month: 12, year: 2020 };
+
+        disp(date);
+    }
+
+    fn disp(date: Date) {
+        println!("{}/{}/{}", date.day, date.month, date.year);
+    }
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+Tabii bu biçimdeki aktarım tıpkı C'de olduğu gibi genellikle etkin bir yöntem değildir. Programlama dillerinde bu
+biçimdeki aktarımlara *değerle çağrım (call by value)* da dendiğini anımsayınız.
+
+Yapı elemanları bellekte ardışıl olduğu için yapı türünden değişkenler ve değerler fonksiyonlara yalnızca başlangıç
+adresleri yoluyla aktarılabilmektedir. Genellikle tercih edilen etkin aktarım yöntemi budur. Bu yöntemde fonksiyonun
+parametre değişkeni yapı türünden bir referans (ya da gösterici) olur. Fonksiyon da aynı yapı türünden bir değişken ya
+da değerin adresiyle çağrılır. Örneğin:
+
+.. code-block:: rust
+
+    fn main() {
+        let date = Date { day: 10, month: 12, year: 2020 };
+
+        disp(&date);
+        println!("{}/{}/{}", date.day, date.month, date.year);      // geçerli
+    }
+
+    fn disp(date: &Date) {
+        println!("{}/{}/{}", date.day, date.month, date.year);
+    }
+
+Bu yöntemde yapı ne kadar büyük olursa olsun fonksiyona yalnızca onun adresi aktarılmaktadır. Dolayısıyla aktarım
+çok etkindir. Genellikle özel bir durum yoksa bu aktarım yöntemi tercih edilmektedir. Ayrıca bu aktarım yönteminde
+asıl yapı değişkeni taşınmamakta fonksiyon tarafından ödünç alınmaktadır. Dolayısıyla değişkenin sahipliği
+devredilmez. Fonksiyon çağrısından sonra asıl değişken kullanılmaya devam edilebilir. Bu tür aktarım biçimine
+programlama dillerinde *adresle çağırma (call by reference)* da denildiğini anımsayınız.
+
+Metotlar
+========
+
+Metot Kavramı
+-------------
+
+Bu bölümde yapıların metotları üzerinde duracağız. Biz aslında metot kavramını daha önceki örneklerimizde yüzeysel
+biçimde kullanmıştık. Ancak bu bölümde konuyu ayrıntılarıyla ele alacağız.
+
+Metot (method) *nesne tabanlı (object based)* ve *nesne yönelimli (object oriented)* programlama dillerinde
+kullanılan bir kavramdır. Rust her ne kadar nesne tabanlı ya da nesne yönelimli bir dil değilse de bu dillerin bazı
+soyutlamalarını bünyesinde barındırmaktadır.
+
+Rust'ta metotlar belli bir yapı üzerinde işlem yapan fonksiyonlardır. Örneğin ``Point`` yapısının bir metodu ``Point``
+türünden bir değişken ya da değer üzerinde, ``Date`` yapısının bir metodu ``Date`` türünden bir değişken ya da değer
+üzerinde işlem yapar. Fonksiyonlar herhangi bir yapı ile mantıksal bir ilişki içerisinde değildir. Ancak her metot belli
+bir yapı ile mantıksal bir ilişki içerisindedir. (Daha önce ``enum`` türlerinin de metotlara sahip olduğunu görmüştük.)
+
+``foo`` bir fonksiyonsa bu fonksiyon doğrudan ``foo(...)`` sentaksıyla çağrılmaktadır. Ancak ``foo`` bir yapının bir
+metodu ise ``foo`` metodu o yapı türünden bir değişken ya da değerle nokta operatörü kullanılarak ``a.foo(...)``
+sentaksıyla çağrılmaktadır. (Burada ``a`` ilgili yapı türünden değişken ya da değeri temsil etmektedir.)
+
+Peki fonksiyonların metot adı altında yapılarla ilişkilendirilmesinin anlamı ve faydası ne olabilir? İşte bu
+ilişkilendirme sayesinde fonksiyonlar birbirlerinden kopuk bir biçimde ele alınmazlar olgulara göre mantıksal ilişki
+içerisinde gruplanmış bir biçimde ele alınırlar. Bu da *karışıklık algısını* azaltıp algıyı güçlendirmektedir. Bu
+durum adeta raflarda karmakarışık duran kitapların konulara göre ayrı raflara dizilmesi gibidir. Toplamda bu çabadan
+*algısal kolaylık sağlama* hedeflenmektedir. ``Point`` ile ilgili olan fonksiyonlar ``Point`` yapısının metotları
+biçiminde, ``Date`` ile ilgili olan fonksiyonlar ``Date`` yapısının metotları biçiminde, ``Complex`` sayılarla ilgili
+olan fonksiyonlar da ``Complex`` yapısının metotları biçiminde bulundurulmaktadır. C Programlama Dili prosedürel bir
+dil olduğu için bu biçimde bir soyutlama olanağına sahip değildir. (Tabii C gibi prosedürel dillerle de aslında özel
+çabalar sarf ederek nesne yönelimli programlama tekniğinin çeşitli prensipleri uygulanabilir. Ancak bir dilin nesne
+yönelimli olması bu bağlamda kolaylaştırıcı bir tasarıma sahip olması anlamına gelmektedir.)
+
+impl Bloğu
+----------
+
+Bir yapıya ilişkin metotlar ``impl`` bloğu içerisinde tanımlanmaktadır. ``impl`` (*implementation* sözcüğünden
+kısaltılmıştır) anahtar sözcüğünü bir sınıf ismi ve bir blok izlemektedir. Generic olmayan ``impl`` bloğunun genel
+biçimi şöyledir:
+
+.. code-block:: text
+
+    impl <yapı_ismi> {
+        //...
+    }
+
+Buradaki yapı ismi metotların ilişkin olduğu yapıyı belirtmektedir. Örneğin biz ``Date`` yapısına ilişkin metotlar
+yazacaksak buradaki yapı ismi ``Date``, ``Point`` yapısına ilişkin metotlar yazacaksak buradaki yapı ismi ``Point``
+olmalıdır.
+
+``impl`` bloğu içerisinde metotlar normal fonksiyonlar gibi tanımlanmaktadır. Ancak metotların ilk parametreleri
+şunlardan biri olabilir:
+
+.. code-block:: text
+
+    self
+    &self
+    &mut self
+
+``self`` parametresi ilgili yapı türünden bir değişkeni, ``&self`` ve ``&mut self`` parametreleri ise ilgili yapı
+türünden bir referansı (yani bir adres tutan değişkeni) belirtmektedir. Metodun bu birinci zorunlu parametresinden
+sonraki parametreleri herhangi bir biçimde olabilir. Metotlar da yine herhangi türden bir geri dönüş değerine sahip
+olabilirler. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        a: i32,
+        b: i32,
+        c: i32
+    }
+
+    impl Sample {
+        fn foo(&self) {
+            //...
+        }
+
+        fn bar(&self, x: i32) {
+            //...
+        }
+
+        fn tar(self) {
+            //...
+        }
+    }
+
+Burada ``foo`` metodu ekstra parametreye sahip değildir. Ancak ``bar`` metodunun ``i32`` türünden ekstra bir
+parametresi vardır. ``tar`` metodunun birinci parametresinin ``&self`` değil ``self`` biçiminde olduğuna dikkat
+ediniz.
+
+Metotların self Parametresi
+---------------------------
+
+Peki metotların bu ``self`` parametreleri ne anlama gelmektedir? Örneğimizdeki ``foo`` metodu parametre almadığına
+göre aşağıdaki gibi çağrılacaktır:
+
+.. code-block:: rust
+
+    let s = Sample { a: 10, b: 20, c: 30 };
+
+    s.foo();
+
+İşte burada ``foo`` fonksiyonunun birinci parametresine aslında gizlice ``foo`` fonksiyonunun çağrılmasında kullanılan
+değişken ya da değerin adresi geçirilmektedir. Yani bu fonksiyon içerisinde ``self`` parametresi kullanıldığında
+aslında ``s`` değişkeni kullanılıyor gibi bir etki oluşacaktır. Eğer burada ``foo`` metot değil global bir fonksiyon
+olsaydı eşdeğer çağrım ifadesi şöyle olurdu:
+
+.. code-block:: rust
+
+    struct Sample {
+        a: i32,
+        b: i32,
+        c: i32
+    }
+
+    fn foo(slf: &Sample) {
+        //...
+    }
+    //...
+
+    let s = Sample { a: 10, b: 20, c: 30 };
+
+    foo(&s);
+
+Biz burada parametre değişkenine ``self`` ismi yerine ``slf`` ismini verdik. Çünkü ``self`` bir anahtar sözcüktür.
+
+Aslında Rust derleyicisi her iki durumda da aynı makine kodlarını üretecektir. Zaten makine dillerinde ve amaç
+dosya formatlarında sınıf, metot gibi kavramlar yoktur. Makinenin çalışmasında var olan gerçek kavram fonksiyondur.
+Metotlar derleyici tarafından fonksiyon haline getirilerek amaç dosyaya yazılmaktadır. Örneğimizdeki ``bar`` metodunu
+çağırırken ``x`` parametresi için de bir argüman girmeliyiz. Örneğin:
+
+.. code-block:: rust
+
+    let s = Sample { a: 10, b: 20, c: 30 };
+
+    s.bar(100);
+
+Bu durumda ``s``'in adresi ``self`` değişkenine (``self`` bir referanstır) ``100`` değeri de ``x`` değişkenine
+aktarılacaktır. ``bar`` metodunun fonksiyon eşdeğeri şöyledir:
+
+.. code-block:: rust
+
+    fn bar(slf: &Sample, x: i32) {
+        //...
+    }
+
+Çağrım da şöyle yapılacaktır:
+
+.. code-block:: rust
+
+    let s = Sample { a: 10, b: 20, c: 30 };
+
+    bar(&s, 100);
+
+Burada da görüldüğü gibi ``s`` değişkeninin adresi ``slf`` parametre değişkenine ``100`` değeri de ``x`` parametre
+değişkenine aktarılmaktadır.
+
+Örneğimizdeki ``tar`` metodunun parametresinin ``&self`` biçiminde olmadığına ``self`` biçiminde olduğuna dikkat
+ediniz. Bu durumda metodun çağrılmasında kullanılan değişken ya da değerin adresi değil kendisi parametre değişkenine
+atanacaktır. Ancak çağrı aynı biçimde yapılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    s.tar();
+
+Burada ``s`` değişkeninin kendisi ``bar`` metodunun ``self`` değişkenine atanmaktadır. Yani bu çağrının fonksiyon
+eşdeğeri şöyledir:
+
+.. code-block:: rust
+
+    fn tar(slf: Sample) {
+        //..
+    }
+    //...
+
+    let s = Sample { a: 10, b: 20, c: 30 };
+
+    tar(s);
+
+Tabii burada ``s`` artık sahipliğini parametre değişkenine devredecektir. Genellikle metotların parametreleri ``self``
+biçiminde değil ``&self`` biçiminde olur.
+
+Metot Çağırmanın İki Yolu (UFCS)
+--------------------------------
+
+Aslında Rust'ta bir metot çağırmanın iki yolu vardır. Birincisi yukarıda gördüğümüz gibi ilgili türden değişken ya da
+değerle çağrımı yapmaktır. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        a: i32,
+        b: i32,
+        c: i32
+    }
+
+    impl Sample {
+        fn foo(&self) {
+            //...
+        }
+
+        fn bar(&self, x: i32) {
+            //...
+        }
+
+        fn tar(self) {
+            //...
+        }
+    }
+    //...
+
+    let s = Sample { a: 10, b: 20, c: 30 };
+
+    s.foo();
+    s.bar();
+    s.tar();
+
+İkinci biçim *metodun fonksiyon gibi çağrıldığı* biçimdir. Buna Rust'ta *UFCS (Uniform Function Call Syntax)*
+denilmektedir. Bu çağrım sentaksında metot sanki bir fonksiyon gibi tür ismi ile ``::`` operatörü kullanılarak
+çağrılmaktadır. Ancak bu çağrımda metodun ``self`` parametresine aktarılacak argüman açıkça belirtilir. Örneğin:
+
+.. code-block:: rust
+
+    let s = Sample { a: 10, b: 20, c: 30 };
+
+    Sample::foo(&s);
+    Sample::bar(&s);
+    Sample::tar(&s);
+
+Biz kursumuzda UFCS sentaksını yalnızca gerektiğinde kullanacağız. Çağırmaları metot çağırma sentaksıyla yapacağız.
+
+Birinci Parametrenin Uzun Yazımı
+--------------------------------
+
+Metotların birinci parametreleri aslında ``self``, ``&self`` ya da ``&mut self`` biçiminde bildirilmek yerine türün
+açıkça belirtilmesiyle da bildirilebilmektedir. Ancak parametre değişkeninin ismi ``self`` olmak zorundadır.
+Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        a: i32,
+        b: i32,
+        c: i32
+    }
+
+    impl Sample {
+        fn foo(&self) {
+            //...
+        }
+    }
+
+Burada ``foo`` metodu şöyle de tanımlanabilirdi:
+
+.. code-block:: rust
+
+    impl Sample {
+        fn foo(self: &Sample) {
+            //...
+        }
+    }
+
+İzleyen paragraflarda da ele alacağımız gibi ``impl`` bloğu içerisindeki ``Self`` (``'S'`` harfinin büyük
+yazıldığına dikkat ediniz) anahtar sözcüğü ``impl`` bloğundaki türü temsil etmektedir. Dolayısıyla yukarıdaki ``foo``
+metodu aşağıdaki gibi de tanımlanabilmektedir:
+
+.. code-block:: rust
+
+    impl Sample {
+        fn foo(self: &Self) {
+            //...
+        }
+    }
+
+Ancak eğer ilk parametre değişkeninin ismi ``self`` olmazsa bu bir metot belirtmez. İzleyen paragraflarda da
+ele alacağımız gibi *ilişkili fonksiyon (associated function)* belirtir. Örneğin:
+
+.. code-block:: rust
+
+    impl Sample {
+        fn foo(s: &Sample) {      // foo artık bir metot belirtmiyor
+            //...
+        }
+    }
+
+Burada ``foo`` artık bir metot değil bir ilişkili fonksiyondur. O halde metotların ilk parametre değişkenleri için
+kısa ve uzun yazımlar şöyledir:
+
+==================  ====================
+Kısa Yazım          Uzun Yazım
+==================  ====================
+``&self``           ``self: &Self``
+``&mut self``       ``self: &mut Self``
+``self``            ``Self``
+==================  ====================
+
+Örnek: Point Yapısı
+-------------------
+
+Metotlar belli bir yapı üzerinde işlem yapan o yapı için anlamlı fonksiyonlardır. Rust'ta bir yapı hem birtakım
+alanlardan hem de o alanlar üzerinde işlem yapan metotlardan oluşmaktadır. Rust'ın bu kısmı *nesne tabanlı (object
+based)* dillere oldukça benzemektedir. Bir yapı bir kavrama ilişkin verilerden ve o veriler üzerinde işlem yapan bir
+grup metottan oluşmaktadır. Her yapı belli bir konuya ilişkin faydalı işlemler yapan metotlara sahiptir. Örneğin
+``Point`` yapısı denildiğinde ekrandaki bir pixel'in koordinat bilgisini tutan ve bu koordinat bilgisi üzerinde
+faydalı birtakım işlemler yapan veri (data) ve metotlar, ``Date`` yapısı denildiğinde bir tarih bilgisini tutan ve o
+tarih bilgisi üzerinde faydalı birtakım işlemler yapan veri (data) ve metotlar anlaşılmaktadır. C'deki yapıların
+yalnızca veri (data) içerdiğine ancak Rust'taki yapıların aynı zamanda bu veriler üzerinde işlem yapan metotlara da
+sahip olduğuna dikkat ediniz. Bu bağlamda Rust biraz *nesne tabanlı* hale getirilmiştir.
+
+Aşağıdaki örnekte ekran koordinat sisteminde bir pixel'in koordinat bilgisini tutan ve bu koordinat bilgisi üzerinde
+işlem yapan ``Point`` isimli bir yapının gerçekleştirimi verilmektedir. Yapı aşağıdaki gibi iki alandan oluşmaktadır:
+
+.. code-block:: rust
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+Yapı için aşağıdaki metotlar yazılmıştır:
+
+.. code-block:: rust
+
+    impl Point {
+        fn translate(&mut self, deltax: i32, deltay: i32) {
+            self.x += deltax;
+            self.y += deltay;
+        }
+
+        fn magnitude(&self) -> f64 {
+            ((self.x * self.x + self.y * self.y) as f64).sqrt()
+        }
+
+        fn add(&self, other: &Point) -> Point {
+            Point {
+                x: self.x + other.x,
+                y: self.y + other.y,
+            }
+        }
+
+        fn distance(&self, other: &Point) -> f64 {
+            let dx = (self.x - other.x);
+            let dy = (self.y - other.y);
+            ((dx * dx + dy * dy) as f64).sqrt()
+        }
+
+        fn disp(&self) {
+            println!("({},{})", self.x, self.y);
+        }
+    }
+
+``translate`` metodu bir noktayı ``deltax`` ve ``deltay`` kadar ötelemektedir. ``magnitude`` metodu noktanın orijine
+uzaklığını hesaplamaktadır. ``add`` metodu iki noktayı toplayıp bize yeni bir nokta olarak vermektedir. ``distance``
+metodu iki noktanın arasındaki Öklit uzaklığını hesaplamaktadır. ``add`` metodunun geri dönüş değerini ``Point``
+biçiminde belirtmek yerine ``Self`` anahtar sözcüğünü de kullanabilirdik:
+
+.. code-block:: rust
+
+    impl Sample {
+        //...
+        fn add(&self, other: &Point) -> Self {
+            Point {
+                x: self.x + other.x,
+                y: self.y + other.y,
+            }
+        }
+        //...
+    }
+
+.. code-block:: rust
+
+    fn main() {
+        let mut pt = Point { x: 10, y: 12 };
+
+        pt.disp();
+        pt.translate(3, 5);
+        pt.disp();
+        println!("{}", pt.magnitude());
+
+        let pt2 = Point { x: 1, y: 2 };
+        let result: Point;
+
+        result = pt.add(&pt2);
+        result.disp();
+
+        let dist = pt.distance(&pt2);
+        println!("{}", dist);
+    }
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl Point {
+        fn disp(&self) {
+            println!("({},{})", self.x, self.y);
+        }
+
+        fn translate(&mut self, deltax: i32, deltay: i32) {
+            self.x += deltax;
+            self.y += deltay;
+        }
+
+        fn magnitude(&self) -> f64 {
+            ((self.x * self.x + self.y * self.y) as f64).sqrt()
+        }
+
+        fn add(&self, other: &Point) -> Point {
+            Point {
+                x: self.x + other.x,
+                y: self.y + other.y,
+            }
+        }
+
+        fn distance(&self, other: &Point) -> f64 {
+            let dx = (self.x - other.x);
+            let dy = (self.y - other.y);
+            ((dx * dx + dy * dy) as f64).sqrt()
+        }
+    }
+
+Örnek: Rectangle Yapısı
+-----------------------
+
+Şimdi de ekran koordinat sistemi için bir ``Rectangle`` yapısı oluşturalım. Dikdörtgensel bir bölge sol-üst ve
+sağ-alt köşe noktalarıyla tutulabileceği gibi sol-üst köşe ve genişlik-yükseklik bilgisiyle de tutulabilir. Biz bu
+ikinci yöntemi tercih edeceğiz:
+
+.. code-block:: rust
+
+    struct Rectangle {
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    }
+
+Dikdörtgensel bir bölge üzerinde yapılabilecek faydalı işlemler neler olabilir? Tipik olanlar şunlardır:
+
+- Dikdörtgeni ötelemek
+- Bir noktanın dikdörtgen içerisinde olup olmadığını anlamak (hit testing)
+- İki dikdörtgenin kesişim dikdörtgenini bulmak
+- Dikdörtgenin koordinat bilgilerini yazdırmak
+
+Aşağıda bu işlemleri yapan metotların gerçekleştirimi verilmiştir. Bu örnekten de göreceğiniz gibi bir yapı başka bir
+yapıyı da kullanabilmektedir. Örneğimizde ``Rectangle`` yapısı ``Point`` yapısını da kullanmaktadır.
+
+.. code-block:: rust
+
+    fn main() {
+        let mut rect = Rectangle { x: 10, y: 10, width: 10, height: 10};
+        let rect2 = Rectangle { x: 15, y: 10, width: 15, height: 5};
+
+        let pt = Point { x: 14, y: 15 };
+
+        if rect.is_inside(13, 13) {
+            println!("The point is inside");
+        }
+        else {
+            println!("The point is not inside");
+        }
+
+        let result_rect = rect.intersects_rect(&rect2);
+        result_rect.disp();
+
+        if rect.is_inside_pt(&pt) {
+            println!("The point is inside");
+        }
+        else {
+            println!("The point is not inside");
+        }
+
+        rect.disp();
+        rect.translate(3, 2);
+        rect.disp();
+    }
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl Point {
+        fn disp(&self) {
+            println!("({},{})", self.x, self.y);
+        }
+
+        fn translate(&mut self, deltax: i32, deltay: i32) {
+            self.x += deltax;
+            self.y += deltay;
+        }
+
+        fn magnitude(&self) -> f64 {
+            ((self.x * self.x + self.y * self.y) as f64).sqrt()
+        }
+
+        fn add(&self, other: &Point) -> Point {
+            Point {
+                x: self.x + other.x,
+                y: self.y + other.y,
+            }
+        }
+
+        fn distance(&self, other: &Point) -> f64 {
+            let dx = (self.x - other.x);
+            let dy = (self.y - other.y);
+            ((dx * dx + dy * dy) as f64).sqrt()
+        }
+    }
+
+    struct Rectangle {
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    }
+
+    impl Rectangle {
+        fn disp(&self) {
+            println!("x: {}, y: {}, width: {}, height: {}", self.x, self.y, self.width, self.height);
+        }
+
+        fn translate(&mut self, deltax: i32, deltay: i32) {
+            self.x += deltax;
+            self.y += deltay;
+        }
+
+        fn is_inside_pt(&self, pt: &Point) -> bool {
+            pt.x > self.x && pt.x < self.x + self.width && pt.y > self.y && pt.y < self.y + self.height
+        }
+
+        fn is_inside(&self, x: i32, y: i32) -> bool {
+            x > self.x && x < self.x + self.width && y > self.y && y < self.y + self.height
+        }
+
+        fn intersects_rect(&self, rect: &Rectangle) -> Rectangle {
+            let x1 = self.x.max(rect.x);
+            let y1 = self.y.max(rect.y);
+            let x2 = (self.x + self.width).min(rect.x + rect.width);
+            let y2 = (self.y + self.height).min(rect.y + rect.height);
+
+            if x1 < x2 && y1 < y2 {
+                Rectangle {
+                    x: x1,
+                    y: y1,
+                    width: x2 - x1,
+                    height: y2 - y1,
+                }
+            } else {
+                Rectangle {
+                    x: 0,
+                    y: 0,
+                    width: 0,
+                    height: 0,
+                }
+            }
+        }
+    }
+
+Birden Fazla impl Bloğu
+-----------------------
+
+Bir yapının tüm metotlarının tek bir ``impl`` bloğu içerisinde bulunması zorunlu değildir. Yani aynı yapıya ilişkin
+birden fazla ``impl`` bloğu bulundurulabilir. Örneğin:
+
+.. code-block:: rust
+
+    struct Sample {
+        a: i32,
+        b: i32,
+        c: i32
+    }
+
+    impl Sample {
+        fn foo(&self) {
+            //...
+        }
+    }
+
+    //...
+
+    impl Sample {
+        fn bar(&self) {
+            //...
+        }
+    }
+
+Burada ``Sample`` yapısının metotları birden fazla ``impl`` bloğu içerisinde tanımlanmıştır.
+
+İlişkili Fonksiyonlar (associated functions)
+--------------------------------------------
+
+Bir yapının ``impl`` bloğundaki ilk parametresi ``self`` olmayan (yani ``&self``, ``&mut self`` ve ``self`` biçiminde
+olmayan) fonksiyonlarına *ilişkili fonksiyonlar (associated functions)* denilmektedir. İlişkili fonksiyonlar ilgili
+yapı türünden değişken ya da değeri kullanmamaktadır. Bu nedenle onların ``self`` parametresi yoktur. Örneğin:
+
+.. code-block:: rust
+
+    impl Sample {
+        fn foo(&self) {     // metot
+            //...
+        }
+
+        fn bar(a: i32) {    // ilişkili fonksiyon
+            //...
+        }
+    }
+
+    struct  Sample {
+        a: i32,
+        b: i32,
+        c: i32
+    }
+
+Burada ``foo`` yapının bir metodudur. Çünkü ``foo`` ilgili yapı türünden bir değişken ya da değerin alanları üzerinde
+işlem yapma niyetiyle bulundurulmuştur. Bu nedenle ``self`` parametresine sahiptir. Ancak ``bar`` bir metot
+değildir. İlişkili bir fonksiyondur. Çünkü ``bar`` fonksiyonunun birinci parametresi ``self`` değildir. Biz metotların
+ilgili yapı türünden bir değişken ya da değerle nokta operatörü kullanılarak çağrıldığını görmüştük. Nokta
+operatörünün solundaki değişken ya da değer de ``self`` parametresine aktarıldığını belirtmiştik. İşte ilişkili
+fonksiyonlar (örneğimizde ``bar`` fonksiyonu) ``self`` parametresine sahip olmadığı için yapı türünden bir değişken ya
+da değerle çağrılmamaktadır. İlişkili fonksiyonlar yapı ismi ile ve ``::`` operatörü kullanılarak çağrılmaktadır.
+Örneğin:
+
+.. code-block:: rust
+
+    let s = Sample { a: 10, b: 20, c: 30 };
+
+    s.foo();
+    Sample::bar(100);
+
+``bar`` fonksiyonunun ``Sample::bar`` biçiminde çağrıldığına dikkat ediniz.
+
+Peki ilişkili fonksiyonlarla normal global fonksiyonlar arasında ne fark vardır? İlişkili fonksiyonlar ilgili yapı
+türünden bir değişkenin ya da değerin alanlarını kullanmadığına göre pekala global bir fonksiyon biçiminde de
+bulunabilirler. Örneğin:
+
+.. code-block:: rust
+
+    impl Sample {
+        fn foo(&self) {     // metot
+            //...
+        }
+    }
+
+    fn bar(a: i32) {
+        //...
+    }
+
+    struct Sample {
+        a: i32,
+        b: i32,
+        c: i32
+    }
+
+Tabii artık biz ``bar`` fonksiyonunu ``Sample::bar`` biçiminde değil doğrudan ``bar`` ismiyle çağırırız. İşte
+fonksiyon ilgili yapının alanlarını kullanmıyor olsa da mantıksal biçimde o yapının konusu ile ilgili bir etkinlikte
+bulunuyorsa fonksiyonun ``impl`` bloğuna taşınarak mantıksal bakımdan yapı ile ilişkilendirilmesi iyi bir tekniktir.
+Rust'ta *ilişkili fonksiyon* kavramı nesne yönelimli programlama dillerindeki *sınıfların static fonksiyonları ya da
+metotları* ile aynı kavramı belirtmektedir.
+
+C++, Java ve Python gibi bazı dillerde (ancak C#'ta böyle değil) sınıfın static metotları (fonksiyonları) o sınıf
+türünden bir nesneyle (değişkenle) çağrılabilmektedir. Bu durumda o dillerin derleyicisi static metodun
+(fonksiyonun) çağrılmasında kullanılan nesneyi (değişkeni) dikkate almamakta yalnızca onun türünü dikkate almaktadır.
+Yani bu dillerde o dillerin derleyicileri static metodun (fonksiyonun) o nesneyle (değişkenle) değil o nesnenin
+ilişkin olduğu sınıf ismiyle çağrıldığını varsaymaktadır. Rust'ta böyle bir durum söz konusu değildir. Yani Rust'ta
+ilişkili fonksiyonlar yalnızca yapı ismiyle çağrılabilmektedir. O yapı türünden bir değişken ya da değerle
+çağrılamamaktadır.
+
+===========================================================
+İlişkili Fonksiyonlar, new Fonksiyonu ve Date Yapısı Örneği
+===========================================================
+
+İlişkili Fonksiyonlar (Devam)
+=============================
+
+Yapıyla İlişkili Fonksiyonlar: isleap Örneği
+--------------------------------------------
+
+Örneğin ``Date`` isimli bir yapının tarih bilgisi ile ilgili işlemler yapmak üzere oluşturulduğunu düşünelim:
+
+.. code-block:: rust
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+    impl Date {
+        fn disp(&self) {
+            println!("{}/{}/{}", self.day, self.month, self.year);
+        }
+        //...
+    }
+
+Bir yılın artık yıl olup olmadığını (İngilizce artık yıla *leap year* denilmektedir) veren bir fonksiyon da yazmak
+isteyelim. Bu fonksiyonun aslında belli bir tarih bilgisiyle bir ilgisi yoktur. Bu fonksiyon parametre olarak bizden
+bir yıl ister. Bu yılın artık olup olmadığına yönelik ``bool`` bir değerle geri döner. Örneğin:
+
+.. code-block:: rust
+
+    fn isleap(year: u32) -> bool {
+        year % 4 == 0 && year % 100 != 0 || year % 400 == 0
+    }
+
+Bu fonksiyon görüldüğü gibi ``Date`` türünden bir değeri kullanmamaktadır. Yalnızca bir yıl bilgisini
+kullanmaktadır. Ancak fonksiyonun yaptığı iş tarih işlemleriyle ilgilidir. Yani fonksiyon her ne kadar ``Date``
+türünden bir değeri kullanmıyorsa da mantıksal olarak tarihle ilgili bir işlem yapmaktadır. İşte bu tür durumlarda bu
+biçimde sınıfla ilişkili olan fonksiyonları dışarıda global fonksiyon olarak tanımlamak yerine ``impl`` bloğu içerisine
+alarak yapının ilişkili fonksiyonu haline getirmek iyi bir tekniktir. Örneğin:
+
+.. code-block:: rust
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+    impl Date {
+        fn disp(&self) {
+            println!("{}/{}/{}", self.day, self.month, self.year);
+        }
+
+        fn isleap(year: u32) -> bool {
+            year % 4 == 0 && year % 100 != 0 || year % 400 == 0
+        }
+        //...
+    }
+
+Artık bu ``isleap`` fonksiyonunu biz ``isleap`` biçiminde değil ``Date::isleap`` biçiminde çağırabiliriz. Örneğin:
+
+.. code-block:: rust
+
+    fn main() {
+        let d = Date { day: 10, month: 12, year: 2024 };
+
+        d.disp();
+
+        if Date::isleap(2000) {
+            println!("Artık");
+        }
+        else {
+            println!("Artık değil");
+        }
+    }
+
+new İlişkili Fonksiyonu
+-----------------------
+
+En çok karşılaşılan ilişkili fonksiyonlar ilgili yapı türünden değer yaratan ve genellikle ``new`` biçiminde
+isimlendirilen fonksiyonlardır. Bir yapı türünden değeri küme parantezleriyle oluştururken çokça tuşa basılmaktadır.
+Örneğin:
+
+.. code-block:: rust
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+    //...
+
+    let pt = Point { x: 10, y: 20 };
+
+Burada ``Point`` yapısının yalnızca iki elemanı vardır. Ancak yapının daha çok elemanı olsaydı bu durumda tüm
+elemanlara ilkdeğer verebilmek için daha fazla tuşa basmak zorunda kalırdık. Örneğin:
+
+.. code-block:: rust
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+    struct Person {
+        name: String,
+        bplace: String,
+        bdate: Date,
+    }
+    //...
+
+    let person = Person {
+        name: String::from("Abit süzülmüş"),
+        bplace: String::from("Eskişehir"),
+        bdate: Date {
+            day: 10,
+            month: 10,
+            year: 1969
+        }
+    };
+
+İşte bu tür değer yaratımlarını kolaylaştırmak için Rust programcıları yapılar için genellikle ``new`` biçiminde
+isimlendirdikleri bir ilişkili fonksiyon bulundurmaktadır. Böylece o yapı türünden değerler küme parantezleriyle değil
+``new`` fonksiyonunun çağrılmasıyla yaratılmaktadır. Tabii ``new`` ismi gelenekseldir, zorunlu bir isim değildir.
+Örneğin:
+
+.. code-block:: rust
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl Point {
+        fn new(x: i32, y: i32) -> Point {
+            Point { x: x, y: y }
+        }
+        //...
+    }
+
+    //...
+
+    let pt = Point::new(10, 20);
+
+Burada ``Point::new`` fonksiyonu bir metot değildir. ``Point`` yapısının ilişkili bir fonksiyonudur. Örneğin:
+
+.. code-block:: rust
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+    impl Date {
+        fn new(day: u32, month: u32, year: u32) -> Date {
+            Date {
+                day,
+                month,
+                year
+            }
+        }
+        //...
+    }
+
+    struct Person {
+        name: String,
+        bplace: String,
+        bdate: Date,
+    }
+
+    impl Person {
+        fn new(name: String, bplace: String, bdate: Date) -> Person {
+            Person {
+                name,
+                bplace,
+                bdate
+            }
+        }
+        //..
+    }
+    //...
+
+    let person = Person::new(String::from("Abit Süzülmüş"), String::from("Eskişehir"), Date::new(10, 10, 1969));
+
+Burada da ``new`` fonksiyonları ilgili yapıların ilişkili fonksiyonlarıdır.
+
+Bir yapı türünden değeri eğer yapı için bir ``new`` fonksiyonu yazılmışsa ``new`` fonksiyonuyla yaratılması iyi bir
+tekniktir. Çünkü ``new`` fonksiyonları içerisinde sınama (validation) işlemleri yapılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32
+    }
+
+    impl Date {
+        fn new(day: u32, month: u32, year: u32) -> Option<Date> {
+            //...
+        }
+        //...
+    }
+
+Burada ``new`` fonksiyonuna geçersiz bir tarih girilirse fonksiyon ``Option::None`` değeri ile geri döndürülebilir.
+Böylece ``Date`` türünden değer yaratılırken sınama da yapılmış olur.
+
+new Fonksiyonu ve Performans
+----------------------------
+
+Yukarıdaki paragrafta genellikle yapılar için o yapı türünden değer yaratan ``new`` isimli bir ilişkili fonksiyonun
+bulundurulduğunu belirttik. Peki bu fonksiyon ile yapı türünden değer yaratılması bir zaman kaybı oluşturur mu?
+Örneğin:
+
+.. code-block:: rust
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl Point {
+        fn new(x: i32, y: i32) -> Point {
+            Point { x: x, y: y }
+        }
+        //...
+    }
+
+    let pt = Point { x: 10, y: 20 };
+
+``pt`` değişkeninde istenilen değerlerin oluşması normal olarak üç aşamada gerçekleşmektedir.
+
+1) Önce ``new`` fonksiyonu içerisinde ``Point`` türünden değer yaratılır.
+2) Yaratılan değer ``new`` fonksiyonunun geri dönüş değeri için oluşturulan geçici değişkene taşınır.
+3) Bu geçici değişkenden ``pt`` değişkenine taşıma yapılır.
+
+Ancak derleyiciler aslında bu tür durumlarda kodu optimize ederek bu taşımaları en az düzeyde yapmaktadır. Örneğin
+derleyici aslında önce ``Point`` türünden değeri yaratıp onu geri dönüş değeri için yaratılan geçici değişkene atamak
+yerine doğrudan ``Point`` değerini zaten geçici değişken üzerinde oluşturabilir. Bu durumda yukarıda işlem iki aşamaya
+indirgenecektir:
+
+1) ``new`` fonksiyonunun geri dönüş değeri için ayrılan geçici değişkende ``Point`` değeri doğrudan oluşturulur.
+2) Bu geçici değişkenden ``pt`` değişkenine taşıma yapılır.
+
+Hatta derleyiciler bu tür durumlarda bir kademe daha ileri giderek doğrudan fonksiyonun geri dönüş değerine ilişkin
+geçici değişkeni sanki ``pt`` imiş gibi de yaratabilmektedir. Böylece aslında tüm bu işlemler tek bir yaratıma
+indirgenmiş olur. Bu tür optimizasyonlara derleyiciler dünyasında *URVO (Unnamed Return Value Optimization)* ve
+*Named Return Value Optimization (NRVO)* denilmektedir. Örneğin Rust derleyicileri aşağıdaki gibi bir ilkdeğer vermede
+optimizasyon uygulayarak gereksiz taşıma yapmamaktadır:
+
+.. code-block:: rust
+
+    let pt = Point { x: 10, y: 20 };
+
+Burada derleyici önce geçici bir değer oluşturup onu ``pt`` değişkenine taşımamaktadır. Doğrudan değeri ``pt``
+üzerinde oluşturmaktadır.
+
+Peki derleyiciler bu tür durumlarda kodu optimize etmeyi garanti etmekte midir? Hayır genel olarak derleyiciler böyle
+bir garanti vermezler. Programcının derleyiciyi tanıması ve onun hangi optimizasyonları yapabildiğini biliyor olması
+gerekir. Tabii yukarıdaki gibi optimizasyonlar çok beklendik ve temel düzeydedir. Rust derleyicilerinin bu
+optimizasyonu yapması beklenir. *The Rust Reference* dokümanlarında şöyle denilmektedir:
+
+    *Temporaries are typically created during the evaluation of expressions. The Rust compiler may sometimes elide or
+    combine temporaries to avoid unnecessary memory operations.*
+
+Bu cümlelerin Türkçe çevirisi şöyle yapılabilir:
+
+    *Geçici değişkenler genellikle ifadelerin değerlendirilmesi sırasında oluşturulur. Rust derleyicisi bazen gereksiz
+    bellek işlemlerinden kaçınmak için geçici değişkenleri atlayabilir ya da birleştirebilir.*
+
+Örnek: Date Yapısı
+==================
+
+Date Yapısı ve Temel Metotlar
+-----------------------------
+
+Yapıların ilişkili fonksiyonlarını daha iyi açıklayabilmek için tarih işlemleri yapan bir ``Date`` yapısı üzerinde
+çalışalım. ``Date`` yapımız şöyle olsun:
+
+.. code-block:: rust
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+``Date`` yapısının ``new`` ilişkili fonksiyonu parametresiyle aldığı gün, ay, yıl bilgilerinden bir ``Date`` değeri
+oluşturup bu değere geri dönmektedir:
+
+.. code-block:: rust
+
+    fn new(day: u32, month: u32, year: u32) -> Date {
+        Date { day, month, year }
+    }
+
+``Date`` yapısının ilişkili ``_isleap`` fonksiyonu belli bir yılın artık olup olmadığını belirlemekte
+kullanılmaktadır. Bu fonksiyon belli bir tarih üzerinde işlem yapmamaktadır. Bir yılı parametre olarak alıp ``bool``
+bir değere geri dönmektedir. Fonksiyonun ``Date`` yapısı ile ilgisi nedeniyle global bir fonksiyon yerine ``Date``
+sınıfının ilişkili fonksiyonu yapılması iyi bir tekniktir. Fonksiyon şöyle yazılmıştır:
+
+.. code-block:: rust
+
+    impl Date {
+        //...
+        fn _isleap(year: u32) -> bool {
+            year % 4 == 0 && year % 100 != 0 || year % 400 == 0
+        }
+        //...
+    }
+
+Nesne yönelimli programlama dillerinde sınıfların belli elemanlarının dışarıdan gizlenmesi için gizlenmek istenen
+elemanlar sınıfların ``private`` bölümlerine yerleştirilmektedir. Örneğin ``isleap`` gibi bir metot içsel bir
+kullanıma ilişkindir. Bu metodun dışarıdan kullanılması istenmeyebilir. Rust'ta modüller arasında yapı elemanları
+gizlenebilmektedir. Ancak aynı modülde C++, Java ve C# gibi gizleme mümkün değildir. Rust programcılarının bir bölümü
+mantıksal olarak dışarıdan gizlemek istedikleri metotları ve yapı elemanlarını başlarına ``_`` getirerek
+isimlendirmektedir.
+
+_total_days Metodu
+------------------
+
+Tarih işlemlerini kolaylaştırabilmek için pek çok kütüphane tarih bilgisini belli bir tarihten geçen gün sayısına
+dönüştürmektedir. (Bu tür durumlarda orijin noktası olarak seçilen tarihe İngilizce *epoch* da denilmektedir.) Biz
+örneğimizde ``epoch`` olarak ``01/01/1900`` tarihini alacağız. ``01/01/1900``'den belli bir tarihe kadar geçen gün
+sayısı aşağıdaki gibi bir metotla hesaplanabilir:
+
+.. code-block:: rust
+
+    impl Date {
+        //...
+        fn _total_days(&self) -> u32 {
+            let mut tdays: u32 = 0;
+            let mut montab: [u32; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            for i in 1900..self.year {
+                tdays += if Date::isleap(i) { 366 } else { 365 }
+            }
+            montab[1] = if Date::isleap(self.year) { 29 } else { 28 };
+            for i in 0 ..self.month - 1 {
+                tdays += montab[i as usize];
+            }
+            tdays + self.day
+        }
+        //...
+    }
+
+Bu metotta birkaç nokta üzerinde açıklama yapmak istiyoruz. Bir metot kendi yapısıyla ilişkili bir fonksiyonu
+doğrudan isimle çağıramamaktadır. Yine sanki dışarıdan çağrılıyormuş gibi yapı ismiyle çağırabilmektedir.
+Örneğimizde ``isleap`` fonksiyonunun ``isleap`` biçiminde değil ``Date::isleap`` biçiminde çağrıldığına dikkat
+ediniz. (C++, Java ve C# gibi bazı dillerde *sınıf faaliyet alanı (class scope)* biçiminde bir faaliyet alanı vardır.
+Dolayısıyla isim araması sırasında zaten sınıfın elemanlarına bakılmaktadır. Bu nedenle o dillerde statik olmayan
+metotlar içerisinde static metotların çağrılması sırasında sınıf isminin kullanılması gerekmemektedir.)
+``_total_days`` metodundaki diğer bir nokta da metodun içerisindeki ``montab`` dizisinin metot her çağrıldığında
+yeniden yaratılmasıdır. C'de bunu engellemek için dizi ``static`` yapılmaktadır. Rust'ta C'deki global değişkenlere
+benzeyen global static öğeler, C'deki static yerel değişkenlere benzeyen static yerel öğeler bulunmaktadır. Ancak bu
+konular ileride ele alınacaktır. Metotta ayrıca dizi indekslenirken köşeli parantez içerisindeki ifadenin ``usize``
+türüne dönüştürüldüğüne dikkat ediniz. Çünkü daha önceden de bahsettiğimiz gibi Rust'ta dizi indeksleri ``usize``
+türünden olmak zorundadır.
+
+dayname, compare ve _from_total_days
+------------------------------------
+
+Bir tarihin hangi güne karşılık geldiğini belirlemek için ``epoch`` tarihinin hangi gün olduğunu bilmek ve o tarihten
+geçen gün sayısının ``7``'ye bölümünden elde edilen kalanı kullanmak gerekir. Örneğin ``01/01/1900`` tarihi Pazar
+günüdür. Bu durumda bu tarihten geçen gün sayısının ``7``'ye bölümünden elde edilen kalan ``0`` ise o tarih de
+Pazar'dır. Yapımızdaki bu işi yapan metot şöyle yazılmıştır:
+
+.. code-block:: rust
+
+    fn dayname(&self) -> &str {
+        let days: [&str; 7] = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+        days[(self.total_days() % 7) as usize]
+    }
+
+Örneğimizde iki tarihi karşılaştıran ``compare`` isimli bir metot da yazılmıştır. Metot ``Ordering`` isimli enum
+türüne geri dönmektedir:
+
+.. code-block:: rust
+
+    fn compare(&self, other: &Self) -> Ordering {
+        let diff = self.total_days() - other.total_days();
+
+        if diff < 0 {
+            Ordering::Less
+        }
+        else if diff > 0 {
+            Ordering::Greater
+        }
+        else  {
+            Ordering::Equal
+        }
+    }
+
+    enum Ordering {
+        Less,
+        Equal,
+        Greater,
+    }
+
+Aslında Rust'ın standart kütüphanesinde de hazır bir ``Ordering`` ``enum`` türü vardır:
+
+.. code-block:: rust
+
+    #[repr(i8)]
+    pub enum Ordering {
+        Less = -1,
+        Equal = 0,
+        Greater = 1,
+    }
+
+Örneğimizde ``total_days`` metodunun ters işlemini yapan ``_from_total_days`` isimli bir ilişkili fonksiyon da
+bulundurulmuştur:
+
+.. code-block:: rust
+
+    fn _from_total_days(tdays: u32) -> Date {
+        let mut total: u32 = 0;
+        let mut ydays: u32;
+        let (mut day, mut month, mut year): (u32, u32, u32) = (0, 0, 0);
+        let mut montab: [u32; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+        for i in 1900.. {
+            ydays = if Date::_isleap(i) { 366 } else { 365 };
+            if total + ydays >= tdays {
+                year = i;
+                break;
+            }
+            total += ydays;
+        }
+        montab[1] = if Date::_isleap(year) { 29 } else { 28 };
+        for i in 0..12 {
+            if total + montab[i as usize] >= tdays {
+                month = i + 1;
+                break;
+            }
+            total += montab[i as usize];
+        }
+        day = tdays - total;
+
+        Date { day, month, year }
+    }
+
+Rust'ta birtakım değerleri alarak ilgili yapı türünden değer veren fonksiyonlar geleneksel olarak ``from_xxx``
+biçiminde isimlendirilmektedir.
+
+add_days, diff_date ve disp
+---------------------------
+
+Bir tarihten belli bir gün sonrasına ilişkin bir tarihin elde edilmesi çok gereksinim duyulan işlemlerdendir.
+Yapımıza bu işlemi yapan bir metot da ekledik:
+
+.. code-block:: rust
+
+    fn add_days(&self, days: u32) -> Date {
+        Date::_from_total_days(self._total_days() + days)
+    }
+
+İki tarih arasındaki farkı gün sayısı olarak elde eden bir metota da gereksinim duyulmaktadır. Örneğimizde böyle bir
+metot da bulundurduk:
+
+.. code-block:: rust
+
+    fn diff_date(&self, other: &Date) -> u32 {
+        self._total_days() - other._total_days()
+    }
+
+Nihayet örneğimizde tarihi ekrana (stdout dosyasına) yazdıran ``disp`` isimli bir metot da bulunmaktadır:
+
+.. code-block:: rust
+
+    fn disp(&self) {
+        println!("{}/{}/{} - {}", self.day, self.month, self.year, self.dayname());
+    }
+
+``Date`` örneğinin tamamı aşağıda verilmiştir.
+
+.. code-block:: rust
+
+    fn main() {
+        let date = Date::new(31, 12, 2025);
+        let date2 = Date::new(1, 1, 2026);
+        let days: u32;
+
+        days = date2.diff_date(&date);
+        println!("{}", days);       // 1
+    }
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+    impl Date {
+        fn new(day: u32, month: u32, year: u32) -> Date {
+            Date { day, month, year }
+        }
+
+        fn _total_days(&self) -> u32 {
+            let mut tdays: u32 = 0;
+            let mut montab: [u32; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            for i in 1900..self.year {
+                tdays += if Date::_isleap(i) { 366 } else { 365 }
+            }
+            montab[1] = if Date::_isleap(self.year) { 29 } else { 28 };
+            for i in 0..self.month - 1 {
+                tdays += montab[i as usize];
+            }
+            tdays + self.day
+        }
+
+        fn dayname(&self) -> &str {
+            let days: [&str; 7] = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+
+            days[(self._total_days() % 7) as usize]
+        }
+
+        fn add_days(&self, days: u32) -> Date {
+            Date::_from_total_days(self._total_days() + days)
+        }
+
+        fn diff_date(&self, other: &Date) -> u32 {
+            self._total_days() - other._total_days()
+        }
+
+        fn disp(&self) {
+            println!("{}/{}/{} - {}", self.day, self.month, self.year, self.dayname());
+        }
+
+        fn compare(&self, other: &Self) -> Ordering {
+            let diff = self._total_days() - other._total_days();
+
+            if diff < 0 {
+                Ordering::Less
+            }
+            else if diff > 0 {
+                Ordering::Greater
+            }
+            else  {
+                Ordering::Equal
+            }
+        }
+
+        fn _isleap(year: u32) -> bool {
+            year % 4 == 0 && year % 100 != 0 || year % 400 == 0
+        }
+
+        fn _from_total_days(tdays: u32) -> Date {
+            let mut total: u32 = 0;
+            let mut ydays: u32;
+            let (mut day, mut month, mut year): (u32, u32, u32) = (0, 0, 0);
+            let mut montab: [u32; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            for i in 1900.. {
+                ydays = if Date::_isleap(i) { 366 } else { 365 };
+                if total + ydays >= tdays {
+                    year = i;
+                    break;
+                }
+                total += ydays;
+            }
+            montab[1] = if Date::_isleap(year) { 29 } else { 28 };
+            for i in 0..12 {
+                if total + montab[i as usize] >= tdays {
+                    month = i + 1;
+                    break;
+                }
+                total += montab[i as usize];
+            }
+            day = tdays - total;
+
+            Date { day, month, year }
+        }
+    }
+
+    enum Ordering {
+        Less,
+        Equal,
+        Greater,
+    }
+
+Yapı Alanlarının Sınanması (validation)
+---------------------------------------
+
+Peki bir yapı türünden değer yaratırken yapı alanlarına yerleştirilecek değerlerin sınanması Rust'ta nasıl
+yapılmaktadır. Anımsanacağı gibi nesne yönelimli programlama tekniğinde sınıfların yapıcı fonksiyonları
+(constructors) içerisinde ya da sınıflar türünden nesne oluşturan fonksiyonlar içerisinde uygunsuz değerler tespit
+edildiğinde exception fırlatılmaktadır. Rust'ta C++, Java ve C# gibi dillerdeki gibi bir exception mekanizması yoktur.
+Peki bu durumda örneğin yukarıdaki ``Date`` yapısının ``new`` ilişkili fonksiyonuna programcı yanlış değer geçerse ne
+olacak? Örneğin:
+
+.. code-block:: rust
+
+    impl Date {
+        //...
+        fn new(day: u32, month: u32, year: u32) -> Date {
+           Date { day, month, year }
+        }
+        //...
+    }
+
+    let date = Date::new(40, 12, 2025);
+
+Burada ``40`` değeri gün için geçerli bir değer değildir. Ancak ``new`` fonksiyonu bir ``Date`` değeri vermek
+zorundadır. İşte Rust'ta bu tür durumlarda fonksiyonlar ``Option`` ya da ``Result`` türleri ile geri
+döndürülmektedir. Böylece fonksiyonu çağıran kişi kalıp uyuşumu ile değerin geçerli olup olmadığını
+anlayabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    impl Date {
+        //...
+        fn new(day: u32, month: u32, year: u32) -> Option<Date> {
+            if year < 1900 || month < 1 || month > 12{
+                return None;
+            }
+
+            let mut montab: [u32; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            montab[1] = if Date::_isleap(year) { 29 } else { 28 };
+
+            if day < 1 || day > montab[(month - 1) as usize] {
+                return None;
+            }
+
+            Some(Date { day, month, year })
+        }
+        //...
+    }
+
+Burada tarih bilgisi üzerinde gerekli sınamanın yapıldığını görüyorsunuz. Fonksiyon sınama başarısızsa
+``Option::None`` varyantı ile sınama başarılı ise ``Option::Some`` varyantı ile geri döndürülmüştür. Tabii artık
+``new`` fonksiyonu çağrıldığında ``Date`` elde edilmeyecektir, ``Option<Date>`` elde edilecektir. ``new``
+fonksiyonunun geri dönüş değeri ``unwrap`` ya da ``expect`` uygulanarak kullanılabilir:
+
+.. code-block:: rust
+
+    let date = Date::new(29, 2, 2025).expect("invalid date");
+
+Bu kodda eğer tarih geçersizse panik oluşacak, geçerliyse ``Date`` değeri elde edilecektir. Tabii programcı buradaki
+olası hatayı ``if let`` ile kalıp uyuşumu kullanarak da ele alabilir. Örneğin:
+
+.. code-block:: rust
+
+    if let Some(date) = Date::new(29, 2, 2025).expect("invalid date") {
+        //...
+    }
+    else {
+        //...
+    }
+
+Burada varyantın alanının yalnızca ``if let`` deyiminin doğruysa kısmında kullanılabileceğine dikkat ediniz. Bu tür
+durumlarda ``is_none`` ya da ``is_some`` metotlarından da faydalanabilirsiniz. Örneğin:
+
+.. code-block:: rust
+
+    let date = Date::new(29, 2, 2025);
+
+    if date.is_none() {
+        //...
+    }
+
+Burada artık ``date`` değişkeninin ``Option<Date>`` türünden olduğuna dikkat ediniz.
+
+Aşağıda ``Date`` örneğinin sınamalı biçimi de bir bütün olarak verilmiştir.
+
+.. code-block:: rust
+
+    fn main() {
+        fn main() {
+            let date = Date::new(10, 2, 2025).unwrap();
+
+            date.disp();
+        }
+    }
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+    impl Date {
+        fn new(day: u32, month: u32, year: u32) -> Option<Date> {
+            if year < 1900 || month < 1 || month > 12{
+                return None;
+            }
+
+            let mut montab: [u32; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            montab[1] = if Date::_isleap(year) { 29 } else { 28 };
+
+            if day < 1 || day > montab[(month - 1) as usize] {
+                return None;
+            }
+
+            Some(Date { day, month, year })
+        }
+
+        fn _total_days(&self) -> u32 {
+            let mut tdays: u32 = 0;
+            let mut montab: [u32; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            for i in 1900..self.year {
+                tdays += if Date::_isleap(i) { 366 } else { 365 }
+            }
+            montab[1] = if Date::_isleap(self.year) { 29 } else { 28 };
+            for i in 0..self.month - 1 {
+                tdays += montab[i as usize];
+            }
+            tdays + self.day
+        }
+
+        fn dayname(&self) -> &str {
+            let days: [&str; 7] = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+
+            days[(self._total_days() % 7) as usize]
+        }
+
+        fn add_days(&self, days: u32) -> Date {
+            Date::_from_total_days(self._total_days() + days)
+        }
+
+        fn diff_date(&self, other: &Date) -> u32 {
+            self._total_days() - other._total_days()
+        }
+
+        fn disp(&self) {
+            println!("{}/{}/{} - {}", self.day, self.month, self.year, self.dayname());
+        }
+
+        fn compare(&self, other: &Self) -> Ordering {
+            let diff = self._total_days() - other._total_days();
+
+            if diff < 0 {
+                Ordering::Less
+            }
+            else if diff > 0 {
+                Ordering::Greater
+            }
+            else  {
+                Ordering::Equal
+            }
+        }
+
+        fn _isleap(year: u32) -> bool {
+            year % 4 == 0 && year % 100 != 0 || year % 400 == 0
+        }
+
+        fn _from_total_days(tdays: u32) -> Date {
+            let mut total: u32 = 0;
+            let mut ydays: u32;
+            let (mut day, mut month, mut year): (u32, u32, u32) = (0, 0, 0);
+            let mut montab: [u32; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            for i in 1900.. {
+                ydays = if Date::_isleap(i) { 366 } else { 365 };
+                if total + ydays >= tdays {
+                    year = i;
+                    break;
+                }
+                total += ydays;
+            }
+            montab[1] = if Date::_isleap(year) { 29 } else { 28 };
+            for i in 0..12 {
+                if total + montab[i as usize] >= tdays {
+                    month = i + 1;
+                    break;
+                }
+                total += montab[i as usize];
+            }
+            day = tdays - total;
+
+            Date { day, month, year }
+        }
+    }
+
+    enum Ordering {
+        Less,
+        Equal,
+        Greater,
+    }
+
+====================================================
+Self Anahtar Sözcüğü, Default Trait'i ve Referanslar
+====================================================
+
+Self Anahtar Sözcüğü
+====================
+
+Yapılarda Self
+--------------
+
+Daha önceden de bahsettiğimiz gibi ``impl`` bloğu içerisinde ``Self`` anahtar sözcüğü (``S``'nin büyük yazıldığına
+dikkat ediniz) gerçekleştirimi yapılan türü (yani ``impl`` anahtar sözcüğünün yanındaki yapı ya da ``enum`` türünü)
+belirtmektedir. Örneğin:
+
+.. code-block:: rust
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl Point {
+        fn new(x: i32, y: i32) -> Self {
+            Self { x, y }
+        }
+        //...
+    }
+
+Burada ``new`` ilişkili fonksiyonu ``Self`` ile geri dönmektedir. Buradaki ``Self`` anahtar sözcüğü ``Point`` anlamına
+gelmektedir. ``Self`` ile ``self`` anahtar sözcükleri arasındaki farklılığa dikkat ediniz. ``self`` anahtar sözcüğü
+(``s``'nin küçük olduğuna dikkat ediniz) metot çağrılmasında kullanılan değişken ya da değeri belirtmektedir. Tabii bu
+``self`` bir referans durumunda da olabilir. Halbuki ``Self`` anahtar sözcüğü (``S``'nin büyük olduğuna dikkat ediniz)
+``impl`` bloğunda gerçekleştirimi yapılan türü belirtmektedir.
+
+.. code-block:: rust
+
+    fn main() {
+        let pt = Point::new(10, 20);
+        println!("{}, {}", pt.x, pt.y);
+    }
+
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl Point {
+        fn new(x: i32, y: i32) -> Self {
+            Self { x, y }
+        }
+        //...
+    }
+
+enum Türlerinde Self
+--------------------
+
+``enum`` türlerinin de metotlara ve ilişkili fonksiyonlara sahip olabileceğini belirtmiştik. ``enum`` türlerine ilişkin
+metotlar ve ilişkili fonksiyonlar yazılırken de yine ``Self`` anahtar sözcüğü kullanılabilmektedir. Buradaki ``Self``
+anahtar sözcüğü ilgili ``enum`` türünü belirtir. Örneğin:
+
+.. code-block:: rust
+
+    enum Fruit {
+        Apple,
+        Banana(i32),
+        Orange(String),
+        None
+    }
+
+    impl Fruit {
+        fn new() -> Self {
+            Self::None
+        }
+
+        fn disp(&self) {
+            match self {
+                Self::Apple => println!("Apple"),
+                Self::Banana(disp) => println!("Banana({})", disp),
+                Self::Orange(disp) => println!("Orange({})", disp),
+                Self::None => println!("None"),
+            }
+        }
+    }
+
+Burada ``impl`` bloğunun içerisindeki ``Self`` anahtar sözcüğü ``Fruit`` anlamına gelmektedir.
+
+Date Örneğinde Self
+-------------------
+
+Aşağıda daha önce yazmış olduğumuz ``Date`` yapısının metotlarında ve ilişkili fonksiyonlarında ``Date`` yerine
+``Self`` anahtar sözcüğünü kullandık.
+
+.. code-block:: rust
+
+    fn main() {
+        let date = Date::new(10, 2, 2025).unwrap();
+
+        date.disp();
+    }
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+    impl Date {
+        fn new(day: u32, month: u32, year: u32) -> Option<Self> {
+            if year < 1900 || month < 1 || month > 12{
+                return None;
+            }
+
+            let mut montab: [u32; 12]  = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            montab[1] = if Self::_isleap(year) { 29 } else { 28 };
+
+            if day < 1 || day > montab[(month - 1) as usize] {
+                return None;
+            }
+
+            Some(Self {day, month, year})
+        }
+
+        fn _total_days(&self) -> u32 {
+            let mut tdays = 0;
+            let mut montab: [u32; 12]  = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            for i in 1900..self.year {
+                tdays += if Self::_isleap(i) { 366 } else { 365 }
+            }
+            montab[1] = if Self::_isleap(self.year) { 29 } else { 28 };
+            for i in 0..self.month - 1 {
+                tdays += montab[i as usize];
+            }
+            tdays + self.day
+        }
+
+        fn dayname(&self) -> &str {
+            let days: [&str; 7] = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+
+            days[(self._total_days() % 7) as usize]
+        }
+
+        fn add_days(&self, days: u32) -> Self {
+            Self::_from_total_days(self._total_days() + days)
+        }
+
+        fn diff_date(&self, other: &Self) -> u32 {
+            self._total_days() - other._total_days()
+        }
+
+        fn disp(&self) {
+            println!("{}/{}/{} - {}", self.day, self.month, self.year, self.dayname());
+        }
+
+        fn compare(&self, other: &Self) -> Ordering {
+            let diff = self._total_days() - other._total_days();
+
+            if diff < 0 {
+                Ordering::Less
+            }
+            else if diff > 0 {
+                Ordering::Greater
+            }
+            else  {
+                Ordering::Equal
+            }
+        }
+
+        fn _isleap(year: u32) -> bool {
+            year % 4 == 0 && year % 100 != 0 || year % 400 == 0
+        }
+
+        fn _from_total_days(tdays: u32) -> Self {
+            let mut total: u32 = 0;
+            let mut ydays: u32;
+            let (mut day, mut month, mut year): (u32, u32, u32) = (0, 0, 0);
+            let mut montab: [u32; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            for i in 1900.. {
+                ydays = if Self::_isleap(i) { 366 } else { 365 };
+                if total + ydays >= tdays {
+                    year = i;
+                    break;
+                }
+                total += ydays;
+            }
+            montab[1] = if Self::_isleap(year) { 29 } else { 28 };
+            for i in 0..12 {
+                if total + montab[i as usize] >= tdays {
+                    month = i + 1;
+                    break;
+                }
+                total += montab[i as usize];
+            }
+            day = tdays - total;
+
+            Self { day, month, year}
+        }
+    }
+
+    enum Ordering {
+        Less,
+        Equal,
+        Greater,
+    }
+
+Self mi, Tür İsmi mi?
+---------------------
+
+Peki ``impl`` bloğu içerisinde yapının ya da ``enum`` türünün doğrudan isminin kullanılması mı yoksa ``Self`` anahtar
+sözcüğünün kullanılması mı daha uygundur? ``Self`` anahtar sözcüğü dört harfli olduğu için çoğu kez yazım kolaylığı
+sağlamaktadır. Ancak ``Self`` anahtar sözcüğü yerine doğrudan türün isminin yazılması kodu daha okunabilir
+yapabilmektedir. Eğer biz yapı ismi ya da *enum ismi* yerine ``Self`` anahtar sözcüğünü kullanırsak yapının ya da 
+``enum`` türünün ismi değiştirildiğinde isimsel bir değişiklik yapmak zorunda kalmayız. Rust programcıları genellikle 
+yapı ya da *enum ismi* yerine ``Self`` kullanımını tercih etmektedir. Ancak ne olursa olsun bu bir tercih meselesidir.
+
+Default Trait'i
+===============
+
+derive(Default)
+---------------
+
+Bir yapı türünden default bir değer kolay bir biçimde ``Default`` isimli trait'in otomatik desteklenmesi (implemente
+edilmesi) yoluyla sağlanabilir. Rust'ta trait'lerin otomatik desteklenmesi için ``#[derive(<trait_listesi>)]``
+özniteliği kullanılmaktadır. ``derive`` anahtar sözcüğünden sonra parantezler içerisine virgüllerle ayrılmış trait
+isimleri yazılmaktadır. Bu öznitelik iliştirildiğinde trait'lerin metotları ve ilişkili fonksiyonları Rust
+derleyicisi tarafından otomatik biçimde oluşturulmaktadır. Her trait ``derive`` özniteliği ile kullanılamaz.
+``#[derive(<trait_listesi>)]`` özniteliği yalnızca önceden belirlenmiş olan bazı trait'ler için kullanılabilmektedir.
+Bunların listesi şöyledir:
+
+- ``Clone``
+- ``Copy``
+- ``Debug``
+- ``Default``
+- ``Eq``
+- ``PartialEq``
+- ``Ord``
+- ``PartialOrd``
+- ``Hash``
+
+İşte eğer ``derive`` özniteliğinde ``Default`` trait'i belirtilirse sanki ilgili yapı ``default`` isimli bir ilişkili
+fonksiyona sahipmiş gibi kullanılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+    #[derive(Default)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl Point {
+        fn new(x: i32, y: i32) -> Self {
+            Self { x, y }
+        }
+
+        fn disp(&self) {
+            println!("x: {}, y: {}", self.x, self.y);
+        }
+    }
+
+    fn main() {
+        let pt = Point::new(10, 20);
+        pt.disp();
+
+        let pt = Point::default();
+        pt.disp();          // x: 0, y: 0
+    }
+
+Burada biz ``Point::default()`` ifadesiyle yapının ``default`` isimli ilişkili fonksiyonunu çağırabildik. Çünkü bu
+fonksiyon derleyici tarafından otomatik bir biçimde yazıldı. ``default`` fonksiyonunun parametresinin olmadığına
+dikkat ediniz.
+
+.. code-block:: rust
+
+    fn main() {
+        let pt = Point::new(10, 20);
+        pt.disp();
+
+        let pt = Point::default();
+        pt.disp();
+    }
+
+    #[derive(Default)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl Point {
+        fn new(x: i32, y: i32) -> Self {
+            Self { x, y }
+        }
+
+        fn disp(&self) {
+            println!("x: {}, y: {}", self.x, self.y);
+        }
+    }
+
+Alanların Default Değerleri
+---------------------------
+
+Peki biz bir yapıya ``#[derive(Default)]`` özniteliğini iliştirdiğimizde yaratılan yapı değerinin alanlarındaki
+değerler ne olacaktır? İşte nümerik türler için default değer ``0``, ``bool`` türü için ``False`` biçimdedir.
+Yukarıdaki ``Point`` yapısının iki alanı da ``i32`` türündendir. ``i32`` bir nümerik tür olduğu için bu iki alanın
+default değerleri ``0``'dır. ``String`` türü için default değer boş ``String``'tir. Peki ya ilgili yapı *default değeri
+belli olmayan* bir türe ilişkin alan barındırıyorsa ne olur?
+
+Bir ``#[derive(Default)]`` özniteliğinin iliştirilebilmesi için o yapının bütün alanlarının ``Default`` trait'ini
+destekliyor olması (implemente ediyor olması) gerekmektedir. Temel türlerin bu trait'i desteklediği kabul edilmektedir.
+``String`` türü de örneğin bu trait'i desteklemektedir. Aşağıdaki örneğe dikkat ediniz:
+
+.. code-block:: rust
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+    #[derive(Default)]          // error! yapının bdate alanı Default trait'ini desteklemiyor
+    struct Person {
+        name: String,
+        age: u32,
+        bdate: Date
+    }
+
+Bu kod error oluşturacaktır. Çünkü ``Person`` yapısının ``name`` ve ``age`` alanlarına ilişkin türler ``Default``
+trait'ini desteklemektedir ancak ``bdate`` alanının ilişkin olduğu ``Date`` türü bu trait'i desteklememektedir. (Bu
+anlamda bir özyinelemenin işletilmediğine dikkat ediniz.) Tabii biz ``Date`` yapısının da ``Default`` trait'ini
+desteklemesini sağlayabiliriz. Bu durumda error ortadan kalkacaktır. Örneğin:
+
+.. code-block:: rust
+
+    #[derive(Default)]
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+    #[derive(Default)]          // geçerli, yapının tüm alanları Default trait'in destekliyor
+    struct Person {
+        name: String,
+        age: u32,
+        bdate: Date
+    }
+
+Bu kod artık derlenecektir. Tabii ``Date`` için default değerin ``0/0/0`` olması aslında pek uygun değildir. Kendi
+yapınız için ``#[derive(Default)]`` özniteliğini iliştirmeden önce yapınızın alanlarının default değer almasının
+anlamlı olup olmadığını gözden geçirmelisiniz. Yukarıdaki kod geçerli olsa da ``0/0/0`` tarihinin bir default tarih
+olarak kullanılması pek anlamlı değildir.
+
+.. code-block:: rust
+
+    fn main() {
+       let per = Person::default();
+
+        per.disp();
+    }
+
+    #[derive(Default)]
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+    impl Date {
+        fn new(day: u32, month: u32, year: u32) -> Self {
+            Self { day, month, year }
+        }
+
+        fn disp(&self) {
+            println!("{}/{}/{}", self.day, self.month, self.year);
+        }
+    }
+
+    #[derive(Default)]
+    struct Person {
+        name: String,
+        age: u32,
+        bdate: Date
+    }
+
+    impl Person {
+        fn new(name: String, age: u32, bdate: Date) -> Self {
+            Self { name, age, bdate }
+        }
+
+        fn disp(&self) {
+            println!("{} is {} years old and was born in {}", self.name, self.age, self.bdate.year);
+        }
+    }
+
+Default Trait'inin Açıkça Desteklenmesi
+---------------------------------------
+
+Tabii aslında ``Default`` trait'ini otomatik değil açıkça da destekleyebiliriz (implemente edebiliriz). Her ne kadar
+biz henüz trait'ler konusunu görmediysek de burada bir örnek vermek istiyoruz:
+
+.. code-block:: rust
+
+    struct Date {
+        day: u32,
+        month: u32,
+        year: u32,
+    }
+
+    impl Date {
+        fn new(day: u32, month: u32, year: u32) -> Self {
+            Self { day, month, year }
+        }
+
+        fn disp(&self) {
+            println!("{}/{}/{}", self.day, self.month, self.year);
+        }
+    }
+
+    impl Default for Date {
+        fn default() -> Self {
+            Self {
+                day: 1,
+                month: 1,
+                year: 1900
+            }
+        }
+    }
+
+Ancak yapıya ``derive(Default)`` özniteliği iliştirilmişse artık açıkça destekleme yapılamaz. Yani destekleme ya
+otomatik yapılabilir ya da açıkça yapılabilir.
+
+enum Türleri ve #[default]
+--------------------------
+
+Peki ``enum`` türlerine ``#[derive(Default)]`` özniteliği iliştirilebilir mi? Yani örneğin aşağıdaki gibi bir ``enum``
+tanımlaması geçerli midir?
+
+.. code-block:: rust
+
+    #[derive(Default)]              // error!
+    enum Direction {
+        Left(String),
+        Up(String),
+        Right(String),
+        Down(String),
+        None
+    }
+
+Burada sorun ``Direction::default()`` fonksiyonu çağrıldığında elde edilecek ``enum`` değerinin hangi varyanta ilişkin
+olacağıdır. Değerin ilk varyanta ilişkin olabileceğini düşünebilirsiniz. Ancak bu pek anlamlı değildir. İşte
+``#[derive(Default)]`` özniteliği için ``enum`` türünün hangi varyantının default değer olarak kullanılacağı
+``#[default]`` özniteliği ile belirlenmektedir. Bu öznitelik hangi varyantın önüne yazılırsa o varyant default değer
+olarak kullanılır. Örneğin:
+
+.. code-block:: rust
+
+    #[derive(Default)]
+    enum Direction {
+        Left(String),
+        Up(String),
+        Right(String),
+        Down(String),
+        #[default]
+        None
+    }
+
+Burada ``None`` varyantı default değer olarak kullanılacaktır. Ancak ``#[default]`` özniteliği ``enum``'un yalnızca
+birimsel varyantlarına uygulanabilmektedir. Örneğin aşağıdaki tanımlama error oluşturacaktır:
+
+.. code-block:: rust
+
+    #[derive(Default)]
+    enum Direction {
+        #[default]          // error! buözniteli yalnızca birimsel varyantlara uygulanabilir
+        Left(String),
+        Up(String),
+        Right(String),
+        Down(String),
+        None
+    }
+
+Tabii ``enum`` için de aslında ``Default`` trait'i açıkça desteklenebilir. Örneğin:
+
+.. code-block:: rust
+
+    enum Direction {
+        Left(String),
+        Up(String),
+        Right(String),
+        Down(String),
+        #[default]
+        None
+    }
+
+    impl Default for Direction {
+        fn default() -> Self {
+            Direction::Left(String::from("Sol"))
+        }
+    }
+
+    fn main() {
+        let d = Direction::default();
+
+        d.disp();           // Left(Sol)
+    }
+
+Trait'ler konusu ileride ayrı bir başlık altında ele alınacaktır.
+
+.. code-block:: rust
+
+    fn main() {
+        let d = Direction::default();
+
+        d.disp();
+    }
+
+    enum Direction {
+        Left(String),
+        Up(String),
+        Right(String),
+        Down(String),
+        None
+    }
+
+    impl Direction {
+        fn disp(&self) {
+            match self {
+                Direction::Left(x) => {
+                    println!("Left({})", x);
+                },
+                Direction::Up(x) => {
+                    println!("Up({})", x);
+                },
+                Direction::Right(x) => {
+                    println!("Right({})", x);
+                },
+                Direction::Down(x) => {
+                    println!("Down({})", x);
+                },
+                Direction::None => println!("None"),
+            }
+        }
+    }
+
+    impl Default for Direction {
+        fn default() -> Self {
+            Direction::Left(String::from("Sol"))
+        }
+    }
+
+Yapılar ve Sınıflar
+===================
+
+Rust'taki yapılar nesne yönelimli dillerdeki sınıflara biraz benzemektedir. Ancak Rust'taki yapılar o dillerdeki
+sınıflar gibi ayrıntılı özelliklere ve işlevselliklere sahip değildir. Örneğin Rust'ta bir yapı bir yapıdan
+türetilemez. Ancak yapılar trait'leri destekleyebilmektedir.
+
+Referanslar ve Göstericiler
+===========================
+
+Giriş
+-----
+
+Bu bölümde Rust'ta referanslar ve göstericiler konusu üzerinde duracağız. Referanslar ve göstericiler sistem
+programlama etkinliklerinde sıkça kullanılan *olmazsa olmaz* dil özelliklerindendir. Rust C'nin göstericilerini
+*referans* adı altında daha güvenli hale getirmeye çalışmıştır. Aslında referanslar C++, Java ve C# dillerde de
+bulunmaktadır. Rust'ta C'deki gibi göstericiler de kullanılabilmektedir. Ancak Rust'ta C'deki gibi göstericiler
+yalnızca ``unsafe`` bloklarda kullanılabilir. Biz bu bölümde önce referansları sonra da göstericileri ele alacağız.
+
+Referans Nedir?
+---------------
+
+Rust'ta referanslar aslında güvenli biçime getirilmiş göstericilerden başka bir şey değildir. Bir referansın
+içerisinde bir adres bulunur. Asıl değer o referansın içerisindeki adrestedir. Yani referanslar tıpkı C'deki
+göstericiler gibi değerin bulunduğu yerin bellek adresini tutmaktadır. (Daha önceden de belirttiğimiz gibi Rust'ın
+resmi dokümanlarında *nesne (object)* terimi kullanılmamaktadır. Oysa C ve C++'ta bellekte yer kaplayan ve erişilebilen
+bölgelere genel olarak *nesne* denilmektedir.)
+
+Rust'taki referanslar her zaman bir bellekte zaten var olan bir değişkeni ya da değeri göstermektedir. Bu nedenle
+Rust'taki referanslar *dangling* olamazlar. Yani Rust'taki referansların bellekte herhangi bir yeri göstermesi mümkün
+değildir. Başka bir deyişle referanslar Rust'ta her zaman *zaten tahsis edilmiş* nesneleri göstermektedir.
+
+Rust'ta tür sisteminin nasıl sınıflandırıldığını yeniden anımsatmak istiyoruz:
+
+.. code-block:: text
+
+    Primitive types:
+        Boolean — bool
+        Numeric — integer and float
+        Textual — char and str
+        Never — ! — a type with no values
+    Sequence types:
+        Tuple
+        Array
+        Slice
+    User-defined types:
+        Struct
+        Enum
+        Union
+    Function types:
+        Functions
+        Closures
+    Pointer types:
+        References
+        Raw pointers
+        Function pointers
+    Trait types:
+        Trait objects
+        Impl trait
+
+Görüldüğü gibi *The Rust Reference* dokümanlarında referanslar *Pointer Types* grubunda yer almaktadır.
+
+``&T`` ve ``&mut T`` Referans Türleri
+-------------------------------------
+
+Rust'ta her ``T`` türüne ilişkin ``&T`` ve ``&mut T`` biçiminde iki referans türü de vardır. ``T`` bir tür belirtmek
+üzere ``T`` türünden ``&T`` biçimindeki referanslara *değiştirilmez (immutable) referanslar* ya da *paylaşılan
+(shared)* referanslar, ``&mut T`` biçimindeki referanslara ise *değiştirilebilir (mutable) referanslar*
+denilmektedir. Örneğin ``&i32``, ``&f64``, ``&String`` biçimindeki referanslar *değiştirilemez (immutable)*,
+``&mut i32``, ``&mut f64`` ve ``&mut String`` biçimindeki referanslar ise *değiştirilebilir (mutable)* referanslardır.
+Değiştirilemez ve değiştirilebilir referanslar arasındaki farklılıkları izleyen paragraflarda ele alacağız.
+
+Örneğin:
+
+.. code-block:: rust
+
+    let r: &i32;
+
+Burada ``r`` değişkeni ``&i32`` türündendir. Yani ``i32`` türünden bir değişken ya da değerin adresini tutmaktadır.
+
+Rust'ta değiştirilebilir referanslarda ``&`` ile ``mut`` anahtar sözcükleri bitişik yazılmak zorunda değildir. Ancak
+Rust programcıları ``&`` ile ``mut`` anahtar sözcüğünü bitişik yazmayı tercih etmektedir. Örneğin:
+
+.. code-block:: rust
+
+    let r: &mut i32;
+
+Bellek Adresi ve Yazılımsal Adres
+---------------------------------
+
+Donanımsal düzeyde bellekteki her byte'ın bir doğrusal adresi vardır. Bir byte'ın doğrusal adresi, ilk byte ``0``
+olmak üzere o byte'ın belleğin kaçıncı byte'ı olduğunu belirtmektedir. Doğrusal adresler genellikle 16'lık sistemde
+gösterilirler. Örneğin bir byte'ın doğrusal adresi ``0x12FC10`` ise bu byte belleğin tepesinden itibaren
+``0x0012FC10``'ıncı byte'ıdır. İşlemciler erişecekleri yerin doğrusal adresini vererek bellekte belli bir bölgeye
+erişirler.
+
+.. code-block:: text
+
+    Adres           Bellek
+                  ┌──────────┐
+    0x00000000    │    ??    │
+    0x00000001    │    ??    │
+    0x00000002    │    ??    │
+    ...           │   ...    │
+    0x0012FC0E    │    ??    │
+    0x0012FC0F    │    ??    │
+    0x0012FC10    │    ??    │  ← hedef byte
+    0x0012FC11    │    ??    │
+    0x0012FC12    │    ??    │
+    ...           │   ...    │
+    0xFFFFFFFF    │    ??    │
+                  └──────────┘
+
+Ancak yazılımsal adres bilgisi iki bileşenli bir bilgidir: *Sayısal Bileşen* ve *Tür Bileşeni*. Yazılımsal adres
+bilgisinin *sayısal bileşeni* bellekte bir doğrusal adres, *tür* bileşeni ise o doğrusal adresteki değişken ya da
+değerin türünü belirtmektedir.
+
+.. code-block:: text
+
+                ┌──────────────────────────┐
+                │ Yazılımsal Adres Bilgisi │
+                └────────────┬─────────────┘
+                             │
+               ┌─────────────┴─────────────┐
+               │                           │
+    ┌──────────────────┐        ┌──────────────────┐
+    │  Doğrusal Adres  │        │        Tür       │
+    └──────────────────┘        └──────────────────┘
+
+Programlama söz konusu olduğunda yalnızca bellekteki doğrusal adres yetersiz kalmaktadır. O adreste hangi türden bir
+bilginin bulunduğunun da bir biçimde belirlenmiş olması gerekmektedir. Biz kursumuzda *adres* dendiğinde *yazılımsal
+adres* kavramını kastetmiş olacağız.
+
+Bir byte'tan uzun olan değişkenlerin ve değerlerin yazılımsal adresleri belirtilirken onların her byte'ının doğrusal
+adresi ayrı ayrı belirtilmez. Yalnızca onlara ilişkin en düşük doğrusal adreslerin belirtilmesi yeterlidir. Çünkü
+zaten değişken ya da değerin byte'ları bellekte ardışıl bir biçimde bulunmaktadır. Örneğin ``0012FC10`` adresinde
+``i32`` türünden bir değişken ya da değer bulunuyor olsun. Bu değişken ya da değerin her byte'ının ayrı bir doğrusal
+adresi vardır. Ancak biz yalnızca onun ilk byte'ının (en düşük adresli byte'ının) adresini belirtiriz. Aşağıdaki
+gösterimde ``B0``, ``B1``, ``B2`` ve ``B3`` byte'ları ``i32`` türünden bir değişkenin ya da değerin bellekteki byte
+adreslerini belirtiyor olsun.
+
+.. code-block:: text
+
+    ┌────────────┬──────┐
+    │ Adres      │ Byte │
+    ├────────────┼──────┤
+    │    ...     │  ..  │
+    │ 0x0012FC10 │  B0  │
+    │ 0x0012FC11 │  B1  │
+    │ 0x0012FC12 │  B2  │
+    │ 0x0012FC13 │  B3  │
+    │    ...     │  ..  │
+    └────────────┴──────┘
+
+Burada bu ``i32`` türünden değişken ya da değerin yazılımsal adresinin sayısal bileşeni için yalnızca ``0x0012FC10``
+doğrusal adresi kullanılmaktadır. İşlemciler de belli bir adresten başlayan belli büyüklükteki bilgiler üzerinde işlem
+yapabilmektedir.
+
+``&`` Operatörü
+---------------
+
+Bir değişkenin ya da değerin adresi ``&`` operatörüyle elde edilmektedir. ``a`` değişkeni ``T`` türündense ``&a``
+ifadesi ``&T`` türündendir ve ``a`` değişkeninin adresini belirtmektedir. Rust'ta ``&`` operatörü ile değişkenin ya
+da değerin adresi alınırken adresin değiştirilebilirliğinin de ayrıca belirtilmesi gerekmektedir. Örneğin ``a`` bir
+değişken olmak üzere ``a`` değişkeninin değiştirilemez biçimde adresi ``&a`` biçiminde, değiştirilebilir biçimde
+adresi ise ``&mut a`` biçiminde alınmaktadır.
+
+Bir değişkenin ya da değerin adresi alındığında adresin sayısal bileşeni o değişken ya da değerin bellekteki doğrusal
+başlangıç adresinden, tür bileşeni ise o değişken ya da değerin türünden oluşmaktadır. Örneğin:
+
+.. code-block:: rust
+
+    let a: i32 = 0;
+
+Burada ``&`` operatörü ile ``a``'nın adresi alındığında adresin sayısal bileşeni olarak değişkenin bellekteki
+doğrusal adresi, tür bileşeni olarak da ``i32`` türü elde edilecektir.
+
+``*`` Operatörü (dereference)
+-----------------------------
+
+Bir referansın içerisinde bir adres bulunur. Bu duruma *referansın o adresi göstermesi (ya da refere etmesi)* de
+denilmektedir. Referansın gösterdiği yerdeki değişken ya da değere erişmek için tıpkı C'de olduğu gibi ``*``
+operatörü kullanılmaktadır. Buradaki ``*`` operatörü tek operand'lı önek bir operatördür. ``*`` operatörüne Rust'ta
+*dereference (di:refrıns biçiminde okunuyor)* operatörü denilmektedir. (Anımsanacağı gibi bu operatöre C'de ve C++'ta
+*indirection* operatörü denilmektedir.) Eğer ``r`` referansı ``&T`` türündense ``*r`` ifadesi de ``T`` türündendir.
+Örneğin:
+
+.. code-block:: rust
+
+    let a:i32 = 10;
+    let r: &i32 = &a;
+
+Burada ``r`` referansının tür bileşeni ``i32`` türünden olduğu için ``*r`` ifadesi de ``i32`` türündendir. ``*r``
+ifadesi ile aslında ``a`` değişkenine erişilmektedir.
+
+Referansa Değer Atama
+---------------------
+
+Bir referansa aynı türden bir değişkenin ya da değerin adresi yerleştirilebilir. Örneğin:
+
+.. code-block:: rust
+
+    let a: i32 = 10;
+    let r: &i32;
+
+    r = &a;             // geçerli
+
+Burada ``r`` değişkeni ``&i32`` türündendir. ``&a`` ifadesi de ``&i32`` türündendir. Bu atama sonucunda ``r``'nin
+içerisine ``a``'nın adresi yerleştirilmektedir. Bir referansa farklı türden bir değişkenin ya da değerin adresi
+atanamaz. Örneğin:
+
+.. code-block:: rust
+
+    let a: i64 = 10;
+    let r: &i32;
+
+    r = &a;     // error!
+
+Burada ``r`` değişkeni ``&i32`` türündendir. Ancak bu değişkene ``&i64`` türünden bir değer atanmak istenmiştir.
+``i64`` türünden bir değişkenin adresini biz ancak ``&i64`` türünden bir referansa atayabiliriz.
+
+Bir referansa bir adres yerleştirildiğinde artık referans o adresteki değeri gösteriyor durumdadır. Biz de referansın
+gösterdiği yerdeki değere ``*`` operatörüyle erişebiliriz. Örneğin:
+
+.. code-block:: rust
+
+    let a: i32 = 10;
+    let r: &i32;
+
+    r = &a;
+    println!("{}", *r);     // 10
+
+Burada ``r`` referansı ``a`` değişkeninin adresini tutmaktadır. ``*r`` ile aslında ``a`` değişkenine erişilmektedir:
+
+.. code-block:: text
+
+    r ----> a (10)
+
+Burada ``a`` ile ``*r`` bellekte aynı değeri belirtmektedir.
+
+Referanslar ve Göstericiler
+===========================
+
+C'deki ``const`` Göstericiler ve Rust'taki Referanslar
+------------------------------------------------------
+
+Anımsayacağınız gibi C'de ``const`` göstericiler üç kısma ayrılmaktadır:
+
+1) Kendisi değil gösterdiği yer ``const`` olan ``const`` göstericiler. Örneğin:
+
+   .. code-block:: c
+
+      const int *pi;
+
+2) Gösterdiği yer değil kendisi ``const`` olan ``const`` göstericiler. Örneğin:
+
+   .. code-block:: c
+
+      int * const pi = adres;
+
+3) Hem kendisi hem de gösterdiği yer ``const`` olan ``const`` göstericiler. Örneğin:
+
+   .. code-block:: c
+
+      const int * const pi = adres;
+
+Tabii C'de en çok kullanılan ``const`` göstericiler kendisi değil gösterdiği yer ``const`` olan ``const``
+göstericilerdir. Zaten C'de *const gösterici* denildiğinde default olarak kendisi değil gösterdiği yer
+``const`` olan ``const`` göstericiler anlaşılmaktadır.
+
+Rust'ta zaten default durumun C'deki ``const`` gibi olduğunu anımsayınız. Bu durumda Rust'ta gösterdiği yerin ve
+kendisinin ``mut`` olup olmamasına göre referanslar şu biçimlerde bildirilmektedir. ``T``'nin bir tür belirttiğini
+kabul ediyoruz:
+
+1) Kendisi değiştirilemez (immutable) ve gösterdiği yer de değiştirilemez (immutable) olan referanslar: Bu tür
+   referanslar şöyle bildirilmektedir:
+
+   .. code-block:: rust
+
+      let r: &T;
+
+   Burada ``r``'ye bir kez adres ataması yapılabilir. Ancak daha sonra ne ``r`` ne de ``*r`` değiştirilebilir.
+   Bunun eşdeğer C karşılığını şöyle ifade edebiliriz:
+
+   .. code-block:: c
+
+      const T * const r = adres;
+
+2) Kendisi değiştirilebilir, gösterdiği yer değiştirilemez referanslar: Bu tür referanslar şöyle bildirilmektedir:
+
+   .. code-block:: rust
+
+      let mut r: &T;
+
+   Burada ``r``'ye istediğimiz kadar adres ataması yapabiliriz. Ancak ``*r``'yi değiştiremeyiz. Bunun eşdeğer C
+   karşılığını şöyle oluşturabiliriz:
+
+   .. code-block:: c
+
+      const T *r;
+
+3) Kendisi değiştirilemez, gösterdiği yer değiştirilebilir referanslar: Bu tür referanslar şöyle bildirilmektedir:
+
+   .. code-block:: rust
+
+      let r: &mut T;
+
+   Burada ``r``'ye yalnızca bir kez adres ataması yapılabilir. Ancak ``*r`` istenildiği zaman değiştirilebilir.
+   Bunun da eşdeğer C karşılığı şöyle oluşturulabilir:
+
+   .. code-block:: c
+
+      T * const r = adres;
+
+4) Kendisi de gösterdiği yer de değiştirilebilir referanslar: Bu tür referanslar da şöyle bildirilmektedir:
+
+   .. code-block:: rust
+
+      let mut r: &mut T;
+
+   Burada hem ``r``'ye istediğimiz kadar adres ataması hem de ``*r``'ye istediğimiz değer ataması yapabiliriz.
+   Bunun da eşdeğer C karşılığı şöyle oluşturulabilir:
+
+   .. code-block:: c
+
+      T *r;
+
+Rust'ta ``let`` deyiminde değişkenin önündeki ``mut`` belirleyicisinin referansın kendi değiştirilebilirliğini
+``&`` atomunun sağındaki ``mut`` belirleyicisinin ise referansın gösterdiği yerin değiştirilebilirliğini
+belirttiğine dikkat ediniz. Örneğin:
+
+.. code-block:: rust
+
+   let r: &mut i32;
+
+Burada ``r`` değiştirilebilir değildir, onun gösterdiği yer değiştirilebilirdir. Örneğin:
+
+.. code-block:: rust
+
+   let mut r: &i32;
+
+Burada ``r`` değiştirilebilirdir ancak ``r``'nin gösterdiği yer değiştirilebilir değildir.
+
+Kursta Kullanılacak Terminoloji
+-------------------------------
+
+Biz kursumuzda değiştirilebilir (mutable) referanslara kısaca *mut referanslar* diyeceğiz. *mut referans* terimi
+kursumuzda referansın gösterdiği yerin ``mut`` olması durumunu belirtecektir. Benzer biçimde biz
+*değiştirilemez (immutable) referans* terimini referansın gösterdiği yerin değiştirilemez olduğunu belirtmekte
+kullanacağız. Referansların kendilerinin ``mut`` olmasını biz *kendisi mut olan referans* biçiminde belirteceğiz.
+Örneğin
+
+.. code-block:: rust
+
+   let r1: &i32;
+   let r2: &mut i32;
+   let mut r3: &i32;
+   let mut r4: &mut i32;
+
+Kullanacağımız terminoloji şöyledir:
+
+- ``r1`` kendisi de ``mut`` olmayan ``mut`` olmayan referanstır.
+- ``r2`` kendisi ``mut`` olmayan ``mut`` bir referanstır.
+- ``r3`` kendisi ``mut`` olan ``mut`` olmayan bir referanstır
+- ``r4`` kendisi de ``mut`` olan bir referanstır.
+
+Kursumuzda *mut referans* ya da *mut olmayan referans* referansın türünün ``mut`` olup olmadığını belirtecektir.
+
+Değişkenlerin Adreslerinin Alınması ve Değiştirilebilirlik
+----------------------------------------------------------
+
+Rust'ta bir değişkenin adresi ``&`` operatörüyle alınırken değiştirilebilirliğin (mutability) açıkça belirtilmesi
+zorunludur. Bu durum C'den geçenleri biraz yadırgatmaktadır. C'de ``a`` bir nesne belirtmek üzere ``&a`` ifadesi
+nesne ``const`` ise gösterdiği yer ``const`` olan bir adres, nesne ``const`` değilse gösterdiği yer ``const``
+olmayan bir adres belirtir. Halbuki Rust'ta değişken ``mut`` bile olsa onun değiştirilebilir biçimde adresini almak
+için ``&mut`` operatörü kullanılmaktadır. (``&`` ile ``mut`` bitişik yazılmak zorunda değildir ancak geleneksel
+yazım bunların bitişik yazılması biçimindedir.) Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+
+Burada ``a`` değiştirilebilir bir değişkendir. Biz bu değişkenin adresini ``&a`` biçiminde alırsak bu adres
+``&i32`` türünden olur, ``&mut i32`` türünden olmaz. Yani değişken ``mut`` olduğunda ``&`` operatörü bize
+değiştirilemez bir adres vermektedir. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let r: &i32;
+
+   r =  &a;        // geçerli
+   *r = 20;        // error!
+
+Yukarıdaki işlemin eşdeğer C karşılığı şöyledir:
+
+.. code-block:: c
+
+   int a = 10;
+   const int * const r = &a;       // geçerli
+   *r = 20;                        // geçersiz!
+
+Burada ``a`` ``mut`` bir değişken olduğu halde adresi değiştirilemez biçimde alınmıştır. Halbuki C'de ``const``
+olmayan nesnenin adresi alındığında bu adres gösterdiği yer ``const`` olmayan bir adrestir. Yukarıdaki örnekte
+değiştirilebilir bir değişkenin adresi değiştirilemez bir referansa atanmıştır. Referans değiştirilemez olduğu için
+``*r = 20`` ataması error oluşturacaktır.
+
+Rust'ta değiştirilebilir bir değişkenin adresi ``&`` operatörüyle değiştirilebilir bir referansa atanamaz. Yani
+Rust'ta ``&T`` türünden ``&mut T`` türüne otomatik dönüştürme (type coercion) yoktur. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let r: &mut i32;
+
+   r =  &a;        // error!
+
+Burada ``&a`` ifadesi ``&i32`` türündendir. Biz bu adresi ``&mut i32`` türünden bir referansa atayamayız. Bu
+işlemin eşdeğer C karşılığı şöyledir:
+
+.. code-block:: c
+
+   int a = 10;
+   int * const r = (const int *) &a;       // geçersiz!
+
+Yukarıdaki örnekte bizim *değiştirilebilir bir değişkenin adresini değiştirilebilir biçimde &mut operatörüyle*
+almamız gerekirdi:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let r: &mut i32;
+
+   r =  &mut a;        // geçerli
+   *r = 20;            // geçerli
+
+Bu işlemin eşdeğer C karşılığı da şöyle ifade edilebilir:
+
+.. code-block:: c
+
+   int a = 10;
+   int * const r = &a;     // geçerli
+
+   *r = 20;                // geçerli
+
+Tabii Rust'ta ``mut`` olmayan bir değişkenin değiştirilebilir biçimde yani ``&mut`` operatörüyle adresi
+alınamamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let a = 10;
+   let r: &mut i32;
+
+   r = &mut a;         // error!
+
+Burada ``a`` ``mut`` bir değişken değildir, bu nedenle adresi ``&mut`` operatörüyle alınamaz.
+
+Rust'ta ``mut`` bir değişkenin adresi ``&`` operatörü ile ya da ``&mut`` operatörü ile ``mut`` olmayan bir
+referansa atanabilir. Yani Rust'ta ``&mut T`` türünden ``&T`` türüne otomatik dönüştürme (type coercion) vardır.
+Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let r: &i32;
+
+   r = &a;     // geçerli
+
+Burada ``mut`` bir değişkenin adresi ``&`` operatörüyle alındığı için ``&i32`` türünden bir referans elde
+edilmiştir. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let r: &i32;
+
+   r = &mut a;     // geçerli
+
+Burada ``&mut i32`` türünden bir referans ``&i32`` türünden referansa atanmıştır. Bu durum geçerlidir. ``mut``
+bir referansın adresinin ``mut`` olmayan bir göstericiye atanmasını C'deki ``const`` olmayan bir nesnenin
+adresinin gösterdiği yer ``const`` olan bir göstericiye atanmasına benzetebilirsiniz. Yukarıdaki örneğin eşdeğer
+C karşılığı şöyledir:
+
+.. code-block:: c
+
+   int a = 10;
+   const int * const pi = &a;      // geçerli
+
+Adres Alma Kurallarının Özeti
+-----------------------------
+
+Yukarıdaki anlatımları aşağıdaki gibi özetleyebiliriz:
+
+1) Rust'ta değişken ``mut`` olsun ya da olmasın değişkenin adresini ``&`` operatörüyle aldığımızda değiştirilemez
+   bir referans elde ederiz. Dolayısıyla ``mut`` bir değişkenin adresini biz ``&`` operatörüyle aldığımızda onu
+   ancak değiştirilemez bir referansa atayabiliriz.
+
+2) ``mut`` olmayan bir değişkenin adresi ``&mut`` operatörüyle alınamaz ancak ``mut`` bir değişkenin adresi
+   ``&mut`` operatörüyle alınabilir.
+
+3) Rust'ta ``&mut T`` türünden bir referans otomatik olarak ``&T`` türünden referanslara dönüştürülebilmektedir.
+
+Aslında Rust'taki referanslar C'deki göstericilere oldukça benzemektedir. Burada önemli farklılık Rust'ta
+değiştirilebilir değişkenlerin adreslerinin değiştirilebilir olmayan bir biçimde alınabilmesidir.
+
+Değer Atanmamış Değişkenlerin Adreslerinin Alınması
+---------------------------------------------------
+
+Rust'ta bir değişkenin adresi alınacaksa değişken içerisine daha önce bir değerin atanmış olması gerekir. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32;
+   let r: &i32;
+
+   r = &a;                 // error!
+
+Burada ``a`` değişkenine henüz bir değer atanmadığı için onun adresi alınamamaktadır. Halbuki bunun eşdeğer C
+karşılığının geçerli olduğuna dikkat ediniz:
+
+.. code-block:: c
+
+   int a;
+   int * const r = &a;     // geçerli
+
+Rust'ta içerisinde çöp değer olan bir değişkenin kullanılması yasaklanmıştır. Halbuki C'de bu durum geçerlidir
+ancak tanımsız davranışa (undefined behavior) yol açmaktadır. Aynı durum değiştirilebilir değişkenler ve
+referanslar için de benzerdir. Örneğin:
+
+.. code-block:: rust
+
+   let mut a;
+   let r: &mut i32;
+
+   r = &mut a;     // error! a'ya henüz değer atanmamış
+
+Fonksiyonlara Referans Geçirilmesi
+----------------------------------
+
+Örneğin bir fonksiyon ``i32`` türünden bir değişkenin adresini alarak onu değiştirecek olsun. Bu durumda
+fonksiyonun parametre değişkeninin ``&mut i32`` türünden olması gerekir. Değişkenin adresini de fonksiyona
+gönderirken ``&mut`` operatörüyle almalıyız. Örneğin:
+
+.. code-block:: rust
+
+   fn foo(a: &mut i32) {
+       *a = 20;
+   }
+
+   fn main() {
+       let mut a: i32 = 10;
+
+       println!("{}", a);      // 10
+
+       foo(&mut a);            // geçerli
+
+       println!("{}", a);      // 20
+   }
+
+Yukarıdaki örnekte biz ``a``'ya değer atamadan onun adresini fonksiyona geçemezdik:
+
+.. code-block:: rust
+
+   let mut a: i32;
+
+   foo(&mut a);            // error!
+
+Yukarıda da belirttiğimiz gibi Rust'ta bir değişkenin adresinin alınabilmesi için ona değer atanmış olması gerekir.
+
+Referansın ``*`` Operatörü Olmadan Kullanılması
+-----------------------------------------------
+
+Bir referansı ``*`` operatörü olmadan kullandığımızda biz referansın içerisindeki adresi kullanmış oluruz.
+Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let r: &i32 = &a;
+
+Burada ``r`` değişkenini kullandığımızda aslında ``r``'nin içerisindeki adresi kullanmış oluruz. Ancak ``*r`` bu
+adresin gösterdiği yerdeki değerdir. Yani ``*r`` ifadesini kullanmakla ``a``'yı kullanmak arasında işlevsel bir
+farklılık yoktur. Biz ``r``'yi aşağıdaki gibi bir ``k`` değişkenine atamış olalım:
+
+.. code-block:: rust
+
+   k = r;
+
+Burada ``k``'nın türü ``&i32`` olmalıdır:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let r: &i32 = &a;
+   let k: &i32;
+
+   k = r;
+
+Bu bakımdan semantik C'deki gibidir. C'de de biz bir göstericiyi ``*`` operatörü olmadan kullandığımızda
+içerisindeki adresi kullanmış oluruz.
+
+Değer İfadelerinin Adreslerinin Alınması
+----------------------------------------
+
+C'de sağ taraf değeri belirten ifadelerin adresleri alınamaz. C'deki bir ifadenin adresinin alınabilmesi için o
+ifadenin nesne belirtmesi yani sol taraf değeri olması gerekir. Ancak Rust'ta sabitlerin ve yer belirtmeyen
+ifadelerin de (Rust'ta bu tür ifadelere *değer ifadeleri (value expressions)* dendiğini anımsayınız) adresleri
+alınabilmektedir. Rust bu bakımdan C'ye benzememektedir.
+
+Rust'ta bir değer ifadesinin adresi alındığı zaman önce değer ifadesi aynı türden geçici bir değişken yaratılıp
+onun içerisine yerleştirilir, sonra o geçici değişkenin adresi alınır. Örneğin:
+
+.. code-block:: rust
+
+   let r: &i32;
+   r = &10;
+
+işleminin eşdeğeri şöyledir:
+
+.. code-block:: rust
+
+   let r: &i32;
+   let temp: i32 = 10;
+   r = &temp;
+
+Ancak değer ifadesinin yerleştirildiği geçici değişkenin ömrü konusunda Rust'ta bazı ayrıntılar vardır. Bu
+ayrıntıları madde madde açıklayalım:
+
+1) Rust'ta bir sabit ifadesinin ``mut`` kullanılmadan adresi alınırsa bu sabit ifadesi ``static`` ömürlü bir
+   geçici değişkene yerleştirilip o ``static`` ömürlü değişkenin adresi alınmaktadır. ``static`` ömürlü
+   değişkenler program çalışmaya başladığında bellekte yaratılırlar program sonlanana kadar bellekte kalmaya
+   devam ederler. Örneğin:
+
+   .. code-block:: rust
+
+      let r: &i32;
+
+      r = &10;
+
+   Burada ``10`` değeri ``static`` ömürlü bir değişkenin içerisine yerleştirilip onun adresi ``r``'ye
+   yerleştirilmektedir. Burada atama işlemi ile ilkdeğer verme işlemi arasında bir farklılık yoktur. Yukarıda
+   açıkladığımız semantik aşağıdaki ilkdeğer vermede de geçerlidir:
+
+   .. code-block:: rust
+
+      let r: &i32 = &10;
+
+2) Eğer değer ifadesi bir sabit ifadesi değilse ve değer ifadesinin adresi ``let`` deyiminden sonra bir atama
+   işlemi ile referansa yerleştiriliyorsa bu durumda yaratılan geçici değişken atama işleminin yapıldığı ifade
+   bittiğinde yok edilir. İleride ömür (lifetime) konusunda da ele alacağımız gibi bu durumda referansa atama
+   işleminden sonra referansın gösterdiği yere erişilmesi error oluşturmaktadır. Örneğin:
+
+   .. code-block:: rust
+
+      let a = 10;
+      let b = 20;
+      let r: &i32;
+
+      r = &(a + b);
+      println!("{}", *r);      // error!
+
+   Burada bir ömür problemi vardır. Bu konu ileride ele alınacaktır.
+
+3) Eğer değer ifadesi bir sabit ifadesi değilse ve değer ifadesinin adresi ``let`` deyiminde ilkdeğer olarak
+   kullanılmışsa bu durumda sabit ifadesinin yerleştirildiği geçici değişken referansın ömrü boyunca yaşamaya
+   devam eder. Yani geçici değişkenin ömrü referansın ömrüyle aynı olur. Örneğin:
+
+   .. code-block:: rust
+
+      let a = 10;
+      let b = 20;
+      let r: &i32 = &(a + b);
+
+      println!("{}", *r);      // geçerli
+
+   Burada ``a + b`` değer ifadesinin yerleştirileceği geçici değişken referansla aynı ömürde olmaktadır. Bu
+   nedenle referansın gösterdiği yere erişimde bir sorun ortaya çıkmaz. Bu durumda değer ifadesinin adresi
+   ``let`` deyiminde ``mut`` olarak da alınabilmektedir. Örneğin:
+
+   .. code-block:: rust
+
+      let a = 10;
+      let b = 20;
+      let r: &mut i32 = &mut (a + b);
+
+      println!("{}", *r);      // geçerli
+
+   Burada da ``a + b`` değer ifadesinin yerleştirildiği geçici ``mut`` değişkenin ömrü referansın ömrü kadar
+   olmaktadır.
+
+4) Bir sabit ifadesinin adresi ``let`` deyiminden sonra ``mut`` olarak bir referansa atandığında artık sabit
+   ifadesi ``static`` ömürlü ``mut`` bir değişkene yerleştirilmez. Sabit ifadesinin yerleştirildiği ``mut``
+   değişken atama işlemine ilişkin ifade sonlandığında bellekten yok edilmektedir. Bu nedenle onun adresi
+   referansa yerleştirildiğinde atama işleminden sonra o referansın gösterdiği yere erişilemez. Örneğin:
+
+   .. code-block:: rust
+
+      let r: &mut i32;
+
+      r = &mut  10;
+      println!("{}", *r);         // error!
+
+   Burada sabit ifadesinin adresi ``mut`` olarak alındığı için artık sabit ifadesinin yerleştirildiği geçici
+   değişken atama ifadesi bittiğinde yok edilecektir. Ancak tabii bu ``mut`` adres ``let`` deyiminde ilkdeğer
+   olarak kullanılsaydı artık üçüncü maddedeki kural devreye girecek ve geçici ``mut`` değişkenin ömrü referansın
+   ömrü kadar olacaktı. Örneğin:
+
+   .. code-block:: rust
+
+      let r: &mut i32 = &mut 10;
+
+      println!("{}", *r);     // geçerli
+
+   Fonksiyon çağrıları da ``let`` gibi bir bağlama kabul edildiği için bir değer ifadesinin adresi ``&mut``
+   olarak alınıp fonksiyonu gönderilebilmektedir. Fonksiyon çağırma parametre ``let`` deyiminde ilkdeğer verme
+   gibi ele alınmaktadır. Örneğin:
+
+   .. code-block:: rust
+
+      fn foo(r: &mut i32) {
+          //...
+      }
+      //...
+
+      foo(&mut 10);       // geçerli
+
+   Aslında bu konu *değişkenlerin ömürleri (lifetime)* konusu ile yakından ilgilidir. İleride bu konuyu ele
+   aldığımızda kafanızdaki soru işaretleri ortadan kalkacaktır.
+
+``swap`` Fonksiyonu
+-------------------
+
+İki değişkenin içerisindeki değeri yer değiştiren ``swap`` isimli fonksiyon şöyle yazılabilir:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut x = 10;
+       let mut y = 20;
+
+       println!("x = {}, y = {}", x, y);
+       swap(&mut x, &mut y);
+       println!("x = {}, y = {}", x, y);
+   }
+
+   fn swap(a: &mut i32, b: &mut i32) {
+       let temp = *a;
+       *a = *b;
+       *b = temp;
+   }
+
+Yapılar ve Referanslar
+----------------------
+
+Biz ``enum``'lar ve yapılar konusunda o zamanlar henüz görmemiş olsak da referansları kullanmıştık. Burada yeniden
+``enum``'lar ve yapılar türünden referansların üzerinde daha ayrıntılı duracağız.
+
+Yapılar bileşik nesneler belirtmektedir. Bir yapı değişkeninin adresi alındığında o yapı değişkeninin bütünsel
+olarak bellekteki başlangıç adresi elde edilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   struct Date {
+       day: u32,
+       month: u32,
+       year: u32,
+   }
+
+``Date`` türünden bir değişken bildirelim:
+
+.. code-block:: rust
+
+   let date = Date { day: 10, month: 12, year: 1998 };
+
+Burada derleyici ``Date`` yapısının alanlarını bellekte ardışıl bir biçimde yerleştirecektir. Dolayısıyla
+``&date`` ifadesi ile biz bu ardışıl alanların başlangıç adresini elde ederiz:
+
+.. code-block:: rust
+
+   let rdate: &Date;
+
+   rdate = &date;
+
+Derleyici bu adresten itibaren yapı alanlarının nerelerde olduğunu tespit edebilmektedir. Anımsanacağı gibi C'de
+bir yapı nesnesinin kendisi ile o nesnenin elemanlarına erişilirken nokta operatörü, yapı nesnesinin adresi ile
+yapı elemanlarına erişilirken ok operatörü kullanılmaktadır. C'de ``ps->a`` ifadesinin ``(*ps).a`` ifadesi ile
+eşdeğer olduğunu anımsayınız. Ancak Rust'ta C'deki gibi bir ok operatörü yoktur. Yapı türünden değişken ya da
+değerin kendisiyle de adresiyle de yapının alanlarına nokta operatörü ile erişilmektedir. Başka bir deyişle Rust
+derleyicisi nokta operatörünün sol tarafındaki operand'a bakmakta, bu operand yapı türünden bir değişkenin ya da
+değerin adresi ise o adresteki yapı değerinin alanına erişmektedir. (Tabii aslında aynı semantik C'de
+uygulanabilirdi. Ancak C bunu tercih etmemiştir.) Örneğin:
+
+.. code-block:: rust
+
+   let date = Date { day: 10, month: 12, year: 1998 };
+   let rdate: &Date = &date;
+
+   println!("{}/{}/{}", rdate.day, rdate.month, rdate.year);
+
+Bu kod parçasının eşdeğer C karşılığı şöyle oluşturulabilir:
+
+.. code-block:: c
+
+   struct Date date = {10, 12, 1998};
+   const struct Date * const r = &date;
+
+   printf("%d/%d/%d\n", r->day, r->month, r->year);
+
+Burada ``rdate`` değişkeni ``&Date`` türünden olduğu halde (yani bir yapı adresi belirttiği halde) elemanlara yine
+nokta operatörüyle erişilmektedir. Tabii Rust'ta da eğer istersek tıpkı C'de olduğu gibi önce ``*`` operatörü ile
+yapı değişkenine bütünsel olarak erişip yine nokta operatörü ile onun elemanlarına erişebiliriz:
+
+.. code-block:: rust
+
+   println!("{}/{}/{}", (*rdate).day, (*rdate).month, (*rdate).year);      // geçerli
+
+Ancak Rust'ta böyle bir erişime hiç gerek yoktur. ``r`` bir yapı türünden referans ``a`` da bu yapının bir alanını
+belirtmek üzere Rust'ta ``r.a`` ifadesi ile ``(*r).a`` ifadesi tamamen eşdeğerdir.
+
+Yapılar konusunda da bahsetmiştik. Bir yapı değişkeni ya da değeri fonksiyonlara tipik olarak adres yoluyla
+aktarılmaktadır. Fonksiyonun parametresi yapı türünden bir referans ya da ``mut`` referans olur. Fonksiyon da yapı
+değişkenin ya da değerinin adresiyle çağrılır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let pt: Point = Point { x: 10, y: 20 };
+
+       disp(&pt);
+   }
+
+   fn disp(pt: &Point) {
+       println!("{}, {}", pt.x, pt.y)
+   }
+
+   struct Point  {
+       x: i32,
+       y: i32
+   }
+
+Fonksiyon içerisinde referans yoluyla yapının alanlarına nokta operatörüyle erişildiğine dikkat ediniz.
+
+Rust'ta bir yapı türünden değer ifadesi oluşturulup onun adresi de alınabilir. Örneğin:
+
+.. code-block:: rust
+
+   let r: &Point = &Point{ x: 10, y: 20 };       // geçerli
+
+   println!("{}, {}", r.x, r.y);
+
+Burada yine geçici bir ``Point`` değişkeni yaratılıp onun adresi referansa atanmaktadır. Bu geçici ``Point``
+değişkeni referans faaliyet alanını bitirdiğinde yok edilecektir. Tabii aynı şey fonksiyon çağrılarında da
+yapılabilir:
+
+.. code-block:: rust
+
+   fn main() {
+       disp(&Point { x: 10, y: 20 });
+       //...
+   }
+
+   fn disp(pt: &Point) {
+       println!("{}, {}", pt.x, pt.y)
+   }
+
+   struct Point  {
+       x: i32,
+       y: i32
+   }
+
+Burada yaratılan geçici değişken fonksiyonun çağrısının sonunda (yani ``r`` referansı faaliyet alanını
+bitirdiğinde) yok edilecektir. Yukarıda da sözünü ettiğimiz gibi eğer değer ifadesinin adresi ``&mut`` ile
+alınıyorsa ancak bağlama yapılırken atama mümkün olmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let r: &mut Point;
+
+   r = &mut Point{ x: 10, y: 20 };       // error!
+
+Ancak örneğin:
+
+.. code-block:: rust
+
+   let r: &mut Point = &mut Point{ x: 10, y: 20 };       // geçerli
+
+Metot Çağrıları ve ``self`` Parametresi
+---------------------------------------
+
+Yapıların metotları çağrılırken eğer ``self`` parametresi referans ise (genellikle böyle olur) nokta
+operatörüyle metot çağrılırken zaten yapı değişkenin ya da değerinin adresi otomatik olarak alınmaktadır.
+Programcının ayrıca ``&`` ya da ``&mut`` operatörünü kullanmasına gerek yoktur. Örneğin:
+
+.. code-block:: rust
+
+   struct Date {
+       day: u32,
+       month: u32,
+       year: u32,
+   }
+
+   impl Date {
+       fn disp(&self) {
+           println!("{}/{}/{}", self.day, self.month, self.year);
+       }
+   }
+
+Biz burada ``Date`` türünden bir değişkenle ``disp`` metodunu aşağıdaki gibi çağırmış olalım:
+
+.. code-block:: rust
+
+   let date = Date { day: 10, month: 12, year: 1998 };
+
+   date.disp();
+
+Derleyici burada ``date`` değişkeninin adresini alarak ``disp`` metodunun ``self`` referans parametresine
+yerleştirmektedir. Metot içerisinde ``self.day``, ``self.month`` ve ``self.year`` ifadeleri ile referansın
+gösterdiği yer olan ``date`` değişkenin alanlarına erişilmektedir.
+
+Bir yapı türünden referansla yapının metodu da yine nokta operatörüyle çağrılmaktadır. Rust derleyicisi metot
+çağrımında nokta operatörünün solunda yapı türünden referans varsa artık onun adresini almaz, onun içerisindeki
+adres değerini doğrudan ``self`` referansına yerleştirir. Örneğin:
+
+.. code-block:: rust
+
+   let date = Date { day: 10, month: 12, year: 1998 };
+   let rdate: &Date = &date;
+
+   rdate.disp();
+
+Burada ``disp`` metodu ``Date`` türünden değişkenle değil referansla çağrılmıştır. Derleyici artık ``rdate``
+değişkenin adresini almayacaktır. Çünkü ``rdate`` zaten adres belirtmektedir. Doğrudan ``rdate`` referansının
+içerisindeki adresi ``disp`` metodunun ``self`` referansına yerleştirecektir. Tabii çağrım yine C'deki gibi önce
+``*`` operatörüyle değişkenin bütününe erişip sonra nokta operatörü kullanılarak da yapılabilirdi. Ancak Rust'ta
+buna hiç gerek yoktur:
+
+.. code-block:: rust
+
+   (*rdate).disp();        // geçerli fakat gereksiz
+
+Rust'ta metot çağırma sürecinin bazı ayrıntıları vardır. Metot çağırma sırasında derleyici tarafından aday
+metotlar belirlenmektedir. Bu sürecin ayrıntıları *The Rust Reference* dokümanlarında
+*8.2.10 Method Call Expressions* bölümünde açıklanmaktadır. Biz kursumuzda metot çağrımı sırasında aday
+metotların belirlenmesi sürecini daha ileride ele alacağız.
+
+Biz metotların birinci parametrelerinin ``&mut self`` biçiminde de olabileceğini belirtmiştik. Bir metot onun
+çağrıldığı yapı değişkeni ya da değeri üzerinde değişiklik yapacaksa metodun birinci parametresi ``&mut self``
+biçiminde olmalıdır. ``s`` bir yapı türünden değişken ya da değeri ``foo`` da bu yapının bir metodunu belirtiyor
+olsun. ``s.foo()`` biçiminde bir çağrımda eğer ``foo`` metodunun birinci parametresi ``&self`` biçimindeyse
+derleyici ``s``'in adresini ``&`` operatörü ile eğer ``foo`` metodunun birinci parametresi ``&mut self``
+biçimindeyse derleyici ``s``'in adresini ``&mut`` operatörü ile alıp ``self`` parametresine atamaktadır. Yukarıda
+da belirttiğimiz gibi aslında bu sürecin bazı ayrıntıları da vardır. Biz bu ayrıntıları daha ileride açıklayacağız.
+
+Örneğin aşağıdaki gibi bir ``Point`` yapısı olsun:
+
+.. code-block:: rust
+
+   struct Point  {
+       x: i32,
+       y: i32
+   }
+
+Bu ``Point`` yapısı için aşağıdaki gibi ``impl`` bloğu oluşturmuş olalım:
+
+.. code-block:: rust
+
+   impl Point {
+       fn new(x: i32, y: i32) -> Point {
+           Point { x, y }
+       }
+
+       fn set(&mut self, x: i32, y: i32) {
+           self.x = x;
+           self.y = y;
+       }
+
+       fn disp(&self) {
+           println!("{}, {}", self.x, self.y);
+       }
+   }
+
+Burada ``disp`` metodunun ilk parametresinin ``&self`` biçiminde, ``set`` metodunun ilk parametresinin de
+``&mut self`` biçiminde olduğuna dikkat ediniz. Şimdi bu metotları çağıralım:
+
+.. code-block:: rust
+
+   let mut pt = Point::new(10, 20);
+
+   pt.disp();      // 10, 20
+
+Burada ``disp`` metodunun birinci parametresi ``&self`` olduğu için derleyici ``pt``'nin ``&`` operatörüyle
+adresini alarak ``self`` değişkenine yerleştirecektir. Ancak örneğin:
+
+.. code-block:: rust
+
+   pt.set(30, 40);
+
+Burada ``set`` metodunun birinci parametresi ``&mut self`` olduğu için derleyici ``pt`` değişkeninin adresini
+``&mut`` operatörüyle alarak ``self`` parametresine yerleştirecektir. Tabii burada bu çağrının mümkün olması için
+``pt`` değişkeninin de ``mut`` olması gerekir.
+
+.. code-block:: rust
+
+   fn main() {
+       let mut pt = Point::new(10, 20);
+
+       pt.disp();      // 10, 20
+
+       pt.set(30, 40);
+
+       pt.disp();      // 30, 40
+   }
+
+   struct Point  {
+       x: i32,
+       y: i32
+   }
+
+   impl Point {
+       fn new(x: i32, y: i32) -> Point {
+           Point { x: x, y: y }
+       }
+
+       fn set(&mut self, x: i32, y: i32) {
+           self.x = x;
+           self.y = y;
+       }
+
+       fn disp(&self) {
+           println!("{}, {}", self.x, self.y);
+       }
+   }
+
+İlişkili Fonksiyon Sentaksıyla Metot Çağırma
+--------------------------------------------
+
+Biz daha önce ``enum`` türlerinin ve yapıların metotlarının nokta operatörüyle ilişkili fonksiyonlarının ise
+``::`` operatörüyle çağrıldığını görmüştük. Örneğin:
+
+.. code-block:: rust
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Self {
+           Self { a, b }
+       }
+
+       fn foo(&self, msg: &str) {
+           println!("{}: {}, {}", msg, self.a, self.b);
+       }
+       //...
+   }
+   //...
+
+   let s = Sample::new(10, 20);
+
+   s.foo("foo");
+
+Burada ``new`` ``Sample`` yapısının ilişkili fonksiyonu ``foo`` ise bir metodudur. Anımsanacağı gibi ``impl``
+bloğu içerisindeki fonksiyonların metot belirtmesi için onların ilk parametrelerinin ``self``, ``&self`` ya da
+``&mut self`` olması gerekiyordu.
+
+Anımsanacağı gibi Rust'ta (Python gibi bazı dillerde de bu özellik var) yapının ya da ``enum`` türünün metotları
+ilişkili fonksiyon sentaksıyla da çağrılabilmektedir. İlişkili fonksiyon sentaksıyla çağırmanın genel biçimi
+şöyledir:
+
+.. code-block:: rust
+
+   <enum_ya_da_yapı_ismi>::<metot_ismi>(receiver, ...);
+
+Bu biçimdeki çağırma sentaksına UFC (Uniform Function Call Syntax) dendiğini de söylemiştik. *The Rust Reference*
+dokümanlarında metodun çağrılmasında kullanılan değişken ya da değere *alıcı (receiver)* denilmektedir. Örneğin
+``s.foo()`` gibi bir ifadede *alıcı (receiver)* ``s``'tir. Yukarıdaki genel biçime göre ``s`` ``Sample`` türünden
+yapı ya da ``enum``, ``foo`` da bir metot belirtmek üzere:
+
+.. code-block:: rust
+
+   s.foo(...);
+
+çağrısı ile aşağıdaki çağrı eşdeğerdir:
+
+.. code-block:: rust
+
+   Sample::foo(s, ...);
+
+Ancak burada dikkat edilmesi gereken bir nokta vardır. Eğer metot yukarıdaki gibi ilişkili fonksiyon sentaksıyla
+çağrılacaksa ve metodun birinci parametresi ``&self`` ya da ``&mut self`` ise alıcı ifadenin adresi açıkça ``&``
+ya da ``&mut`` operatörüyle programcı tarafından alınmalıdır. Örneğin:
+
+.. code-block:: rust
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Self {
+           Self { a, b }
+       }
+
+       fn foo(&self, msg: &str) {
+           println!("{}: {}, {}", msg, self.a, self.b);
+       }
+       //...
+   }
+   //...
+
+   let s = Sample::new(10, 20);
+
+   s.foo("foo");
+   Sample::foo(&s, "foo");
+
+Burada metot çağrım sentaksında ``s``'in adresinin derleyici tarafından alındığına, ancak ilişkili fonksiyon
+çağrım sentaksında değişkeninin adresinin programcı tarafından alındığına dikkat ediniz. Yukarıdaki örnekte
+aşağıdaki çağrım error oluşturacaktır:
+
+.. code-block:: rust
+
+   Sample::foo(s, "foo");      // error!
+
+Peki bir metodu metot sentaksı yerine ilişkili fonksiyon sentaksıyla çağırmanın gerektiği durumlar olabilir mi?
+Evet, seyrek de olsa bunun gerekli olabileceği bazı durumlar vardır. Bu gereklilik trait'ler ve metot isimlerinin
+aranması konusuyla da ilgilidir. Bu konu ileride ele alınacaktır.
+
+``&``, ``&mut`` ve ``*`` Operatörlerinin Önceliği
+-------------------------------------------------
+
+``&``, ``&mut`` ve ``*`` operatörleri öncelik tablosunda aritmetik operatörlerin ve ``as`` operatörünün
+yukarısında sağdan sola grupta bulunmaktadır:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 60 40
+
+   * - Operatörler
+     - Öncelik Grubu
+   * - ``.``
+     - Soldan Sağa
+   * - ``()``
+     - Soldan Sağa
+   * - ``- ! * & &mut``
+     - Sağdan Sola
+   * - ``as``
+     - Soldan Sağa
+   * - ``* / %``
+     - Soldan Sağa
+   * - ``+ -``
+     - Soldan Sağa
+   * - ``<< >>``
+     - Soldan Sağa
+   * - ``&``
+     - Soldan Sağa
+   * - ``^``
+     - Soldan Sağa
+   * - ``|``
+     - Soldan Sağa
+   * - ``< > >= <= == !=``
+     - Parantezsiz Kombine Edilemez
+   * - ``&&``
+     - Soldan Sağa
+   * - ``||``
+     - Soldan Sağa
+   * - ``= += -= *= /= %= &= |= ^= <<= >>=``
+     - Sağdan Sola
+
+Bu durumda örneğin ``&10 + 20`` ifadesi error oluşturacaktır. Çünkü ``&`` operatörü ``+`` operatöründen daha
+yüksek önceliklidir. Ancak ``&(10 + 20)`` ifadesi geçerlidir. Benzer biçimde örneğin ``r`` referansı ``&i32``
+türünden olsun ``*r + 10`` gibi bir ifade geçerlidir. Burada ``r`` referansının gösterdiği yerdeki ``i32``
+değeriyle ``10`` toplanmıştır. Benzer biçimde ``&*r`` ifadesi de geçerlidir. Bu ifadedeki her iki operand da
+sağdan sola öncelikli gruptadır. Dolayısıyla önce ``r`` referansının gösterdiği yerdeki değere erişilir sonra
+onun adresi alınır. Tabii ``&*r`` ifadesi ile ``r`` tamamen eşdeğerdir. Örneğin ``a`` bir değişken ya da değer
+belirtmek üzere ``*&a`` ifadesi de geçerlidir. Burada önce ``a``'nın adresi alınıp sonra o adresteki değere
+erişilmektedir. Tabii bu ifade ``a`` ile eşdeğerdir.
+
+Referans Kalıpları
+------------------
+
+Rust'ta kalıp uyuşumunda *referans kalıbı (reference pattern)* denilen bir kalıp da vardır. Biz de bu noktada
+referans kalıbı üzerinde durmak istiyoruz.
+
+Eğer ``let`` deyimindeki kalıpta türü belirtilmeyen bir değişken varsa ve bağlama ifadesi bir adres belirtiyorsa
+kalıptaki değişken o adres türünden olur. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let r = &a;
+
+Burada ``r`` değişkeni ``&i32`` türündendir. Yani bu bağlama aşağıdakiyle eşdeğerdir:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let r: &i32 = &a;
+
+Eğer adres ``mut`` ise bu durumda referans da ``mut`` olacaktır. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let r = &mut a;
+
+Burada ``r`` değişkeni ``&mut i32`` türündendir. Yani yukarıdaki bağlama aşağıdakiyle eşdeğerdir:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let r: &mut i32 = &mut a;
+
+Eğer kalıp ``&değişken`` biçimindeyse kalıp ifadesinin bir adres belirtmesi gerekir. Bu durumda değişken bir
+referans olmaz kalıp ifadesindeki referansın tür bileşeni türünden olur. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let &b = &a;
+
+Burada ``b`` değişkeni ``&i32`` türünden değildir ``i32`` türündendir. Yani aslında bu bağlama aşağıdakiyle
+eşdeğerdir:
+
+.. code-block:: rust
+
+   let b: i32 = a;
+
+Burada siz kalıptaki ve kalıp ifadesindeki ``&`` operatörlerinin birbirini götürdüğünü düşünebilirsiniz. Tabii
+yukarıda da belirttiğimiz gibi eğer kalıptaki değişkenin önünde ``&`` varsa bu durumda kalıp ifadesinin de adres
+belirtmesi gerekir. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let &b = a;         // error!
+
+Bu biçimdeki kalıp uyuşumu ``match`` ve ``if let`` deyimlerinde de aynı biçimde geçerlidir. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+
+   match &a {
+       &b => println!("b = {}", b)     // b burada i32 türünden
+   }
+
+Tabii kalıpta ``&`` ile bir değişken kullanıldığında ``match`` ifadesinin (yani kalıp ifadesinin) de yine adres
+belirtmesi gerekmektedir.
+
+Fonksiyon çağrılarında türün belirtilmesi zorunlu olduğu için türün de referans olması gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+   fn foo(&a: &i32) {           // geçerli, a i32 türündendir
+       //...
+   }
+
+Fonksiyon içerisinde ``a`` ``i32`` türündendir. Tabii burada ``foo`` fonksiyonu ``i32`` türünden bir değişkenin
+ya da değerin adresi ile çağrılmalıdır.
+
+Referans kalıpları yapılarda ve ``enum`` türlerinde de benzer biçimlerde kullanılabilmektedir. Eğer kalıp ifadesi
+bir adres belirtiyorsa ancak kalıptaki yapı isminin solunda ``&`` operatörü yoksa bu durumda yapı alanlarına
+ilişkin değişkenler referans belirtirler. Örneğin:
+
+.. code-block:: rust
+
+   let pt = Point { x: 10, y: 20 };
+
+   match &pt {
+       Point { x, y } => { println!("{}, {}", *x, *y)}
+   }
+
+Burada ``x`` ve ``y`` değişkenleri ``&i32`` türündendir. Eğer kalıptaki yapı isminin solunda ``&`` operatörü
+varsa bu durumda yapı alanlarına ilişkin değişkenler referans belirtmezler. Örneğin:
+
+.. code-block:: rust
+
+   let pt = Point { x: 10, y: 20 };
+
+   match &pt {
+       &Point { x, y } => { println!("{}, {}", x, y)}
+   }
+
+Burada ``x`` ve ``y`` ``i32`` türündendir. Tabii bu kalıbı benzer biçimde ``let`` deyiminde de kullanabilirdik:
+
+.. code-block:: rust
+
+   let pt = Point { x: 10, y: 20 };
+   let &Point { x, y } = &pt;
+
+Tabii yukarıda da belirttiğimiz gibi eğer kalıpta ``&`` varsa kalıp ifadesinin de adres belirtmesi gerekir.
+Örneğin:
+
+.. code-block:: rust
+
+   let pt = Point { x: 10, y: 20 };
+   let &Point { x, y } = pt;         // error
+
+Burada kalıp ifadesi adres belirtmediği için error oluşacaktır. Halbuki bunun tersinin geçerli olduğuna dikkat
+ediniz. Yani kalıpta ``&`` olmadığı halde kalıp ifadesi adres olabilmektedir:
+
+.. code-block:: rust
+
+   let pt = Point { x: 10, y: 20 };
+   let Point { x, y } = &pt;         // geçerli
+
+Burada ``x`` ve ``y`` ``&i32`` türündendir.
+
+Kalıpta yapı alanlarında ``&`` kullanılabilir. Ancak bu durumda alanların da referans türünden olması gerekir.
+Örneğin ``Point { x: &a, y: &b }`` gibi bir kalıbın uygulanabilmesi için ``Point`` yapısının ``x`` ve ``y``
+alanlarının ``&i32`` türünden olması gerekir. Aşağıdaki kalıp bağlaması geçerli değildir. Örneğin:
+
+.. code-block:: rust
+
+   let pt = Point { x: 10, y: 20 };
+   let Point { x: &a, y: &b } = &pt;         // error!
+
+Yukarıda da belirttiğimiz gibi eğer yapı alanlarında ``&`` kullanılıyorsa kalıp ifadesinin değil alanların adres
+belirtmesi gerekir. Ancak yapı alanların referans olması durumunda yapı alanlarına bir ömür bilgisi de
+iliştirilmelidir. Biz henüz bu konuyu görmedik. Ancak burada bir örnek vermek istiyoruz. Aşağıdaki gibi yapı
+tanımlaması Rust'ta geçerli değildir:
+
+.. code-block:: rust
+
+   struct Point {
+       x: &i32,
+       y: &i32,
+   }
+
+Burada yapı alanları için bir ömür belirlemesinin yapılması gerekir. Örneğin:
+
+.. code-block:: rust
+
+   struct Point<'a> {
+       x: &'a i32,
+       y: &'a i32,
+   }
+
+Şimdi artık yapının alanları adres belirtmektedir. Aşağıdaki kalıp geçerlidir:
+
+.. code-block:: rust
+
+   let pt = Point { x: &10, y: &20 };
+   let Point { x: &a, y: &b } = pt;
+
+Buradaki ``a`` ve ``b`` değişkenleri ``i32`` türündendir. Rust'ta alanlarda ``&`` atomu ile kalıp
+oluşturulmuşsa alan isminin belirtilmesi gerekmektedir. Yani alanlarda ``&`` atomu varsa alanlar için kısa yol
+sentaksı kullanılamamaktadır. Aşağıdaki kalıp geçerli değildir:
+
+.. code-block:: rust
+
+   let pt = Point { x: &10, y: &20 };
+   let Point { &x, &y } = pt;                    // error
+
+Bunun yerine aşağıdaki kalıp kullanılmalıdır:
+
+.. code-block:: rust
+
+   let pt = Point { x: &10, y: &20 };
+   let Point { x: &x, y: &y } = pt;              // geçerli
+
+``ref`` Anahtar Sözcüğü
+-----------------------
+
+Referans kalıplarında ``ref`` anahtar sözcüğü de kullanılabilmektedir. Bu ``ref`` anahtar sözcüğünün işlevi
+Rust'ı yeni öğrenenlerde biraz kafa karıştırıcı olabilmektedir. Aşağıdaki gibi bir kalıbın geçerli olmadığını
+belirtmiştik:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let &r = a;         // error!
+
+Kalıpta ``&`` varsa kalıp ifadesinin de adres belirtmesi gerekir. Oysa biz bazen kalıp ifadesi adres
+belirtmediği halde kalıptaki değişkenin referans olmasını isteyebiliriz. Bunu yukarıdaki biçimde
+yapamadığımızı görüyorsunuz. İşte bu işlem ancak değişkenin önüne ``ref`` anahtar sözcüğü getirilerek
+yapılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let ref r = a;         // geçerli
+
+Artık burada ``a``'nın adresi ``r`` referansına yerleştirilecektir. Burada artık ``r`` değişkeni ``&i32``
+türündendir. Yapılarda da bu ``ref`` anahtar sözcüğü özellikle yapı alanlarında benzer biçimde kullanılmaktadır.
+Örneğin:
+
+.. code-block:: rust
+
+   let pt = Point { x: 10, y: 20 };
+
+   match pt {
+       Point { ref x, ref y } => println!("x: {}, y: {}", *x, *y),
+   }
+
+Burada ``match`` ifadesinin (yani kalıp ifadesinin) adres belirtmediğine dikkat ediniz. Ancak ``x`` ve ``y``
+alanları artık referans belirtmektedir. Yani örneğimizde ``x`` ve ``y`` değişkenleri ``&i32`` türündendir.
+Aşağıdaki kalıbın geçerli olmadığını belirtmiştik:
+
+.. code-block:: rust
+
+   let pt = Point { x: 10, y: 20 };
+
+   match pt {
+       Point { x: &x, y: &y } => println!("x: {}, y: {}", *x, *y),       // error!
+   }
+
+Yukarıda da belirttiğimiz gibi bu kalıbın geçerli olabilmesi için ``Point`` yapısının ``x`` ve ``y`` alanlarının
+adres belirtmesi gerekir.
+
+Tabii yapının bazı alanları için ``ref`` kullanılıp bazıları için kullanılmayabilir. Örneğin:
+
+.. code-block:: rust
+
+   let pt = Point { x: 10, y: 20 };
+
+   match pt {
+       Point { ref x, y } => println!("x: {}, y: {}", *x, y),
+   }
+
+Burada ``x`` değişkeni ``&i32`` türünden, ``y`` değişkeni ise ``i32`` türündendir. Aşağıdaki kalıp geçerlidir:
+
+.. code-block:: rust
+
+   let pt = Point { x: 10, y: 20 };
+
+   match &pt {
+       &Point { ref x, y } => println!("x: {}, y: {}", *x, y),
+   }
+
+Burada kalıpta ``&`` olduğu için ``match`` ifadesinin adres belirtmesi zorundadır. Bu iki ``&`` operatörünün
+birbirini götüreceğini düşünebilirsiniz. Bu durumda bu kalıp öncekiyle tamamen aynı olacaktır. Yani bu kalıpta da
+``x`` değişkeni ``&i32`` türünden, ``y`` değişkeni ise ``i32`` türündendir.
+
+Dilim Referansları ve ``for`` Döngüleri
+---------------------------------------
+
+Biz diziler konusunda dilim referanslarını görmüştük. Dilim referansları ``T`` bir tür belirtmek üzere ``&[T]``
+biçiminde belirtiliyordu. Anımsanacağı gibi dilim referanslarına Rust'ta *şişman göstericiler (fat pointers)* de
+deniliyordu. Dilim referansları aslında bir adres ve bir uzunluk belirtiyordu. Dilim referanslarına dilimlerin
+adreslerinin atandığını anımsayınız. Örneğin:
+
+.. code-block:: rust
+
+   let a: [i32; 10] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+   let r = &a[3..7];
+
+Burada ``r`` değişkeni ``&[i32]`` türündendir. Bu değişken aslında iki parçadan oluşmaktadır: Dilimin başlangıç
+adresi ve uzunluğu.
+
+Rust'ta ``for`` döngülerinin de kalıp uyuşumu ile çalıştığını anımsayınız. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let a: [i32; 10] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+       let r = &a[3..7];
+
+       for val in r {
+           print!("{} ", val);
+       }
+   }
+
+Burada ``val`` değişkeni ``&i32`` türündendir. Yani döngü her yinelendiğinde aslında dilimin bir elemanının
+adresi elde edilmektedir. O halde biz ``for`` döngüsündeki kalıpta da ``&`` atomunu kullanabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   for &val in r {
+       print!("{} ", val);
+   }
+
+Burada artık ``val`` ``&i32`` türünden değil ``i32`` türündendir. Yani iteratör her dolaşımda bize bir dilimin
+adresini verecek ancak derleyici bu adresin gösterdiği yeri ``val`` değişkenine atayacaktır.
+
+Tabii biz ``for`` döngüsündeki kalıpta ``ref`` anahtar sözcüğünü de kullanabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   let a: [i32; 10] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+   for val in a {
+       print!("{} ", val);
+   }
+
+Anımsanacağı gibi burada ``val`` değişkeni ``i32`` türündendir. Ancak siz dizi elemanın adresini elde etmek
+istiyorsanız ``ref`` kalıbını kullanabilirsiniz:
+
+.. code-block:: rust
+
+   let a: [i32; 10] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+   for ref val in a {
+       print!("{} ", val);
+   }
+
+Artık buradaki ``val`` değişkeni ``&i32`` türündendir. Döngünün her yinelenmesinde dizi elemanın adresi elde
+edilmektedir.
+
+Referansların Karşılaştırılması
+-------------------------------
+
+``T`` bir tür belirtmek üzere aslında ``&T`` türünün de metotları vardır. Yani biz ``T`` türünden bir referansla
+yalnızca ``T`` türünün değil ``&T`` türünün de bazı metotlarını çağırabilmekteyiz. *The Rust Standard Library*
+dokümanlarında ``&T`` türünün bazı trait'leri desteklediği belirtilmiştir. Dolayısıyla ``T`` türünden
+referanslarla biz bu trait'lerin metotlarını çağırabiliriz. Bu trait'lerin bazı metotları operatör sentaksıyla da
+kullanılabilmektedir. Metotların operatör sentaksıyla çağrılması *operatör metotları* konusu ile ilgilidir.
+Kursumuzda başka bir bölümde ele alınacaktır.
+
+``&T`` türü ``PartialEq`` trait'ini desteklediği (implemente ettiği) için bu türün ``eq`` ve ``ne`` isimli iki
+metodu da vardır. Böylece biz aynı türden iki referansı *onların gösterdikleri yerdeki değerler eşit mi* diye
+karşılaştırabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let b: i32 = 10;
+   let result: bool;
+
+   let ra: &i32 = &a;
+   let rb: &i32 = &b;
+
+   result = ra.eq(rb);         // true
+
+Burada ``ra.eq(rb)`` çağrısı ile ``ra`` ve ``rb`` referanslarının içerisindeki adresler karşılaştırılmamaktadır,
+onların gösterdiği yerdeki değerler karşılaştırılmaktadır. Yani burada yapılan işlemin eşdeğeri
+``*ra == *rb`` biçimindedir. Operatör metotları konusunda da göreceğimiz gibi ``PartialEq`` trait'ini destekleyen
+türler türünden değişkenler ya da değerler doğrudan ``==`` ve ``!=`` operatörleriyle karşılaştırma işlemine
+sokulabilmektedir. Yani ``ra.eq(rb)`` çağrısı tamamen ``ra == rb`` ile ve dolayısıyla da ``*ra == *rb`` ile
+eşdeğerdir.
+
+.. code-block:: rust
+
+   fn main() {
+       let a: i32 = 10;
+       let b: i32 = 10;
+       let result: bool;
+
+       let ra: &i32 = &a;
+       let rb: &i32 = &b;
+
+       result = ra == rb;
+       println!("{}", result);     // true
+   }
+
+``&T`` türleri ``PartialOrd`` isimli trait'i de desteklemektedir. Bu trait'in ``lt``, ``le``, ``gt``, ``ge``
+isimli metotları vardır. Dolayısıyla ``&T`` türünden bir ifade ile bu metotlar da çağrılabilir. Bu metotlar
+*referansların gösterdiği yerdeki değerleri* karşılaştırmaktadır. Örneğin ``ra`` ve ``rb`` ``T`` türünden iki
+referans olsun. ``ra.gt(rb)`` çağrısı ``ra`` ve ``rb`` referanslarının gösterdiği yerdeki değerleri
+karşılaştırmaktadır. ``PartialOrd`` trait'i operatör metotlarında kullanıldığı için metot çağırma sentaksı yerine
+doğrudan ``>``, ``>=``, ``<`` ve ``<=`` operatörleri de kullanılabilir. Yani ``gt`` yerine ``>`` operatörü,
+``ge`` yerine ``>=`` operatörü, ``lt`` yerine ``<`` operatörü ve ``le`` yerine de ``<=`` operatörü kullanılabilir.
+Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let b: i32 = 12;
+   let result: bool;
+
+   let ra: &i32 = &a;
+   let rb: &i32 = &b;
+
+   if ra > rb {
+       println!("*ra > *rb");
+   }
+   else if ra < rb {
+       println!("*ra < *rb");
+   }
+   else {
+       println!("*ra == *rb");
+   }
+
+Yukarıdaki açıklamaların özeti şudur: *Biz aynı türden iki referansı karşılaştırdığımızda aslında onların
+gösterdiği yerdeki değerleri* karşılaştırmış oluruz. Karşılaştırma işlemlerinde ayrıca ``*`` operatörünün
+kullanılmasına gerek yoktur.
+
+İki referansın karşılaştırma işlemine sokulabilmesi için onların aynı türden olması ve onların ilişkin olduğu
+türlerin yukarıda belirttiğimiz ``PartialEq`` ve ``PartialOrd`` trait'lerini destekliyor olması gerekir. Örneğin
+biz aşağıdaki gibi iki ``Sample`` referansını karşılaştıramayız. Çünkü iki ``Sample`` değeri
+karşılaştırılamamaktadır.
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Self {
+           Self { a, b }
+       }
+
+       fn foo(&self, msg: &str) {
+           println!("{}: {}, {}", msg, self.a, self.b);
+       }
+       //...
+   }
+   //...
+
+   let a = Sample::new(10, 20);
+   let b = Sample::new(10, 20);
+   let result: bool;
+
+   let ra = &a;
+   let rb = &b;
+
+   result = ra == rb;      // error!
+
+``r`` ifadesi ``T`` türünden bir referans belirtiyor olsun (yani ``&T`` türünden olsun) bu ``r`` referansı ile
+bir ``T`` türünün metotlarını ve ``&T`` türünün metotlarını çağırabildiğimizi gördük. Bu konunun bazı ayrıntıları
+vardır. Bu ayrıntılar *The Rust Language Reference* dokümanlarında *8.2.10 Method-call expressions* başlığı
+altında açıklanmıştır. Biz bu ayrıntıları ileride ele alacağız.
+
+Referansların Adreslerinin Karşılaştırılması
+--------------------------------------------
+
+Aynı türden iki referans karşılaştırıldığında aslında o referansların gösterdiği yerdeki değerlerin
+karşılaştırıldığını gördük. Ancak bazen gerçekten *iki referansın içerisinde aynı adresin bulunup bulunmadığını*
+da öğrenmek isteyebiliriz. Örneğin yukarıda da belirttiğimiz gibi ``ra`` ve ``rb`` iki referans olsun.
+``ra == rb`` işlemi referansın gösterdiği yerdeki değerleri karşılaştırır. Bu iki referansın aynı değişkeni ya da
+değeri gösterip göstermediğini (yani bu iki referansın içerisinde aynı adresin olup olmadığını) karşılaştırmaz.
+İşte adres karşılaştırması için ``std::ptr`` modülündeki ``eq`` fonksiyonu kullanılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let a = 10;
+   let b = 10;
+
+   let ra = &a;
+   let rb = &b;
+
+   let mut result: bool;
+
+   result = ra == rb;
+   println!("{}", result);         // true
+
+   result = std::ptr::eq(ra, rb);
+   println!("{}", result);         // false
+
+Biz daha önce değer ifadelerinin de (yani C'deki *sağ taraf değerlerinin* de) adresinin alınabildiğini
+belirtmiştik. O halde sizce aşağıdaki iki referansın içerisindeki adresler aynı olur mu?
+
+.. code-block:: rust
+
+   let ra = &10;
+   let rb = &10;
+
+   let result = std::ptr::eq(ra, rb);     // true ama zorunlu değil
+
+Bu sorunun yanıtı aslında ``10`` değerinin yerleştirileceği iki farklı geçici değişkenin yaratılıp
+yaratılmayacağı ile ilgilidir. Örneğimizdeki referanslar ``mut`` olmadığına göre bu iki ``10`` değeri için
+derleyiciler tek bir değişken oluşturabilirler. Ancak bu zorunlu değildir. Yani bu durum derleyici optimizasyonuna
+bağlıdır. Tabii aşağıdaki durumda mecburen derleyici iki geçici değişken için farklı yerler ayıracaktır:
+
+.. code-block:: rust
+
+   let ra = &mut 10;
+   let rb = &10;
+
+   let result = std::ptr::eq(ra, rb);     // kesinlikle false
+
+.. code-block:: rust
+
+   fn main() {
+       let ra = &mut 10;
+       let rb = &10;
+
+       let result = std::ptr::eq(ra, rb);
+       print!("{}", result);      // false
+   }
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+Otomatik Dereferans
+-------------------
+
+Aslında pek çok durumda bizim bir referansın gösterdiği yerdeki değişkene ya da değere erişmek için ``*``
+operatörünü kullanmamıza gerek yoktur. Çünkü temel türler zaten operatör metotlarına ilişkin trait'leri
+destekliyor durumdadır. (Bunlar ``std::ops`` modülünde bulunmaktadır.) Ancak bu konunun ileride ele alacağımız
+bazı ayrıntıları vardır. Siz bu konunun ayrıntıları açıklanana kadar Rust'ta *aritmetik operatörler ve diğer
+bazı operatörler için otomatik dereferans işleminin yapıldığını* varsayabilirsiniz. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let b: i32 = 20;
+   let ra: &i32 = &a;
+   let rb: &i32 = &b;
+   let mut result: i32;
+
+   result = ra + 1;                        // geçerli ve *ra + 1 ile aynı anlamda
+   println!("result: {}", result);         // 11
+
+   result = ra + rb;                        // geçerli ve *ra + *rb ile aynı anlamda
+   println!("result: {}", result);         // 30
+
+Görüldüğü gibi biz ``&T`` türü ile doğrudan ``T`` türünü işlemlere sokabiliyoruz. Bu davranış C++'taki referans
+davranışına oldukça benzemektedir. Ancak atama işlemi sırasında böyle otomatik bir dereferans işlemi
+yapılmamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let ra: &i32 = &a;
+   let result: i32;
+
+   result = ra;        // error!
+
+Rust'ta temel türlerle otomatik dereferans yapılmasını sağlayan operatör işlemleri (dolayısıyla desteklenen
+operatör trait'leri) şunlardır:
+
+- Aritmetik operatörler
+- Bit operatörleri
+- Karşılaştırma operatörleri (``&T`` türlerinin trait desteklerinden geliyor)
+- Bileşik atama operatörleri
+- ``!`` ve işaret ``-`` operatörleri
+
+Konunun ayrıntıları trait'leri bölümünde ele alınacaktır.
+
+.. code-block:: rust
+
+   fn main() {
+       let a: i32 = 10;
+       let b: i32 = 20;
+       let ra: &i32 = &a;
+       let rb: &i32 = &b;
+       let mut result: i32;
+
+       result = ra + 1;                        // geçerli ve *ra + 1 ile aynı anlamda
+       println!("result: {}", result);         // 11
+
+       result = ra + rb;                        // geçerli ve *ra + *rb ile aynı anlamda
+       println!("result: {}", result);         // 30
+   }
+
+Referanslar ve Göstericiler Arasındaki İlişki
+---------------------------------------------
+
+Referanslar adreslerle aktarımın (call by reference) güvenli bir biçimde yapılmasını sağlamaktadır. Çünkü bir
+referans hiçbir zaman rastgele bir yeri gösteremez. Referanslar her zaman ilkdeğer verilmiş güvenli değişkenleri
+ya da değerleri göstermektedir. Biz Rust'ta *yalnızca referanslar konusunun sınırları içerisinde kalarak* bir
+referans içerisindeki adresi alıp, onu artırıp eksiltemeyiz. Bu işlemleri yapabilmek için göstericilerden
+(pointers) faydalanılmaktadır. Rust'ta da tıpkı C'de olduğu gibi göstericiler vardır. Göstericiler olmadan zaten
+sistem programlama yapılamaz. Bu bölümde Rust'ta göstericiler konusunu ele alacağız.
+
+*The Rust Reference* dokümanlarında referanslar ve göstericiler *gösterici türleri (pointer types)* olarak
+sınıflandırılmıştır. Rust'ta izleyen paragraflarda ele alacağımız C'deki gibi göstericilere
+*ham göstericiler (raw pointers)* denilmektedir. Ancak biz kursumuzda *ham gösterici (raw pointer)* terimi yerine
+yalnızca *gösterici (pointer)* terimini kullanacağız.
+
+Default Argüman Etkisinin Oluşturulması
+---------------------------------------
+
+Bilindiği gibi C++, Java C#, Python gibi programlama dillerinde fonksiyonların ve metotların parametrelerine
+default değerler verilebilmektedir. Örneğin:
+
+.. code-block:: cpp
+
+   class Complex {
+   public:
+       Complex(double real = 0, double imag = 0)
+       {
+           m_real = real;
+           m_imag = imag;
+       }
+       //...
+   private:
+       double m_real;
+       double m_imag;
+   };
+
+Burada biz ``Complex`` türünden nesneyi aşağıdaki yapıcı fonksiyon çağırmalarıyla yaratabiliriz:
+
+.. code-block:: cpp
+
+   Complex x;              // real = 0, imag = 0
+   Complex y(10);          // real = 10, imag = 0
+   Complex z(10, 20);      // real = 10, imag = 20
+
+Rust'ta default argüman özelliği (yani parametre değişkenlerine default değerlerin verilebilmesi özelliği)
+olmadığına göre bu tür işlemler nasıl yapılmaktadır?
+
+Rust geleneğinde default argüman etkisi iki biçimde oluşturulmaktadır:
+
+1) Birden fazla ``new`` ilişkili fonksiyonlarıyla
+2) ``new`` ilişkili fonksiyonundan sonra metot çağrı zincirleriyle.
+
+Birinci yöntemde biz birden fazla ``new`` ilişkili fonksiyonu yazarak default değerleri bunlarla oluşturabiliriz.
+Örneğin:
+
+.. code-block:: rust
+
+   struct Complex {
+       real: f64,
+       imag: f64,
+   }
+
+   impl Complex {
+       fn new(real: f64, imag: f64) -> Self {
+           Complex { real, imag }
+       }
+
+       fn zero() -> Self {
+           Complex { real: 0.0, imag: 0.0 }
+       }
+
+       fn from_real(real: f64) -> Self {
+           Complex { real, imag: 0.0 }
+       }
+
+       fn disp(&self) {
+           println!("real: {}, imag: {}", self.real, self.imag);
+       }
+   }
+
+Kullanım şöyle olabilir:
+
+.. code-block:: rust
+
+   let x = Complex::zero();
+   x.disp();       // real: 0, imag: 0
+
+   let mut y = Complex::from_real(10.);
+   y.disp();       // real: 10, imag: 0
+
+   let mut z = Complex::new(10., 20.);
+   z.disp();       // real: 10, imag: 20
+
+İkinci yöntemde ``new`` ilişkili fonksiyonunda yapının gerekli görülen alanlarına default değerleri verilebilir,
+sonra set edici (setter) metotlarla yapının ilgili alanlarına arzu edilen değerler yerleştirilebilir. Örneğin:
+
+.. code-block:: rust
+
+   struct Complex {
+       real: f64,
+       imag: f64,
+   }
+
+   impl Complex {
+       fn new() -> Self {
+           Complex { real: 0., imag: 0.}
+       }
+
+       fn real(mut self, real: f64) -> Self {
+           self.real = real;
+           self
+       }
+
+       fn imag(mut self, imag: f64) -> Self {
+           self.imag = imag;
+           self
+       }
+
+       fn disp(&self) {
+           println!("real: {}, imag: {}", self.real, self.imag);
+       }
+   }
+
+Burada ``new`` ilişkili fonksiyonu ``Complex`` değerini default değerlerle yaratmıştır. ``real`` metodu yapının
+``real`` alanına, ``imag`` metodu ise ``imag`` alanına değer yerleştirmektedir. Ayrıca ``real`` ve ``imag``
+metotlarının ``self`` parametresinin referans içermediğine ve ``mut`` olduğuna dikkat ediniz. Yani her defasında
+sahiplik devri yapılmaktadır. Bu mekanizmayı şöyle kullanabiliriz:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut x = Complex::new();
+       x.disp();
+
+       let mut y = Complex::new().real(10.);
+       y.disp();
+
+       let mut z = Complex::new().real(10.).imag(20.);
+       z.disp();
+   }
+
+Çağrı zincirleri uzunsa (iki ya da üç çağrıdan fazlaysa) Rust programcıları (*rustfmt* de böyle yapmaktadır)
+bunları satır satır yazmayı tercih etmektedir. Bu durumda satırlar bir tab içeriden yazılır ve nokta operatörüyle
+başlatılır. Örneğin:
+
+.. code-block:: rust
+
+   let mut z = Complex::new()
+       .real(10.)
+       .imag(20.);
+
+Bu yazımda metot çağrılarının bir TAB içeriden yazıldığına, erişimi sağlayan nokta operatörünün de satırın
+başında bulundurulduğuna dikkat ediniz.
+
+Rust'ta bu tür durumlarda default değerleri değiştiren metotların isimlendirmesinde ``with_xxx`` kalıbının
+kullanılması da yaygındır. Örneğin:
+
+.. code-block:: rust
+
+   let mut z = Complex::new()
+       .with_real(10.)
+       .with_imag(20.);
+
+Bazen yapılar türünden değer oluşturmak için ``XXXBuilder`` ya da ``XXXConfig`` biçiminde isimlendirilen yapılar
+da bulundurulmaktadır. Değer bu ``XXXBuilder`` ya da ``XXXConfig`` yapılarının metotları zincir yapılarak
+yaratılır, zincirin sonunda da asıl yapı türünden değeri yaratan ``build`` isimli bir metot bulundurulur.
+Örneğin şöyle bir yapımızın bulunduğunu varsayalım:
+
+.. code-block:: rust
+
+   struct Server {
+       host: String,
+       port: u16,
+       max_connections: usize,
+       timeout_secs: u64,
+   }
+
+Amacımız bu yapı türünden değerler oluşturmak olsun. Bunun için şöyle bir ``ServerBuilder`` yapısı
+oluşturabiliriz:
+
+.. code-block:: rust
+
+   struct ServerBuilder {
+       host: String,
+       port: u16,
+       max_connections: usize,
+       timeout_secs: u64,
+   }
+
+   impl ServerBuilder {
+       fn new() -> Self {
+           ServerBuilder {
+               host: "127.0.0.1".to_string(),
+               port: 8080,
+               max_connections: 100,
+               timeout_secs: 30,
+           }
+       }
+
+       fn host(mut self, val: &str) -> Self {
+           self.host = val.to_string(); self
+       }
+       fn port(mut self, val: u16) -> Self {
+           self.port = val; self
+       }
+       fn max_connections(mut self, val: usize) -> Self {
+           self.max_connections = val; self
+       }
+       fn timeout_secs(mut self, val: u64) -> Self {
+           self.timeout_secs = val; self
+       }
+
+       fn build(self) -> Server {
+           Server {
+               host: self.host,
+               port: self.port,
+               max_connections: self.max_connections,
+               timeout_secs: self.timeout_secs,
+           }
+       }
+   }
+
+``ServerBuilder`` yapısının ``build`` dışındaki metotlarının ``ServerBuilder`` geri döndüğüne dikkat ediniz. En
+sonunda ``build`` metodu eldeki bilgilerden hareketle ``Server`` türünden değer oluşturmaktadır. Örneğin bu
+mekanizmayla default değerlere sahip ``Server`` türünden değer şöyle oluşturulabilir:
+
+.. code-block:: rust
+
+   let server: Server = ServerBuilder::new().build();
+
+Ya da örneğin default değerler yerine kendi istediğimiz değerlerle şöyle ``Server`` oluşturabiliriz:
+
+.. code-block:: rust
+
+   let server: Server = ServerBuilder::new()
+       .host("0.0.0.0")
+       .port(443)
+       .max_connections(1000)
+       .build();
+
+Göstericiler (Ham Göstericiler)
+-------------------------------
+
+Şimdi de Rust'ta göstericiler (ham göstericiler) konusunu ele alacağız.
+
+Rust'ta göstericiler (ham göstericiler) ``*const T`` ya da ``*mut T`` türleriyle temsil edilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let p: *const i32;
+
+Burada ``p`` değişkeni ``*const i32`` türündendir. Örneğin:
+
+.. code-block:: rust
+
+   let p: *mut i64;
+
+Burada ``p`` değişkeni ``*mut i64`` türündendir. Görüldüğü gibi Rust'ta gösterici bildirirken ``const`` ya da
+``mut`` belirleyicilerinden birinin mutlaka belirtilmesi gerekmektedir. Örneğin aşağıdaki bildirim geçersizdir:
+
+.. code-block:: rust
+
+   let p: *i32;       // error! *'dan sonra const ya da mut belirleyicisi gerekir.
+
+Biz yukarıdaki bildirimlerle C'deki gibi göstericiler oluşturduk. Rust'taki göstericiler tıpkı C'dekiler gibi
+bellekte herhangi bir yeri gösterebilirler, artırılıp eksiltilebilirler.
+
+Rust'ta bağlama (yani bildirim) ve atama dışındaki tüm gösterici işlemlerinin ``unsafe`` bağlamda yapılması
+zorunlu tutulmuştur. ``unsafe`` bağlam oluşturmanın tipik yolu ``unsafe`` blok kullanmaktır.
+
+.. code-block:: rust
+
+   unsafe {
+       //...
+   }
+
+``unsafe`` bağlam ``unsafe`` fonksiyonlarla ve trait'lerle de oluşturulabilmektedir.
+
+Göstericilere Adres Atanması
+----------------------------
+
+Bir göstericiye aynı türden bir adresin yerleştirilmesi gerekir. Değişkenlerin ve değerlerin adresleri referanslar
+konusunda gördüğümüz ``&`` ve ``&mut`` operatörleriyle alınmaktadır. Tıpkı referanslarda olduğu gibi ``mut``
+olmayan bir değişkenin adresi ``&`` operatörüyle alınıp aynı türden ``const`` bir göstericiye atanabilmektedir.
+Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let pi32: *const i32;
+
+   pi32 = &a;      // geçerli
+
+Burada ``&a`` ifadesinde ``a`` değişkeni ``mut`` olmayan bir değişken olduğu için ``const`` bir adres
+belirtmektedir. Yine tıpkı referanslarda ve C'deki göstericilerde olduğu gibi ``mut`` bir değişkenin adresi aynı
+türden ``const`` bir göstericiye atanabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let pi32: *const i32;
+
+   pi32 = &a;      // geçerli, mut bir değişkenin adresi const bir göstericiye atanabilir
+
+Tabii bunun tersi yapılamamaktadır. Yani ``mut`` olmayan bir değişkenin adresi ``mut`` bir göstericiye
+atanamamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let pi32: *mut i32;
+
+   pi32 = &a;      // error, mut olmayan bir değişkenin adresi mut bir göstericiye atanamaz
+
+``mut`` bir değişkenin adresini ``mut`` bir göstericiye atamak için yine adres alırken ``&mut`` operatörünü
+kullanmak gerekir. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let pi32: *mut i32;
+
+   pi32 = &mut a;
+
+Aslında ``&`` ve ``&mut`` operatörleri Rust'ta referans türünden değerler vermektedir. Ancak Rust'ta ``&T``
+türünden ``*const T`` türüne, ``&mut T`` türünden de ``*mut T`` ve ``*const T`` türlerine otomatik dönüştürme
+olduğu için biz bir değişkenin adresini ``&`` ve ``&mut`` ile alıp onu doğrudan göstericilere atayabilmekteyiz.
+Bu konu üzerinde izleyen paragraflarda yeniden duracağız.
+
+``let`` deyiminde kalıp bir değişkense ve tür belirtilmediyse kalıp ifadesi de ``&ifade`` ya da ``&mut ifade``
+biçimindeyse kalıptaki değişken gösterici değil referans olarak belirlenir. Yani Rust default durumda hep referans
+kullanımını ön planda tutmuştur. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let b = &a;
+
+Burada ``b`` değişkeni ``&i32`` türündendir, ``*const i32`` türünden değildir. Tabii izleyen paragraflarda da
+göreceğimiz gibi açıkça tür dönüştürmesi yapılırsa bu durumda derleyici kalıptaki değişkenin gösterici
+olduğunu anlayabilecektir:
+
+.. code-block:: rust
+
+   let a: i32;
+   let b = &a as *const i32;
+
+Burada artık ``b`` bir referans değil göstericidir.
+
+Göstericiler
+============
+
+Göstericilerin Gösterdiği Yere Erişim
+-------------------------------------
+
+Göstericinin gösterdiği yerdeki değişkene ya da değere yine tek operand'lı ``*`` operatörüyle
+(dereference operator) erişilmektedir. Tabii erişimlerin ``unsafe`` bağlam içerisinde yapılması gerekir.
+Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let pi32: *const i32;
+
+   pi32 = &a;
+
+   unsafe {
+       println!("{}", *pi32);      // 10
+   }
+
+``unsafe`` blok da bir blok deyimidir. Dolayısıyla bir değer üretmektedir. Yani aşağıdaki gibi bir atama
+geçerlidir:
+
+.. code-block:: rust
+
+   b = unsafe {
+       *pi32
+   };
+
+Burada ``*pi32`` ifadesinin ``unsafe`` blok içerisinde bulunması gerekir. Ancak atanacak olan değişkenin
+``unsafe`` blok içerisinde bulunmasına gerek yoktur.
+
+``mut`` Göstericiler
+--------------------
+
+Eğer bir gösterici yoluyla o göstericinin gösterdiği yeri değiştirmek istiyorsak göstericimizin ``mut`` olması
+gerekir. Tabii ``mut`` bir göstericiye yukarıda da belirttiğimiz gibi yalnızca aynı türden ``mut`` bir
+değişkenin ya da değerin adresini atayabiliriz. Referanslar konusundan da anımsayacağınız gibi ``mut`` bir
+değişkenin ya da değerin adresi ``&`` operatörüyle de ``&mut`` operatörüyle de alınabilmektedir. Bizim ilgili
+değişkenin ya da değerin adresini ``mut`` bir göstericiye yerleştirebilmemiz için onun adresini ``&mut``
+operatörüyle almamız gerekir. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let pi32: *mut i32;
+
+   pi32 = &mut a;
+
+   unsafe {
+       *pi32 = 20;
+   }
+
+   println!("{}", a);          // 20
+
+.. code-block:: rust
+
+   fn main() {
+       let mut a: i32 = 10;
+       let pi32: *mut i32;
+
+       pi32 = &mut a;
+
+       unsafe {
+           *pi32 = 20;
+       }
+
+       println!("{}", a);          // 20
+   }
+
+``swap`` Fonksiyonunun Göstericilerle Yazılması
+-----------------------------------------------
+
+Biz daha önce iki değişkenin içerisindeki değerleri yer değiştiren ``swap`` isimli fonksiyonunu referansları
+kullanarak yazmıştık. Şimdi de aynı fonksiyonu göstericileri kullanarak yazalım:
+
+.. code-block:: rust
+
+   fn swap(a: *mut i32, b: *mut i32) {
+       unsafe {
+           let temp = *a;
+           *a = *b;
+           *b = temp;
+       }
+   }
+
+Bu fonksiyonu çağırırken bizim ``i32`` türünden iki ``mut`` değişkenin adresini ``&mut`` operatörüyle alıp
+fonksiyona göndermemiz gerekir. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let mut b: i32 = 20;
+
+   swap(&mut a, &mut b);
+
+Fonksiyondan çıkıldığında değişkenlerin içerisindeki değerler yer değiştirmiş olacaktır.
+
+.. code-block:: rust
+
+   fn main() {
+       let mut a: i32 = 10;
+       let mut b: i32 = 20;
+
+       swap(&mut a, &mut b);
+       println!("a = {}, b = {}", a, b);        // a = 20, b = 10
+   }
+
+   fn swap(a: *mut i32, b: *mut i32) {
+       unsafe {
+           let temp = *a;
+           *a = *b;
+           *b = temp;
+       }
+   }
+
+Göstericilerin Artırılması ve Eksiltilmesi
+------------------------------------------
+
+Peki Rust'ta bir göstericinin içerisindeki adresi nasıl artırıp eksiltiriz? Anımsanacağı gibi C'de biz adres
+bilgilerini tamsayı türünden (integer types) değerlerle artırıp azaltabiliyorduk. Elde edilen ürün de yine aynı
+türden bir adres bilgisi oluyordu. Ancak Rust'ta göstericiler C'deki gibi ``+`` ve ``-`` operatörleriyle
+artırılıp eksiltilememektedir.
+
+Rust'ta gösterici türlerinin de (tıpkı referans türlerinde olduğu gibi) metotları vardır. İşte adres artırımları
+ya da eksiltimleri gösterici türlerinin ``offset``, ``add`` ve ``sub`` metotlarıyla yapılmaktadır. ``offset``
+metodunun parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub const unsafe fn offset(self, count: isize) -> *const T
+   pub const unsafe fn offset(self, count: isize) -> *mut T
+
+Metotların birinci parametresi alıcıyı (receiver), ikinci parametresi artırım ya da eksiltim değerini
+belirtmektedir. Metotlar bize artırılmış ya da eksiltilmiş yeni adresi vermektedir. ``offset`` metotlarını biz
+``const`` ya da ``mut`` göstericilerle kullanabiliriz. Yine tıpkı C'de olduğu gibi bir göstericinin içindeki adres
+1 artırıldığında ya da 1 eksiltildiğinde adresin sayısal bileşeni adresin türünün uzunluğu kadar artırılıp
+eksiltilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let pi: *const i32;
+   ...
+
+   pi = p.offset(1);
+
+Burada ``pi`` göstericisinin içerisindeki adresin sayısal bileşeni 1 değil ``i32`` türü 4 byte olduğu için 4
+artırılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let b: i32 = 20;
+   let mut pi: *const i32;
+
+   pi = &a;
+   unsafe {
+       println!("{:p}", pi);
+       pi = pi.offset(1);
+       println!("{:p}", pi);
+   }
+
+Burada ekrana bastırılan iki adres değeri arasında 4 fark olması gerekir.
+
+Tabii tıpkı C'de olduğu gibi göstericinin gösterdiği yer bizim için ayrılan bir yer değilse oraya ``*``
+operatörüyle erişmememiz gerekir. Böyle erişimler Rust'ta da C'de olduğu gibi *tanımsız davranış
+(undefined behavior)* oluşturmaktadır. Rust'ta aşağıdaki gibi işlemlerin error oluşturacağını bir kez daha
+vurgulamak istiyoruz:
+
+.. code-block:: rust
+
+   unsafe {
+       pi += 1;            // error
+       pi = pi + 1;        // error
+   }
+
+``offset`` metotlarının ``wrapping_offset`` isminde benzerleri de vardır:
+
+.. code-block:: rust
+
+   pub const fn wrapping_offset(self, count: isize) -> *const T
+   pub const fn wrapping_offset(self, count: isize) -> *mut T
+
+Bu metotlar adreste taşma olduğunda yeniden belleğin başına geçilmesini (yani *wrapping* yapılmasını)
+sağlamaktadır.
+
+``offset`` metotlarının artırım değerlerini ``isize`` türüyle aldığını anımsayınız. Yani biz bu metotlarla hem
+artırım hem de eksiltim yapabilmekteyiz. Rust'ta ayrıca yalnızca artırım yapabilmek için ``add`` metodu ve
+yalnızca eksiltim yapabilmek için ``sub`` metodu da bulundurulmuştur:
+
+.. code-block:: rust
+
+   pub const unsafe fn add(self, count: usize) -> *const T
+   pub const unsafe fn add(self, count: usize) -> *mut T
+   pub const unsafe fn sub(self, count: usize) -> *const T
+   pub const unsafe fn sub(self, count: usize) -> *mut T
+
+Bu metotların artırım ve eksiltim değerlerini ``usize`` türüyle aldıklarına dikkat ediniz. Yani ``add``
+yalnızca artırım için, ``sub`` ise yalnızca eksiltim için kullanılmaktadır. Bu metotların ``wrapping_`` önekli
+sarma yapan biçimleri de vardır:
+
+.. code-block:: rust
+
+   pub const unsafe fn wrapping_add(self, count: usize) -> *const T
+   pub const unsafe fn wrapping_add(self, count: usize) -> *mut T
+   pub const unsafe fn wrapping_sub(self, count: usize) -> *const T
+   pub const unsafe fn wrapping_sub(self, count: usize) -> *mut T
+
+Anımsanacağı gibi C'de aynı türden iki adres bilgisi çıkartılabilmektedir. Elde edilen ürün ``ptrdiff_t``
+türünden olmaktadır. ``ptrdiff_t`` türü derleyicileri yazanlar tarafından işaretli bir tamsayı türü biçiminde
+``typedef`` edilmektedir. C'de aynı türden iki adresi çıkarttığımız zaman elde edilen değer iki adresin sayısal
+bileşenlerinin farkının adresin türünün uzunluğuna bölümü biçiminde elde edilmektedir. (Yani örneğin C'de ``a``
+bir dizi olmak üzere ``&a[1] - &a[0]`` işleminden elde edilecek değer her zaman 1'dir.) Rust'ta da biz aynı
+türden iki adres bilgisini çıkartabiliriz. Bunun için ``offset_from`` metodu kullanılmaktadır:
+
+.. code-block:: rust
+
+   pub const unsafe fn offset_from(self, origin: *const T) -> isize
+
+Metodun geri dönüş değerinin ``isize`` türünden olduğuna dikkat ediniz. Burada elde edilen değer yine C'de
+olduğu gibi adreslerin sayısal bileşenleri arasındaki farkın adresin tür uzunluğuna bölünmesiyle elde
+edilmektedir. (Yani *iki adres arasında ilgili türden kaç değer var* hesabı yapılmaktadır.) Biz bu metot ile
+aynı türden biri ``mut`` olan diğeri olmayan, ya da ikisi de ``mut`` olan ya da ikisi de ``mut`` olmayan iki
+adresi çıkartabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let p1: *const i32 = &a;
+   let p2: *const i32;
+   let result: isize;
+
+   unsafe {
+       p2 = p1.add(5);
+       result = p2.offset_from(p1);
+       println!("{}", result);         // 5
+   }
+
+Gösterici türlerinin başka faydalı metotları da vardır. Ancak diğer metotları biz kullanacağımız zaman
+açıklayacağız. Siz de dokümanlardan diğer metotları gözden geçirebilirsiniz:
+
+https://doc.rust-lang.org/std/primitive.pointer.html#method.offset_from_unsigned
+
+Dizilerin Göstericilerle Fonksiyonlara Aktarılması
+--------------------------------------------------
+
+Peki bir dizi gösterici yoluyla nasıl fonksiyonlara aktarılabilir? Biz daha önce dizileri referans yoluyla
+fonksiyonlara aktarmıştık. Bu aktarımda tipik olarak fonksiyonun parametre değişkeni bir dilim referansı
+oluyordu. Fonksiyon da dizinin adresiyle çağrılıyordu. Rust'ta ileride ayrı bir başlık halinde yeniden ele
+alacağımız üzere ``[T; N]`` türünden, ``[T]`` türünden ve ``&[T; N]`` türünden ``&[T]`` türüne otomatik tür
+dönüşümü (type coercion) vardır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let a:[i32;5] = [10, 20, 30, 40, 50];
+
+       disp(&a);       // disp(&a[..]);
+   }
+
+   fn disp(sr: &[i32]) {
+       for i in 0..sr.len() {
+           print!("{} ", sr[i]);
+       }
+       println!("");
+   }
+
+Ancak Rust'ta biz bir dizinin adresini aldığımızda onu bir göstericiye atayamayız. Örneğin:
+
+.. code-block:: rust
+
+   let a:[i32;5] = [10, 20, 30, 40, 50];
+   let pi32: *const i32;
+
+   pi32 = &a;      // error
+
+Biz ``mut`` olmayan bir dizinin başlangıç adresini ``as_ptr`` metodu ile ``mut`` bir dizinin başlangıç adresini
+ise ``as_ptr`` ya da ``as_mut_ptr`` metodu ile elde edebiliriz. (Bu metotlar aslında dizilerin değil dilimlerin
+metotlarıdır.) Anımsanacağı gibi dizinin uzunluğunu da ``len`` metoduyla elde edebiliyorduk. Örneğin:
+
+.. code-block:: rust
+
+   let a:[i32; 5] = [10, 20, 30, 40, 50];
+   let pi32: *const i32;
+
+   pi32 = a.as_ptr();      // geçerli
+
+Tabii biz C'de de yaptığımız gibi bu göstericinin içerisindeki adresi artıra artıra dizinin tüm elemanlarına
+erişebiliriz. Çünkü dizi elemanlarının bellekte ardışıl bir biçimde dizildiği garanti edilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   unsafe {
+       for i in 0..a.len() {
+           print!("{} ", *pi32.add(i));
+       }
+       println!();
+   }
+
+Burada erişimin ``*pi32.add(i)`` biçiminde yapıldığına dikkat ediniz. (Bu ifade adeta C'deki ``*(p + i)`` ya da
+``p[i]`` ifadesine benzemektedir.) Metot çağrım operatörü ``*`` operatöründen daha önceliklidir. Bu ifadedeki
+diğer bir nokta da adres artırımının ``offset`` metoduyla değil ``add`` metoduyla yapılmasıdır. Çünkü ``for``
+döngüsündeki kalıpta ``i`` değişkeni ``a.len()`` ifadesinden dolayı ``usize`` türündendir. Halbuki ``offset``
+metodunun parametresi ``isize`` türünden olmak zorundadır. İşte Rust'ta dizileri fonksiyonlara burada
+uyguladığımız teknikle aktarabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   fn disp(pi32: *const i32, size: usize) {
+       for i in 0..size {
+           unsafe {
+               print!("{} ", *pi32.add(i));
+           }
+       }
+   }
+
+Fonksiyonu şöyle çağırabiliriz:
+
+.. code-block:: rust
+
+   let a:[i32;5] = [10, 20, 30, 40, 50];
+
+   disp(a.as_ptr(), a.len());
+
+.. code-block:: rust
+
+   fn main() {
+       let a:[i32;5] = [10, 20, 30, 40, 50];
+
+       disp(a.as_ptr(), a.len());
+   }
+
+   fn disp(pi32: *const i32, size: usize) {
+       for i in 0..size {
+           unsafe {
+               print!("{} ", *pi32.add(i));
+           }
+       }
+   }
+
+Dizi Türü ve Dilim Metotları
+----------------------------
+
+Aslında dizilerde kullandığımız ``as_ptr``, ``as_mut_ptr`` ve ``len`` gibi metotlar dizi türünün metotları
+değildir. Dilimlerin metotlarıdır. Bir dizi ile bu metotlar çağrıldığında aslında derleyici dizi türünü otomatik
+olarak dilim türüne dönüştürmektedir. Dolayısıyla aslında çağrılan metotlar dizinin metotları değil dilimin
+metotlarıdır. İleride *otomatik tür dönüştürmesi (type coercion)* konusu içerisinde bu mekanizmayı daha
+ayrıntılı açık ele alacağız.
+
+Göstericilerle Dizi Elemanlarının Değiştirilmesi
+------------------------------------------------
+
+Şimdi de göstericilerle dizi elemanları üzerinde değişiklik yapan bir örnek verelim. Örneğimizdeki ``bsort``
+fonksiyonu bubble sort algoritmasını kullanarak dizi elemanlarını sıraya dizmektedir.
+
+.. code-block:: rust
+
+   fn bsort(pi32: *mut i32, size: usize) {
+       for i in 0..size - 1 {
+           for k in 0..size - 1 - i {
+               unsafe {
+                   if *pi32.add(k) > *pi32.add(k + 1) {
+                       let temp = *pi32.add(k);
+                       *pi32.add(k) = *pi32.add(k + 1);
+                       *pi32.add(k + 1) = temp;
+                   }
+               }
+           }
+       }
+   }
+
+Burada ``pi32`` göstericisinin ``mut`` olduğuna dikkat ediniz. Fonksiyon ``mut`` dizinin adresiyle ve
+uzunluğuyla çağrılmalıdır:
+
+.. code-block:: rust
+
+   let mut a:[i32;10] = [30,17, 4, 92, 44, 65, 21, 98, 10, 1];
+
+   bsort(a.as_mut_ptr(), a.len());
+
+``mut`` dizinin adresinin ``as_mut_ptr`` metoduyla alındığına dikkat ediniz.
+
+.. code-block:: rust
+
+   fn main() {
+       let mut a:[i32;10] = [30,17, 4, 92, 44, 65, 21, 98, 10, 1];
+
+       bsort(a.as_mut_ptr(), a.len());
+
+       for val in a.into_iter() {
+           print!("{} ", val);
+       }
+       println!("");
+   }
+
+   fn bsort(pi32: *mut i32, size: usize) {
+       for i in 0..size - 1 {
+           for k in 0..size - 1 - i {
+               unsafe {
+                   if *pi32.add(k) > *pi32.add(k + 1) {
+                       let temp = *pi32.add(k);
+                       *pi32.add(k) = *pi32.add(k + 1);
+                       *pi32.add(k + 1) = temp;
+                   }
+               }
+           }
+       }
+   }
+
+Tabii Rust'ta aslında dizilerin yukarıdaki gibi gösterici kullanılarak fonksiyonlara aktarılması iyi bir teknik
+değildir. Bu işlem daha önce görmüş olduğumuz gibi dilim referanslarıyla (yani şişman göstericilerle)
+yapılmalıdır. Aslında Rust'ta zorunlu olmadıkça göstericileri kullanmamalısınız. Bu tür aktarımlarda her zaman
+referansları tercih etmelisiniz.
+
+NULL Adres
+----------
+
+Anımsanacağı gibi C'de hiçbir yeri göstermeyen, adeta boş adres belirten ismine NULL adres denilen özel bir
+adres vardı. NULL adresin özellikle adrese geri dönen fonksiyonlarda başarısızlık durumunu anlatmakta
+kullanıldığını anımsayınız. İşte Rust'ta aşağı seviyeli işlemler yaparken NULL adrese de gereksinim
+duyulabilmektedir. NULL adres Rust'ta ``std::ptr::null()`` ya da ``std::ptr::null_mut()`` fonksiyonları ile
+oluşturulmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let pi32: *const i32;
+
+   pi32 = std::ptr::null();        // geçerli
+
+Artık burada göstericinin içerisinde NULL adres vardır. NULL adres C ile Rust arasındaki uyumu korumak için de
+kullanılmaktadır. Bir göstericinin içerisinde NULL adres olup olmadığı göstericinin ``is_null`` metodu ile kontrol
+edilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   if pi32.is_null() {
+      //...
+   }
+   else {
+       //...
+   }
+
+Eğer ``mut`` bir göstericiye NULL adres atanacaksa ``std::ptr::null_mut`` fonksiyonu kullanılmalıdır. Örneğin:
+
+.. code-block:: rust
+
+   let pi32: *mut i32 = std::ptr::null_mut();
+
+``is_null`` metodunun ``mut``'lu ayrı bir biçiminin olmadığına dikkat ediniz.
+
+``unsafe`` Fonksiyonlar
+-----------------------
+
+Fonksiyonların tüm gövdesi ``unsafe`` yapılabilmektedir. Bunun için fonksiyon tanımlanırken ``fn`` anahtar
+sözcüğünün soluna ``unsafe`` niteleyicisi (function qualifier) getirilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   unsafe fn foo() {
+       //...
+   }
+
+``unsafe`` bir fonksiyonun içerisinde biz gösterici işlemlerini doğrudan yapabiliriz. Ancak ``unsafe``
+fonksiyonlar yalnızca ``unsafe`` bağlamdan çağrılabilmektedir. Yani ``unsafe`` bir fonksiyonu tipik olarak biz
+bir ``unsafe`` blok içerisinden çağırabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut a: i32 = 3;
+
+       unsafe {
+           foo(&mut a);
+       }
+       println!("{}", a);
+   }
+
+   unsafe fn foo(pi32: *mut i32) {
+       *pi32 *= *pi32
+   }
+
+Burada ``foo`` içerisinde gösterici işlemlerinin doğrudan yapılabildiğine dikkat ediniz. Çağrım ``unsafe``
+bağlamda yapılmıştır:
+
+.. code-block:: rust
+
+   unsafe {
+       foo(&mut a);
+   }
+
+``main`` fonksiyonu ``unsafe`` yapılamamaktadır. Ayrıca Rust'ta ``safe`` isminde de bir fonksiyon niteleyicisi
+vardır. Ancak bu niteleyici ``extern`` bloklarda kullanılabilmektedir.
+
+.. code-block:: rust
+
+   fn main() {
+       let mut a: i32 = 3;
+
+       unsafe {
+           foo(&mut a);
+       }
+       println!("{}", a);
+   }
+
+   unsafe fn foo(pi32: *mut i32) {
+       *pi32 *= *pi32
+   }
+
+Bir ``unsafe`` fonksiyon başka bir ``unsafe`` fonksiyonu doğrudan çağırabilir. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut a: i32 = 3;
+
+       unsafe {
+           foo(&mut a);
+       }
+       println!("{}", a);
+   }
+
+   unsafe fn foo(pi32: *mut i32) {
+       *pi32 *= *pi32;
+       bar(pi32);
+   }
+
+   unsafe fn bar(pi32: *mut i32) {
+       *pi32 += 2;
+   }
+
+Yapı Türlerine İlişkin Göstericiler
+-----------------------------------
+
+Yapılar ve ``enum`` türlerine ilişkin göstericiler de bildirilebilir. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+           Sample { a, b }
+       }
+
+       fn disp(&self) {
+           println!("{}, {}", self.a, self.b);
+       }
+   }
+   //...
+
+   let s = Sample::new(10, 20);
+   let ps: *const Sample = &s;
+
+Burada ``ps`` göstericisi ``Sample`` türünden ``mut`` olmayan bir göstericidir. Peki ``ps`` göstericisi ile bu
+yapının ``a`` ve ``b`` elemanlarına nasıl erişebiliriz? Referanslarda doğrudan nokta operatörüyle erişim
+yapabiliyorduk. Ancak göstericilerde doğrudan nokta operatörü ile erişim yapılamamaktadır. Rust'ta C'deki gibi
+``->`` operatörünün de olmadığını belirtmiştik. O halde elemana erişimin tek yolu önce ``*`` operatörü ile
+nesneye bir bütün olarak erişmek sonra nokta operatörünü kullanmaktır. Örneğin ``ps`` bir yapı türünden
+gösterici ``a`` da bu yapının elemanı olmak üzere erişim ``(*ps).a`` biçiminde yapılmaktadır. Rust'ta bunun daha
+pratik bir yolu yoktur. Örneğin:
+
+.. code-block:: rust
+
+   println!("{}, {}", (*ps).a, (*ps).b);
+
+Nokta operatörünün ``*`` operatöründen daha yüksek öncelikli olduğunu anımsayınız. Bu nedenle ``*ps`` ifadesi
+paranteze alınmak zorundadır. Yapı türünden gösterici ile yapının metotları da aynı biçimde çağrılmaktadır.
+Örneğin ``ps`` bir yapı türünden gösterici, ``foo`` da yapının bir metodu olmak üzere çağrım ``(*ps).foo()``
+biçiminde yapılmalıdır. Örneğin:
+
+.. code-block:: rust
+
+   unsafe {
+       (*ps).disp();
+   }
+
+``as_ref`` ve ``as_mut`` Metotları
+----------------------------------
+
+Gösterici türlerinin ``as_ref`` isminde ve ``as_mut`` isminde metotları da vardır. Bu metotlar göstericiyi
+referans haline getirmektedir. Ancak göstericinin içerisinde null adres olabileceği için bu dönüştürme başarısız
+da olabilmektedir. Bu nedenle ``as_ref`` ve ``as_mut`` metotları bize ``Option<&T>`` ve ``Option<&mut T>``
+türünden değer vermektedir. Yani bu metotlar eğer göstericinin içerisinde null adres varsa ``None`` varyantına,
+yoksa ``Some(r)`` varyantına geri dönmektedir. Tabii ``as_ref`` ve ``as_mut`` metotları yine ``unsafe``
+bağlamdan yani blok ya da fonksiyon içerisinden çağrılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let pi32: *const i32 = &a;
+
+   unsafe {
+       if let Some(r) = pi32.as_ref() {
+           println!("{}", *r);
+       }
+       else {
+           println!("null pointer!..");
+       }
+   }
+
+Burada ``Some(r)`` kalıbındaki ``r`` değişkeni ``&i32`` türündendir. Tabii bu işlemi ``match`` ifadesiyle de
+yapabilirdik:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let pi32: *const i32 = &a;
+
+   unsafe {
+       match pi32.as_ref() {
+           Some(rc) => println!("rc: {}", rc),
+           None => println!("null pointer!.."),
+       }
+   }
+
+Eğer göstericimiz ``mut`` ise bu durumda ``as_mut`` bize ``Option<&mut T>`` türünden değer verecektir. Yani
+``Some(r)`` işleminden biz artık ``&mut T`` türünden değer elde ederiz. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let pi32: *mut i32 = &mut a;
+
+   unsafe {
+       if let Some(r) = pi32.as_mut() {
+           *r = 20;
+       }
+       else {
+           println!("null pointer!..");
+       }
+       println!("{}", *pi32);
+   }
+
+``unsafe`` bloğun da bir deyim belirttiğini anımsayınız. Dolayısıyla biz referansı ``unsafe`` blok dışına
+aşağıdaki gibi çıkartabiliriz.
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let pi32: *mut i32 = &mut a;
+
+   let r = unsafe {
+       if let Some(r) = pi32.as_mut() {
+           r
+       }
+       else {
+           panic!("null pointer!..");
+       }
+   };
+
+Burada ``if let`` ifadesinin ``else`` kısmının *divergent* olmak zorunda olduğuna dikkat ediniz. Tabii bu
+örnekte ``else`` kısımda ``panic`` uyguladığımız için aslında ``if let`` yerine doğrudan ``Option<T>`` enum
+türünün ``unwrap`` ve ``expect`` metotlarını da kullanabilirdik:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let pi32: *mut i32 = &mut a;
+
+   let r = pi32.as_mut().expect("null pointer!..");
+
+Yapı türünden göstericilere ``as_ref`` ya da ``as_mut`` metodu uygulayarak yapı elemanlarına referans
+sentaksıyla da erişebiliriz. Örneğin:
+
+.. code-block:: rust
+
+   let s = Sample::new(10, 20);
+   let ps: *const Sample = &s;
+
+   unsafe {
+       if let Some(r) = ps.as_ref() {
+           r.disp();
+       }
+       else {
+           println!("null pointer!..");
+       }
+   }
+
+Tabii aslında daha kompakt bir biçimde de yapı türünden göstericiyi referansa dönüştürüp metot çağrımını nokta
+operatörü ile de uygulayabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   let s = Sample::new(10, 20);
+   let ps: *const Sample = &s;
+
+   unsafe {
+       ps.as_ref().expect("null pointer!..").disp();
+   }
+
+Burada ``ps.as_ref().expect("null pointer!..")`` ifadesi ile ``Sample`` türünden bir referans elde edildiğine
+dikkat ediniz.
+
+Rust'taki Referanslar ve C++'taki Referanslar
+---------------------------------------------
+
+Rust'taki referansları C++'taki referanslarla karıştırmayınız. Rust'taki referanslar C++'taki biraz
+göstericilere biraz da referanslara benzemektedir. Aşağıdaki C++ koduna dikkat ediniz:
+
+.. code-block:: cpp
+
+   int a = 10;
+   int &r = a;
+   int *pi;
+
+   pi = &r;        // geçerli
+
+C++'ta referanslar adres tutarlar ama referansları kullandığımızda biz her zaman o referansın içerisindeki
+adreste bulunan nesneye erişmiş oluruz. Ayrıca C++'ta referanslar asıl nesnenin bir takma adını (alias)
+belirtmektedir. Yani C++ standartlarına göre aslında mümkünse derleyici referans için hiç yer de ayırmayabilir.
+Referans kullanıldığında doğrudan ana nesneyi de kullanabilir. Tabii pek çok durumda bu mümkün değildir. Bu
+nedenle referanslar tipik olarak adres tutarlar. C++'ta aşağıdaki ifade geçerlidir:
+
+.. code-block:: cpp
+
+   pi = &r;        // geçerli
+
+Burada ``r`` ifadesi aslında ``r`` referansının gösterdiği yerdeki nesneyi yani ``a``'yı belirtmektedir.
+Dolayısıyla burada aslında ``a``'nın adresi alınmaktadır. Bu adres de aynı türden bir göstericiye
+yerleştirilmiştir. Ancak Rust'ta referanslarla göstericiler farklı türlerdir. Rust'ta ``&T`` türünden bir
+değişkenin adresini aldığımızda ``&&T`` türünden bir değer elde ederiz. Yani Rust'ta referansın referansı söz
+konusu olabilmektedir. Bu C'deki *göstericiyi gösteren göstericilere* benzemektedir. Bu nedenle yukarıdaki
+kodun eşdeğer Rust karşılığı geçersizdir:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let r: &i32 = &a;
+   let pi32: *const i32;
+
+   pi32 = &r;      // error!
+
+Burada ``&r`` ifadesi ``&&i32`` türündendir, ``pi32`` ifadesi ise ``*const i32`` türündendir. Yani türlerin
+birbirleriyle bir ilgisi yoktur. Peki gerçekten biz Rust'ta referansın refere ettiği değişkenin ya da değerin
+adresini almak istesek bunu nasıl yapabiliriz? İşte bunun bir yolu C programcılarına biraz tuhaf gelebilecek
+olan ``&*r`` ifadesini kullanmaktır:
+
+.. code-block:: rust
+
+   pi32 = &*r;      // geçerli
+
+Burada önce ``*r`` işlemi yapılıp ``i32`` türünden bir değişkene ya da değere erişilecek sonra onun adresi
+alınacaktır.
+
+Aslında zaten referansın içerisinde adres olduğuna göre bir referans aynı türden bir göstericiye de doğrudan
+atanabilir. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let r: &i32 = &a;
+   let pi32: *const i32;
+
+   pi32 = r;      // geçerli
+
+Referansın bu biçimde otomatik gösterici türüne dönüştürülmesi ilk zamanlarda Rust'ta mümkün değildi. Eskiden
+Rust'ta bu işlem yukarıdaki gibi ``&*r`` ifadesiyle ya da aşağıdaki gibi tür dönüştürmesiyle
+yapılabiliyordu:
+
+.. code-block:: rust
+
+   pi32 = r as *const i32;
+
+Sonraları *otomatik dönüştürme (type coercion)* kuralları revize edildi ve bu dönüştürme doğrudan yapılabilir
+hale geldi. Mevcut kurallarda artık ``&T`` türünden ``*const T`` türüne ve ``&mut T`` türünden ``*mut T`` ya da
+``*const T`` türüne otomatik dönüştürme vardır. Dolayısıyla biz bir referansı doğrudan aynı türden bir
+göstericiye atayabilmekteyiz.
+
+Referanslardan Göstericilere Otomatik Dönüştürme
+------------------------------------------------
+
+Aslında Rust'ta adres almakta kullanılan ``&`` ve ``&mut`` operatörleri bir referans türünden değer
+üretmektedir. Yani örneğin ``a`` ifadesi ``T`` türündense ``&a`` ifadesi ``&T`` türünden ``&mut a`` ifadesi de
+``&mut T`` türündendir. İlk zamanlar Rust'ta yukarıda belirttiğimiz referans türlerinden gösterici türlerine
+otomatik dönüştürme yokken aşağıdaki gibi bir işlem tür dönüştürmesi olmadan yapılamıyordu:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let pi32: *const i32;
+
+   pi32 = &a;      // eskiden bu durum error oluşturuyordu
+
+O ilk zamanlarda ``&T`` türünden ``*const T`` türüne otomatik dönüştürme olmadığı için yukarıdaki atama işlemi
+error oluşturuyordu. Bu işlem ancak tür dönüştürmesi ile yapılabiliyordu:
+
+.. code-block:: rust
+
+   pi32 = &a as *const i32;        // eskiden böyle yapılıyordu
+
+Sonraları Rust'a ``&T`` türünden ``*const T`` türüne, ``&mut T`` türünden de ``*mut T`` türüne ve ``*const T``
+türlerine otomatik dönüştürme eklendiği için artık bu atama doğrudan aşağıdaki gibi yapılabilmektedir:
+
+.. code-block:: rust
+
+   pi32 = &a;
+
+Bu açıklamalar eşliğinde artık bir referansın doğrudan aynı türden bir göstericiye nasıl atanabildiği daha iyi
+anlaşılmaktadır:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let r: &i32 = &a;
+   let pi32: *const i32;
+
+   pi32 = r;       //  &i32 türünden *const i32 türüne otomatik dönüştürme vardır
+
+Burada ``&i32`` türünden ``*const i32`` türüne otomatik dönüştürme uygulanmaktadır.
+
+Gösterici Türleri Arasında ``as`` ile Dönüştürme
+------------------------------------------------
+
+Rust'ta tıpkı C'de olduğu gibi tür dönüştürme operatörüyle (``as`` operatörüyle) bir adres türü başka türden bir
+adres türüne dönüştürülebilmektedir. Bu dönüştürme için ``unsafe`` bağlamda olunmasına gerek yoktur. Örneğin
+elimizde ``*const i32`` türünden bir gösterici olsun. Biz de bu göstericinin gösterdiği yerdeki byte'ları tek
+tek hex sistemde yazdırmak isteyelim. Bu durumda bu göstericiyi ``*const u8`` türüne dönüştürmemiz gerekir. İşte
+böylesi dönüştürmeleri ``as`` operatörüyle yapabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 0x12345678;
+   let pi32: *const i32 = &a;
+   let pu8: *const u8;
+
+   pu8 = pi32 as *const u8;
+
+   for i in 0..4 {
+       unsafe {
+           print!("{:02X} ", *pu8.offset(i));
+       }
+   }
+   println!();
+
+Burada ``*const i32`` türünden ``*const u8`` türüne dönüştürmenin ``as`` operatörüyle aşağıdaki gibi
+yapıldığına dikkat ediniz:
+
+.. code-block:: rust
+
+   pu8 = pi32 as *const u8;
+
+Ancak Rust'ta doğrudan ``&T`` türünden ``*const K`` türüne ``as`` operatörüyle de dönüştürme
+yapılamamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 0x12345678;
+   let pu8: *const u8;
+
+   pu8 = &a as *const u8;      // error!
+
+Burada ``&a`` ifadesi ``&i32`` türündendir bu tür de ``as`` operatörüyle ``*const u8`` türüne
+dönüştürülememektedir. Bu dönüştürme ancak iki kere ``as`` operatörü kullanılarak yapılabilmektedir. Önce
+``&a`` ifadesi ``as`` operatörüyle ``*const i32`` dönüştürülmeli sonra ``*const i32`` türünden ``*const u8``
+türüne dönüştürme yapılmalıdır:
+
+.. code-block:: rust
+
+   let a: i32 = 0x12345678;
+   let pu8: *const u8;
+
+   pu8 = &a as *const i32 as *const u8;        // iki kez as operatörü kullanılmalı
+
+Ayrıca Rust'ta ``as`` operatörüyle bile ``&T`` türünden ``&mut T`` türüne, ``*const T`` türünden de ``*mut T``
+türüne dönüştürme yapılamamaktadır. (Halbuki örneğin C'de ``const`` bir nesnenin adresi ``const`` olmayan adres
+dönüştürmesi eşliğinde (const away cast) ``const`` olmayan bir göstericiye atanabilmektedir.) Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let pi32: *mut i32;
+
+   pi32 = &a as *mut i32;      // error!
+
+Ancak ``&mut T`` türünden ``&T`` türüne, ``*mut T`` türünden ``*const T`` türüne dönüştürmenin zaten otomatik
+biçimde yapıldığını anımsayınız.
+
+Tamsayı Türleri ile Gösterici Türleri Arasında Dönüştürme
+---------------------------------------------------------
+
+Sistem programlamada belli bir adres değerinin bir göstericiye yerleştirilmesi gerekebilmektedir. Yani tamsayı
+türlerinden adres türlerine tür dönüştürme operatörüyle dönüştürmenin olması beklenmektedir. İşte Rust'ta da
+C'de olduğu gibi herhangi bir tamsayı türünden gösterici türlerine ``as`` operatörüyle dönüştürme
+yapılabilmektedir. Örneğin biz ``0x12345678`` adresini ``u8`` türünden bir göstericiye aşağıdaki gibi tür
+dönüştürmesi yaparak atayabiliriz:
+
+.. code-block:: rust
+
+   let pu8: *const u8;
+   pu8 = 0x12345678 as *const u8;      // geçerli
+
+Tabii burada sayının sabit biçiminde olması gerekmez. ``a`` herhangi bir tamsayı türünden olmak üzere aşağıdaki
+dönüştürme de geçerlidir:
+
+.. code-block:: rust
+
+   pu8 = a as *const u8;      // geçerli
+
+Yukarıdaki işlemin tersi de ``as`` operatörüyle yapılabilmektedir. Yani bir göstericinin içerisindeki adres
+bilgisi herhangi bir tamsayı türüne ``as`` operatörüyle dönüştürülebilmektedir. Tabii bu dönüştürme için ideal
+tür ``usize`` türüdür. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let pi32: *const i32 = &a;
+   let b: usize;
+
+   b = pi32 as usize;      // geçerli
+
+Rust'ta farklı türden göstericiler ``as`` operatörüyle birbirlerine dönüştürülebilmektedir. Gösterici
+türlerinden tamsayı türlerine, tamsayı türlerinden gösterici türlerine yine ``as`` operatörüyle dönüştürme
+yapılabilmektedir. Ancak bunlara benzer referans dönüştürmeleri ``as`` operatörüyle yapılamamaktadır. Yani
+Rust'ta ``&T`` türünden ``&K`` türüne (``mut``'lu ya da ``mut``'suz) dönüştürme mümkün değildir. Benzer
+biçimde ``&T`` türünden (``mut``'lu ya da ``mut``'suz) tamsayı türlerine, tamsayı türlerinden de ``&T`` türüne
+(``mut``'lu ya da ``mut``'suz) ``as`` operatörüyle dönüştürme mümkün değildir. Rust'ta referansların her zaman
+güvenli kullanımı ön planda tutulmuştur. Böylesi dönüştürmeler zaten bu güvenlik ana fikrine terstir.
+
+``&T`` Türünden ``*mut T`` Türüne Dönüştürme
+--------------------------------------------
+
+Daha önce de belirttiğimiz gibi Rust'ta ``&T`` türünden ``&mut T`` türüne ``as`` operatörüyle dönüştürme
+yapılamamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let r1: &i32;
+   let r2: &mut i32;
+
+   r1 = &a;                        // geçerli
+   r2 = r1 as &mut i32;            // error!
+
+Görüldüğü gibi biz ``as`` operatörünü kullansak bile ``&T`` türünden ``&mut T`` türüne dönüştürme yapamayız.
+
+C'de gösterdiği yer ``const`` olan adreslerin tür dönüştürme operatörüyle gösterdiği yer ``const`` olmayan
+adreslere dönüştürülebildiğini anımsayınız. C++'ta bu işlem ``const_cast`` operatörüyle de yapılabiliyordu. İşte
+Rust'ta referanslarla yapılamayan bu dönüştürmeler göstericilerle yapılabilmektedir. Ancak bu işlemin
+yapılabilmesi için iki kez ``as`` operatörünün kullanılması gerekmektedir.
+
+Rust'ta ``&T`` türü ``as`` operatörüyle doğrudan ``*mut T`` türüne dönüştürülemez. (Tabii ``&T`` türünden
+``*const T`` türüne, ``&mut T`` türünden de ``*mut T`` türüne zaten otomatik dönüştürme vardır.) Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let pi32: *mut i32;
+
+   pi32 = &a as *mut i32;      // error!
+
+Burada ``&i32`` türü ``as`` operatörüyle ``*mut i32`` türüne dönüştürülmek istenmiştir. Yukarıda da
+belirttiğimiz gibi ``&T`` türünden ``*mut T`` türüne ``as`` operatörüyle doğrudan dönüştürme
+yapılamamaktadır. ``&T`` türünden ``*mut T`` türüne dönüştürme yapılmak isteniyorsa önce ``&T`` türünün
+``*const T`` türüne dönüştürülmesi sonra ``*const T`` türünden ``*mut T`` türüne dönüştürmenin yapılması
+gerekmektedir. Yani Rust'ta (tıpkı C'de olduğu gibi) ``*const T`` türünden ``*mut T`` türüne ``as``
+operatörüyle dönüştürme mümkündür. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let pi32: *mut i32;
+
+   pi32 = &a as *const i32 as *mut i32;        // geçerli
+
+Burada görüldüğü gibi ``&T`` türü iki aşamada ``*mut T`` türüne dönüştürülmüştür. Önce ``&T`` türünden
+``*const T`` türüne sonra da ``*const T`` türünden ``*mut T`` türüne dönüştürme uygulanmıştır.
+
+Tabii ``mut`` olmayan bir adresi yukarıdaki gibi ``mut`` bir göstericiye ``as`` operatörüyle dönüştürüp atarken
+dikkat etmemiz gerekir. ``mut`` olmayan bir değişkenin ``mut`` gösterici ile değiştirilmesi tıpkı C'de olduğu
+gibi Rust'ta *tanımsız davranışa (undefined behavior)* yol açmaktadır. Ancak bazen elimizde ``const`` bir adres
+olduğu halde biz o adresteki nesnenin aslında ``mut`` olduğunu biliyor olabiliriz. Bu durumda dönüştürme ile
+elde edilen ``mut`` göstericiyle göstericinin gösterdiği değeri değiştirmek bir soruna yol açmayacaktır.
+(Örneğin C'de de ``strchr`` fonksiyonu aslında ``const char *`` türünden parametreye sahip olsa bile ``char *``
+türünden bir geri dönüş değeri vermektedir.)
+
+``&raw`` Operatörü, ``NonNull`` Türü, Sahiplik ve ``Drop``
+==========================================================
+
+``&raw`` Operatörü
+------------------
+
+Biz önceki paragraflarda ``&`` ve ``&mut`` operatörlerinin referans türünden değerler ürettiğini ancak
+referanslardan aynı türden göstericilere otomatik dönüştürmenin olduğunu belirtmiştik. Ancak bu ``&`` ve
+``&mut`` operatörleri referans ürettiği için ve referanslar da sahiplik (ownership) kurallarına tabi olduğu için
+bu durum bazı semantik ve gerçekleştirim (derleyici yazımını kastediyoruz) sorunlarının oluşmasına yol açmıştır.
+İşte Rust'ın 1.65.0 versiyonu (Kasım 2022) ile birlikte bu sorunu çözmek için Rust'a ``&raw`` operatörü de
+eklenmiştir. Bu operatör hiç referans üretmeden doğrudan C'deki ``&`` operatörü gibi değişkenin ya da değerin
+adresini elde etmektedir. Dolayısıyla *önce referans elde edip sonra otomatik dönüştürme yapan & ve &mut
+operatörlerine doğrudan adres almak için bir seçenek* oluşturmaktadır. Eğer biz bir değişkenin ya da değerin
+adresini ``&raw`` operatörüyle alırsak referans semantiğini hiç devreye sokmamış oluruz. Bu da bazı durumlarda
+avantajlar sağlayabilmektedir.
+
+``&raw`` operatörü (tabii ``&`` ile ``raw`` anahtar sözcüğü arasında boşluk karakterleri bulunabilir) yine
+``const`` ve ``mut`` belirleyicileri ile kullanılmak zorundadır. Yani ``&raw`` atomlarını yine ``const`` ya da
+``mut`` anahtar sözcüklerinden biri izlemek zorundadır. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let pi32: *const i32;
+
+   pi32 = &raw const a;
+
+Biz burada ``a`` değişkeninin adresini ``pi32`` göstericisine atadık. Bunu aşağıdaki gibi de yapabilirdik:
+
+.. code-block:: rust
+
+   pi32 = &a;
+
+Ancak ``&raw`` operatörü hiç referans semantiğini devreye sokmadan doğrudan adres alma işlemini yapmaktadır. Pek
+çok durumda ``&a`` ile adres almakla ``&raw const`` ile adres almak arasında ya da ``&mut`` ile adres almakla
+``&raw mut`` ile adres almak arasında kodumuz bakımından bir farklılık olmamaktadır. Ancak bazı seyrek
+durumlarda farklılık ortaya çıkabilmektedir.
+
+.. code-block:: rust
+
+   fn main() {
+       let a: i32 = 10;
+       let pi32: *const i32;
+
+       pi32 = &raw const a;        // geçerli
+
+       unsafe {
+           println!("{}", *pi32);
+       }
+   }
+
+Tabii bu biçimde ``mut`` bir değişkenin adresini ``*mut T`` türünden bir göstericiye atayacaksak operatörü
+``&raw mut`` biçiminde kullanmalıyız. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 10;
+   let pi32: *mut i32;
+
+   pi32 = &raw mut a;
+
+.. code-block:: rust
+
+   fn main() {
+       let mut a: i32 = 10;
+       let pi32: *mut i32;
+
+       pi32 = &raw mut a;
+
+       unsafe {
+           *pi32 = 20;
+           println!("{}", a);
+       }
+   }
+
+Değer İfadeleri ve ``&raw`` Operatörü
+-------------------------------------
+
+Biz Rust'ta bir değer ifadesinin (yani C'de bir sağ taraf değerinin) adresini alabiliyorduk. Bu durum derleyici o
+sabiti önce aynı türden bir geçici değişkenin içine yerleştirip o geçici değişkenin adresini alıyordu. Bu
+biçimde biz ham göstericilere de sabitlerin adresini atayabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   let pi32: *const i32;
+
+   pi32 = &10;         // geçerli
+   unsafe {
+       println!("{}", *pi32);
+   }
+
+Ancak değer ifadelerinin adresleri ``&raw`` operatörü ile alınamamaktadır. Yani ``&raw`` operatörü bu bağlamda
+C'deki ``&`` operatörü gibi işlev görmektedir:
+
+.. code-block:: rust
+
+   let pi32: *const i32;
+
+   pi32 = &raw const 10;       // error!
+
+``NonNull`` Türü
+----------------
+
+Rust'ta göstericiler konusuyla ilgili önemli bir etkiye sahip olan ``std::ptr`` modülünde ``NonNull`` isimli bir
+yapı vardır. ``NonNull`` generic bir yapıdır. Dolayısıyla ``T`` bir tür belirtmek üzere ``NonNull<T>`` biçiminde
+kullanılmaktadır. ``NonNull`` türünden bir yapı değişkeni bir göstericilik yer kaplamaktadır. Bu türün ana amacı
+*içerisinde null adres bulunmayan bir göstericinin varlığının garanti edilmesini* sağlamaktır. Yani
+``NonNull<T>`` türünden bir değişken bir gösterici belirtmektedir. Ancak bu göstericinin içerisinde null adres
+bulunmadığı garanti edilmektedir. ``NonNull`` türünün sağladığı avantajları şöyle özetleyebiliriz:
+
+.. list-table:: ``NonNull<T>`` Avantajları
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Özellik
+     - Açıklama
+   * - null güvenliği
+     - Göstericinin null olamayacağını tür sistemi garanti eder
+   * - ``Option`` optimizasyonu
+     - ``Option<NonNull<T>>`` ile null adres optimizasyonu yapılır
+   * - allocator uyumluluğu
+     - Rust'ın allocator fonksiyonları ile doğal entegrasyon sağlar
+   * - Semantik netlik
+     - Kodun niyetini açıkça ifade eder
+
+Standart Kütüphane'nin kaynak kodlarında ``NonNull`` türü şöyle tanımlanmıştır:
+
+.. code-block:: rust
+
+   pub struct NonNull<T: PointeeSized> {
+       pointer: *const T,
+   }
+
+Görüldüğü gibi aslında yapı tek bir gösterici tutmaktadır. Yani bu yapı türünden bir değişken bir gösterici kadar
+yer kaplamaktadır.
+
+``NonNull`` türünden bir değişken şöyle bildirilebilir:
+
+.. code-block:: rust
+
+   use std::ptr::NonNull;
+
+   let ptr: NonNull<i32>;
+
+Burada biz içerisinde null adres olamayacağını garanti ettiğimiz bir gösterici bildirmiş olmaktayız.
+
+``NonNull`` türünden değer oluşturmanın en temel yolu ``new`` ilişkili fonksiyonunu kullanmaktır. ``new`` ilişkili
+fonksiyonuna biz ``*mut T`` türünden bir değer (yani ``T`` türünden bir adres) veririz. ``NonNull`` türü de bu
+adresi saklar. ``new`` ilişkili fonksiyonunun parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub const fn new(ptr: *mut T) -> Option<NonNull<T>>
+
+Görüldüğü gibi fonksiyonun geri dönüş değeri ``Option<NonNull<T>>`` türündendir. Yani fonksiyon ya
+``NonNull<T>`` türünden bir değer vermektedir ya da ``None`` değerini vermektedir. Bizim de bu değeri
+``NonNull<T>`` türünden değişkene atayabilmemiz için ``None`` kontrolünü yapmamız gerekir. Fonksiyona
+verdiğimiz adres null adres ise fonksiyon ``None`` değerine geri dönmektedir. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 100;
+   let ptr: NonNull<i32>;
+
+   ptr = NonNull::<i32>::new(&mut a).expect("Null pointer error!");
+
+Burada amaç ``ptr`` değişkenine null adres olmayan bir adresin atanmasının garanti edilmesidir. Bu garanti
+``new`` ilişkili fonksiyonunun ``Option`` türüne geri dönmesiyle sağlanmaktadır. Yukarıdaki kodda eğer
+``&mut a`` ifadesi null adres içeriyorsa (kodda açıkça içermemektedir) ``expect`` metodu ile program
+sonlandırılmıştır. Dolayısıyla ``ptr`` değişkenine null değeri ne olursa olsun atanmamıştır. Tabii biz bu
+atamayı şöyle de yapabilirdik:
+
+.. code-block:: rust
+
+   let mut a: i32 = 100;
+   let ptr: NonNull<i32> = NonNull::new(&mut a).expect("Null pointer error!");
+
+Ya da aynı atamayı ``match`` deyimiyle de yapabilirdik:
+
+.. code-block:: rust
+
+   let mut a: i32 = 100;
+   let ptr: NonNull<i32>;
+
+   ptr = match NonNull::<i32>::new(&mut a) {
+       Some(ptr) => ptr,
+       None => {
+           eprintln!("Null pointer error!");
+           std::process::exit(1)
+       }
+   }
+
+``NonNull<T>`` türünden bir değişkene ``new_unchecked`` ilişkili fonksiyonu ile de değer atanabilir.
+``new_unchecked`` metodunun parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub const unsafe fn new_unchecked(ptr: *mut T) -> NonNull<T>
+
+İlişkili fonksiyonun ``unsafe`` olduğuna ve ``Option`` ile geri dönmediğine dikkat ediniz. Bu fonksiyon null adres
+için bir kontrol yapmamaktadır. Ancak null adres atandığı durumda tanımsız davranış oluşmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 100;
+   let ptr: NonNull<i32> = unsafe { NonNull::new_unchecked(&mut a) };
+
+``NonNull<T>`` türüne değer atamak için diğer bir yöntem de ``From<&T>`` trait'inden gelen ``from`` ilişkili
+fonksiyonunu kullanmaktır. ``from`` ilişkili fonksiyonunun parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   fn from(r: &T) -> NonNull<T>
+
+Burada ``from`` fonksiyonunun bir referans parametresi aldığına dikkat ediniz. Referanslar null adres
+içeremeyeceğine göre (çünkü referansları oluşturmak için değişkenlerin ya da değerlerin ``&`` ya da ``&mut``
+operatörleriyle adresleri alınmaktadır) bir null adres kontrolünün yapılmasına da gerek yoktur. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 100;
+   let ptr = NonNull::from(&a);
+
+Zaten bildirdiğimiz bir değişkenin adresini ``NonNull`` türünden bir değişkene yerleştireceksek ``new`` ilişkili
+fonksiyonu yerine ``from`` ilişkili fonksiyonunun kullanılması daha uygundur. ``from`` metodunun ``&mut``
+parametreli olanı da vardır. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: i32 = 100;
+   let ptr = NonNull::from(&mut a);
+
+``NonNull<T>`` türünden bir değişkene değer atamanın diğer bir yolu da ``dangling`` ilişkili fonksiyonudur.
+``dangling`` ilişkili fonksiyonun parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub const fn dangling() -> NonNull<T>
+
+``dangling`` ilişkili fonksiyonu yapının tuttuğu göstericinin içerisine dummy bir adres değeri
+yerleştirmektedir. Bu adres değeri ``T`` türünün hizalama gereksinimini belirten bir değerdir. Örneğin:
+
+.. code-block:: rust
+
+   let ptr: NonNull<i32> = NonNull::dangling();
+
+   println!("{:p}", ptr);      // 0x4
+
+Burada aslında ``ptr`` göstericisinin içerisinde geçersiz bir adres olan 4 değeri vardır. Bu 4 değeri ``i32``
+türünün hizalanma gereksinimine ilişkin değerdir. Aslında ``dangling`` tarafından ``NonNull`` göstericisine
+atanan bu değerin bir kullanım alanı yoktur. Bu adres değeri geçersizdir. Ancak fonksiyon null adresle (null
+adresin temsili 0'dır) karışmasın diye böyle bir değer atamaktadır.
+
+Peki ``dangling`` ilişkili fonksiyonun kullanım amacı nedir? İşte ``NonNull`` türünden değişkene ``dangling``
+değer vermek aslında *ben şimdi buna geçersiz dummy bir adres değeri atıyorum, asıl adresi daha sonra
+atayacağım* anlamına gelmektedir. Örneğin bir ``i32`` türünden değerleri tutan bir vektör veri yapısını bir yapı
+ile temsil etmek isteyelim:
+
+.. code-block:: rust
+
+   struct MyVec {
+       ptr: *mut i32,
+       capacity: usize,
+       len: usize,
+   }
+
+Burada yapının ``ptr`` alanı bir göstericidir ancak yanlışlıkla null adres içerebilir. Biz bu hatanın
+yapılmasını engellemek isteyelim. Bu durumda ``ptr`` alanını ``NonNull<i32>`` yaparız.
+
+.. code-block:: rust
+
+   struct MyVec {
+       ptr: NonNull<i32>,
+       capacity: usize,
+       len: usize,
+   }
+
+Artık yapının ``ptr`` alanının null adres içermeyen bir gösterici olması garanti edilmektedir. Şimdi biz
+``MyVec`` türünden boş bir vektör nesnesi yaratmak isteyelim:
+
+.. code-block:: rust
+
+   impl MyVec {
+       fn new() -> MyVec {
+           MyVec {
+               ptr: ?????,
+               len: 0,
+               capacity: 0
+           }
+       }
+   }
+
+Burada mecburen ``ptr`` alanına bir değer vermek zorundayız. Ancak tahsisatı daha sonra yapmak istemekteyiz.
+Peki bu durumda ``?????`` yerine ne yerleştirebiliriz? C olsaydı null adres yerleştirirdik. Ancak ``NonNull<T>``
+türü null adrese izin vermemektedir. İşte bu tür durumlarda ``dangling`` değer verilmektedir. ``dangling``
+değer aslında geçerli bir adres değeri değildir, geçersiz ama null olmayan bir adres değeridir:
+
+.. code-block:: rust
+
+   impl MyVec {
+       fn new() -> MyVec {
+           MyVec {
+               ptr: NonNull::dangling(),
+               len: 0,
+               capacity: 0
+           }
+       }
+   }
+
+Aşağıdaki tabloda ``NonNull`` türünden değişkene değer verme yöntemlerini bir tablo olarak özetliyoruz:
+
+.. list-table:: ``NonNull`` Değişkenine Değer Verme Yöntemleri
+   :header-rows: 1
+   :widths: 40 20 40
+
+   * - Yöntem
+     - Güvenli?
+     - Döndürür
+   * - ``NonNull::new(ptr)``
+     - Evet
+     - ``Option<NonNull<T>>``
+   * - ``new_unchecked(ptr)``
+     - Hayır
+     - ``NonNull<T>``
+   * - ``NonNull::from(&mut val)``
+     - Evet
+     - ``NonNull<T>``
+   * - ``NonNull::dangling()``
+     - Evet\*
+     - ``NonNull<T>``
+
+\* Dangling pointer dereference edilmemelidir
+
+Elimizde ``NonNull`` türünden bir değişken ya da değer varsa biz ``as_ptr`` metodu ile onun tuttuğu adresi elde
+edebiliriz. ``as_ptr`` metodunun parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub const fn as_ptr(self) -> *mut T
+
+Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 100;
+   let nn_ptr: NonNull<i32>;
+   let mut ptr: *mut i32;
+
+   nn_ptr = NonNull::from(&a);
+   ptr = nn_ptr.as_ptr();
+
+   unsafe { *ptr = 200 };
+   println!("{}", a);
+
+Biz burada önce ``NonNull<i32>`` türüne bir adres yerleştirdik, sonra da yapının ``as_ptr`` metodu ile bu adresi
+geri aldık.
+
+``as_ptr`` metodunun parametresinin ``self`` biçiminde belirtildiğine dikkat ediniz. Her ne kadar metot
+sahipliği devrediyormuş gibi görünüyorsa da aslında ``NonNull<T>`` yapısı ``Copy`` türünden olduğu için bunun
+bir etkisi yoktur. Sahiplik konusu izleyen paragraflarda ele alınacaktır.
+
+``NonNull<T>`` türünün ``as_ref`` ve ``as_mut`` metotları göstericinin tuttuğu adresteki değeri referans olarak
+bize vermektedir. Metotların parametrik yapıları şöyledir:
+
+.. code-block:: rust
+
+   pub const unsafe fn as_ref<'a>(&self) -> &'a T
+   pub const unsafe fn as_mut<'a>(&mut self) -> &'a mut T
+
+Metotların ``unsafe`` olduğuna dikkat ediniz. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 100;
+   let mut nn_ptr: NonNull<i32>;
+   let r: &i32;
+   let mr: &mut i32;
+
+   nn_ptr = NonNull::from(&a);
+
+   r = unsafe { nn_ptr.as_ref() };
+   println!("{}", r);      // 100
+
+   mr = unsafe { nn_ptr.as_mut() };
+   println!("{}", mr);      // 100
+
+<BURADA as_mut metodu için neden nn_ptr değişkenin mut olması gerektiği açıklanacak>
+
+Biz ``NonNull<T>`` türünün tuttuğu göstericinin gösterdiği yere önce ``as_ptr`` ile adres alıp sonra ``ptr``
+türünün ``write`` metoduyla değer yazabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 100;
+   let nn_ptr: NonNull<i32>;
+
+   nn_ptr = NonNull::from(&a);
+   unsafe { nn_ptr.as_ptr().write(200); }
+   println!("{} ", a);     // 200
+
+Burada biz ``NonNull`` göstericisinin gösterdiği yerdeki (orası ``a`` değişkeni) değeri ``write`` metodu ile
+değiştirdik. Orada değeri aynı biçimde ``read`` metoduyla da okuyabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 100;
+   let nn_ptr: NonNull<i32>;
+   let b: i32;
+
+   nn_ptr = NonNull::from(&a);
+   b = unsafe { nn_ptr.as_ptr().read() };
+   println!("{} ", b);     // 100
+
+``NonNull`` türünün ilginç bir özelliği de ``Option<NonNull<T>>`` türünün ``*mut T`` türü kadar yer
+kaplamasıdır. Anımsanacağı gibi ``enum`` türünden değişkenlerde ve değerlerde hangi ``enum`` varyantının
+kullanılmış olduğunu belirlemek için *ayırıcı (discriminant) değer* denilen bir tamsayı alan kullanılıyordu. Bu
+ayırıcı değer alanı genellikle ``isize`` türünden olsa da bunun bir garantisi yoktu. Örneğin 64 bit sistemlerde
+çalıştığımızı varsayalım:
+
+.. code-block:: rust
+
+   let o: Option<*mut i32> = None;
+   println!("{}", std::mem::size_of_val(&o));      // 16
+
+Halbuki örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 10;
+   let o: Option<NonNull<i32>> = Some(NonNull::from(&a));
+
+   println!("{}", std::mem::size_of_val(&o));      // 8
+
+Buna Rust'ta *Niş optimizasyonu (niche optimization)* denilmektedir.
+
+Sahiplik ve Ödünç Alma
+----------------------
+
+Bu bölümde Rust'taki *sahiplik (ownership)* ve *ödünç alma (borrow)* mekanizması üzerinde duracağız. Sahiplik ve
+ödünç alma mekanizmaları başka programlama dillerinde tema olarak başka biçimlerde bulunmaktadır. Ancak Rust bu
+kavramları dilin semantiğine açık bir biçimde dahil etmiştir. Bu bakımdan bu mekanizma Rust'ı diğer programlama
+dillerinden ayıran ve Rust'a özgünlük sağlayan bir özelliktir. Aslında biz kursumuzda çeşitli örneklerde bu
+kavramlardan bahsetmiştik. Muhtemelen sizlerin kafasında da bu mekanizma hakkında ipuçları oluşmuştur. Ancak bu
+bölümde bu mekanizmayı daha teknik bir biçimde ele alacağız.
+
+Nesnelerin Birbirine Atanması Sorunu
+------------------------------------
+
+Pek çok dilde aynı türden iki nesnesinin (ya da yapı benzeri başka bir veri yapısının) birbirine atanması
+durumunda yapı nesnelerinin karşılıklı elemanları birbirine atanmaktadır. Bu durum çoğu kez bir soruna yol
+açmamaktadır. Örneğin C'de aşağıdaki gibi bir yapı olsun:
+
+.. code-block:: c
+
+   struct complex {
+       double real;
+       double imag;
+   };
+
+Bu türden iki yapı nesnesinin birbirine atanması sırasında hiçbir soruna yol açmayacaktır. Örneğin:
+
+.. code-block:: c
+
+   struct complex z1 = {3, 4};
+   struct complex z2 = {5, 3};
+   ...
+
+   z2 = z1;
+
+Aslında bu atamada derleyici tarafından şu işlem uygulanmaktadır:
+
+.. code-block:: c
+
+   z2.real = z1.real;
+   z2.imag = z1.imag;
+
+Böyle bir atamanın bir soruna yol açmayacağı açıktır. Ancak eğer yapının bir elemanı tahsis edilmiş olan bir
+kaynağa referans ediyorsa bu türden iki yapı nesnesinin birbirine atanması sonucunda kaynak ve hedef yapı
+nesnelerinin elemanları aynı nesneye referans eder duruma gelmektedir. Bu durum da potansiyel bazı sorunlara yol
+açmaktadır. Bu sorunu göstericiler üzerinde örnekle açıklayalım. C'de aşağıdaki gibi bir yapı söz konusu olsun:
+
+.. code-block:: c
+
+   struct sample {
+       int a;
+       size_t len;
+       char *ptr;
+   };
+
+Burada ``sample`` yapısının ``ptr`` elemanı dinamik olarak tahsis edilmiş bir alanı, ``len`` ise bu alanın
+uzunluğunu göstermektedir. ``a`` elemanı ise konumuzla ilgili olmayan herhangi bir elemanı belirtmektedir. Şimdi
+bu yapı türünden iki nesne yaratalım. Burada ve aşağıdaki örneklerde ``malloc`` fonksiyonunun başarı kontrolünü
+kodu kısaltmak için bilerek yapmayacağız:
+
+.. code-block:: c
+
+   struct sample s = {10, 100, (char *) malloc(100)};
+   struct sample k = {20, 200, (char *) malloc(200)};
+
+Şimdi bu yapı nesnelerini birbirine atayalım:
+
+.. code-block:: c
+
+   k = s;
+
+Burada çözülmesi gereken iki potansiyel sorun vardır:
+
+1) ``k`` nesnesinin ``ptr`` elemanı ``free`` hale getirilmeden ``s`` nesnesinin ``ptr`` elemanı ona atanmış
+   olacaktır. Bu atamada bellek sızıntısı oluşacaktır.
+
+2) Atamadan sonra hem ``s``'nin hem de ``k``'nın ``ptr`` elemanları aynı dinamik alanı gösteriyor olacaktır. Bu
+   durumda o alanın ``free`` hale getirilmesi bu iki nesnenin ikisi de yok olduğunda yapılmalıdır. Bunu
+   ayarlamak da bir çaba gerektirmektedir.
+
+Birinci problemi şöyle çözebiliriz:
+
+.. code-block:: c
+
+   free(k.ptr);
+   k = s;
+
+Ancak ikinci problemin çözümü daha zordur. Programcının bu nesnenin ömürlerini kontrol etmesi ve uygun bir
+noktada dinamik alanı ``free`` hale getirmesi gerekir. Bu ikinci sorunu çözmenin klasik yollarından biri
+göstericinin gösterdiği yerdeki dinamik alanda bir *referans sayacı (reference counter)* tutmaktır. Nesnenin
+kullanımı bittiğinde programcının bir fonksiyonu çağırması (örneğin ``deallocate`` isminde bir fonksiyon
+olabilir) istenir. Bu fonksiyon da referans sayacını bir eksiltir, referans sayacı 0'a düştüğünde ``free``
+işlemini yapar. Örneğin:
+
+.. code-block:: c
+
+   struct buf {
+       size_t refcount;
+       size_t len;
+       char str[];
+   };
+
+   struct sample {
+       int a;
+       struct buf *ptr;
+   };
+
+Artık nesneyi yaratan bir fonksiyon yazabiliriz:
+
+.. code-block:: c
+
+   void create_sample(struct sample *s, int a, size_t len)
+   {
+       s->a = a;
+       s->ptr = (struct buf *) malloc(sizeof(size_t) + sizeof(size_t) + len);
+       s->ptr->refcount = 1;
+   }
+
+Referans sayacının başlangıç değerinin 1 olduğuna dikkat ediniz. ``deallocate`` fonksiyonu şöyle yazılabilir:
+
+.. code-block:: c
+
+   void deallocate(struct sample *ps)
+   {
+       if (--ps->ptr->refcount == 0)
+           free(ps->ptr);
+   }
+
+Tabii C'de bu referans sayacının artırılmasını programcı kendisi sağlamalıdır. Bunu kolaylaştırmak için bir
+atama fonksiyonu yazabilir:
+
+.. code-block:: c
+
+   void assign(struct sample *left, const struct sample *right)
+   {
+       deallocate(left);
+       left->a = right->a;
+       left->len = right->len;
+       left->ptr = right->ptr;
+       ++right->ptr->refcount;     /* left->ptr ve right->ptr zaten aynı yapıyı gösteriyor */
+   }
+
+Yazdığımız sistemin kullanımı da şöyle olabilir:
+
+.. code-block:: c
+
+   struct sample s;
+   struct sample k;
+
+   create_sample(&s, 10, 100);
+   create_sample(&k, 20, 100);
+   ...
+
+   assign(&k, &s);
+   ...
+   deallocate(&k);
+   deallocate(&s);
+
+Böyle bir referans sayacı sistemi manuel bir biçimde yukarıdaki gibi oluşturulabilir. Ancak bunun
+genelleştirilmesi o kadar kolay değildir. İşte C++, Java ve C# gibi dillerde bu genelleştirmenin yapılabilmesi
+için nesneler yaratıldığında ve yok edildiğinde derleyici tarafından otomatik bazı fonksiyonlar çağrılmaktadır
+(bunlara tipik olarak *constructor* ve *destructor* denilmektedir.) Programcı da bu tür işlemleri daha kolay
+gerçekleştirebilmektedir. C++'ta ismine *kopya yapıcı fonksiyonu (copy constructor)* ve *kopya atama operatör
+fonksiyonu (copy assignment operator)* denilen özel fonksiyonlar da yazılabilmektedir. Derleyici iki sınıf nesnesi
+birbirine atandığında otomatik olarak sınıfın kopya atama operatör fonksiyonunu çağırmaktadır. Ayrıca bu
+dillerde genelleştirme için ismine *template* ya da *generic* fonksiyonlar ve sınıflardan da
+faydalanılabilmektedir. Böylece bu dillerde referans sayaçlı nesneler daha kolay ve genel biçimde
+oluşturulabilmektedir.
+
+Yukarıdaki sorunu çözmenin ikinci klasik yolu da *derin kopyalama (deep copy)* uygulamaktır. Derin kopyalama ile
+yapı nesnelerinin içerisindeki göstericilerin gösterdiği dinamik alanların atama sırasında kopyaları
+çıkartılır. Böylece nesnelerin aynı yeri göstermesi engellenir. Örneğin:
+
+.. code-block:: c
+
+   struct sample {
+       int a;
+       size_t len;
+       char *ptr;
+   };
+
+   void assign(struct sample *left, struct sample *right)
+   {
+       if (left == right)
+           return;
+       free(left->ptr);
+       left->a = right->a;
+       left->len = right->len;
+       left->ptr = (char *)malloc(right->len);
+       memcpy(left->ptr, right->ptr, right->len);
+   }
+
+Artık nesnelerin kullanımı bitince doğrudan ``ptr`` göstericisi ``free`` hale getirilebilir:
+
+.. code-block:: c
+
+   void deallocate(struct sample *ps)
+   {
+       free(ps->ptr);
+   }
+
+Kullanım şöyle olabilir:
+
+.. code-block:: c
+
+   struct sample s = { 10, (char *) malloc(10), 100 };
+   struct sample k = { 20, (char *) malloc(10), 200 };
+   ...
+
+   assign(&s, &k);
+   ...
+
+   deallocate(&k);
+   deallocate(&s);
+
+Yukarıda da belirttiğimiz gibi C++'ta iki sınıf nesnesi birbirine atandığında ismine *kopya atama operatör
+fonksiyonu (copy assignment operator)* denilen özel bir fonksiyon çağrılmaktadır. Sınıfı yazanlar da bu
+fonksiyonun içini yazarak derin kopyalamanın otomatik yapılmasını sağlayabilmektedir.
+
+Rust'ta Taşıma (Move) Semantiği
+-------------------------------
+
+Şimdi de yukarıdaki sorunun Rust'ta nasıl çözüldüğü üzerinde duralım. Yukarıdaki problemin Rust'taki çözümü
+oldukça basit bir temele dayandırılmıştır. Aynı türden iki yapı ya da ``enum`` değişkeni birbirine atandığında
+artık değişkenin içeriği *taşınmış (move edilmiş)* olur ve kaynak değişken bu atamadan sonra artık kullanılamaz.
+Derleyici bu durumu derleme aşamasında denetlemektedir. Böylece Rust'ta zaten hiçbir zaman yukarıdaki sorun
+ortaya çıkmayacaktır. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       ptr: *const u8,
+   }
+
+Burada ``Sample`` yapısının ``new`` ilişkili fonksiyonunda bu ``ptr`` elemanı için bir alanın tahsis edildiğini
+varsayalım. Yani yapının ``ptr`` elemanı tıpkı yukarıdaki C örneklerindeki gibi tahsis edilmiş olan dinamik
+alanın başlangıç adresini tutuyor olsun:
+
+.. code-block:: rust
+
+   let s: Sample = Sample::new(10, 100);
+   let k: Sample;
+
+Biz burada aşağıdaki gibi bir atama yapmış olalım:
+
+.. code-block:: rust
+
+   k = s;
+
+Rust böyle bir atamada tıpkı C'de olduğu gibi yapının karşılıklı elemanlarını birbirine atamaktadır (Rust'ta
+padding byte'ları da hedefe atanmaktadır, Bu durum *The Rust Reference* dokümanlarında açıkça belirtilmiştir.)
+Ancak atamadan sonra artık ``s``'in kullanılmasına izin vermemektedir. Dolayısıyla yukarıdaki sorun Rust'ta zaten
+hiç oluşmayacaktır. Çünkü biz bu atamadan sonra eğer ``s``'i kullanmaya çalışırsak zaten derleme zamanında error
+oluşacaktır. Ancak burada yine de çözülmesi gereken bir sorun daha vardır. Sorunu açıklayalım:
+
+.. code-block:: rust
+
+   let s: Sample = Sample::new(10, 100);
+   let k: Sample = Sample::new(20, 200);
+
+   k = s;
+
+Burada derleyici ``s``'in tüm elemanlarını ``k``'ya atadığında ``k``'daki ``ptr`` göstericisinin gösterdiği yer
+``free`` hale getirilemeyecektir. Bu durumda bellek sızıntısının (memory leak) oluşmasına yol açacaktır. İşte
+Rust'ta bu sorun ``Drop`` isimli trait ile çözülmüştür. Rust derleyicisi bu durumda eğer yapı için
+``std::ops::Drop`` trait'inin ``drop`` metodu yazılmışsa (*implemente* edilmişse) atamadan önce soldaki değişken
+için bu ``drop`` metodunu çağırmaktadır. Bu tür durumlarda yapıyı tanımlayanın bu ``drop`` metodunu yazması ve
+tahsis edilmiş olan alanı serbest bırakması beklenmektedir. Tabii ``drop`` metodu yalnızca atama sırasında değil
+bir yapı ya da ``enum`` türünden değişken faaliyet alanını bitirip yaşamını kaybederken de çağrılmaktadır. Bu
+``drop`` metodunun bir çeşit C++, Java ve C# gibi dillerdeki *yıkıcı fonksiyon (destructor)* etkisi yarattığına
+dikkat ediniz.
+
+Bir değişken taşındıktan sonra ona yeni bir değer atanabilir. Ancak taşıma işleminden sonra artık onun
+içerisindeki değer kullanılamaz. Örneğin:
+
+.. code-block:: rust
+
+   let mut s = Sample::new(10, 20);
+   let k: Sample;
+
+   k = s;                          // s değişkeni k'ya taşınıyor
+   s = Sample::new(100, 200);      // s'e yeni bir değer atanabilir
+   s.disp();                       // geçerli
+
+Buradan şöyle bir özet yapabiliriz:
+
+1) Aynı türden iki yapı ya da ``enum`` değişkeni birbirine atandığında aslında sağdaki yapı değişkeninin içeriği
+   soldaki yapı değişkenine taşınmaktadır (*move* edilmektedir.) Burada *taşıma (move)* demekle sağdaki yapı
+   değişkenin karşılıklı elemanlarının soldaki yapı değişkenine atanması ancak bu atamadan sonra artık sağdaki
+   yapı değişkeninin bir daha kullanılamaması kastedilmektedir.
+
+2) Atama sırasında eğer soldaki yapı ya da ``enum`` türü için ``drop`` metodu yazılmışsa ve soldaki değişkene
+   daha önce değer atanmışsa derleyici atama işleminden önce sol taraftaki değişkeni ``drop`` eder yani eğer sol
+   taraftaki değişken için ``drop`` metodunu çağırır. Boşaltımlar da tipik olarak programcı tarafından bu
+   ``drop`` metotlarında yapılmalıdır.
+
+3) Yapı ya da ``enum`` değişkeninin faaliyet alanı bittiğinde tıpkı diğer bazı dillerdeki *destructor*
+   mekanizmasında olduğu gibi eğer değişkenin içerisindeki değer taşınmamışsa ve ilgili yapı ya da ``enum`` türü
+   için ``drop`` metodu yazılmışsa ``drop`` metodu derleyici tarafından çağrılmaktadır. Böylece faaliyet alanını
+   bitiren yapı ya da ``enum`` değişkenlerinin tahsis etmiş olduğu kaynaklar otomatik olarak
+   boşaltılabilmektedir.
+
+``Drop`` Mekanizması
+--------------------
+
+Önceki paragraflarda yapı ya da ``enum`` türlerine ilişkin değişkenlere yeni bir atama yapıldığında ya da
+programın akışı bu değişkenlerin faaliyet alanını bitirdiğinde söz konusu değişkenler için eğer bu değişkenlerin
+ilişkin olduğu türde ``Drop`` trait'i desteklenmiş (yani ``drop`` metodu yazılmışsa) otomatik olarak derleyici
+tarafından bu ``drop`` metodunun çağrıldığını belirtmiştik. Bu ``Drop`` mekanizması üzerinde biraz daha
+duracağız. Aslında ``drop`` mekanizması bir bakıma trait'ler konusuyla da ilgilidir. Biz henüz kursumuzda
+trait'ler konusunu görmedik. Ancak burada yine de bu ``drop`` metodunun semantiği hakkında bazı bilgiler
+vereceğiz.
+
+Biz kursumuzda sıkça bir değişken ya da değer için *drop edilir* biçiminde bir ifade kullanıyoruz ve izleyen
+paragraflarda da kullanmaya devam edeceğiz. Bir değişkenin (bu geçici değişken de olabilir) *drop edilmesi* onun
+tuttuğu kaynakların boşaltılması anlamına gelmektedir. Drop etme işlemi tipik olarak değişkenin faaliyet alanı
+sonlandığında otomatik biçimde yapılmaktadır. Drop etme sırasında eğer ilgili değişkene ilişkin türün ``drop``
+metodu yazılmışsa değişken yok edilmeden önce bu ``drop`` metodu çağrılır. ``Copy`` türleri için zaten ``drop``
+metotları yazılamamaktadır. Biz *drop edilme* terimini yalnızca ``drop`` metodu yazılmış türler için değil tüm
+türler için kullanacağız. Eğer ilgili tür bir ``Copy`` türüyse ya da ilgili türün ``drop`` metodu
+yazılmamışsa bu türden değişkenler için yine *drop edilme* ifadesi kullanılabilmektedir. Ancak burada drop
+edilme sırasında herhangi bir eylem gerçekleşmeyecektir. Özetle bir değişkenin ya da değerin *drop edilmesi*
+denildiğinde o değişkenin ya da değerin ilişkin olduğu tür için ``drop`` metodu yazılmışsa o metodun
+çağrılacağı yazılmamışsa bir şey yapılmayacağı anlaşılmalıdır.
+
+``drop`` metodu aslında ``Drop`` trait'inden gelen bir metodudur. ``Drop`` trait'i ``std::ops`` modülünde
+tanımlanmıştır. Ancak standart prelude içerisinde ``std::ops::Drop`` trait'i ``use`` edildiği için bu trait'in
+ismi ``std::ops::Drop`` yerine doğrudan ``Drop`` biçiminde de kullanılabilmektedir. Biz de kursumuzda bu
+trait'i ``std::ops::Drop`` yerine yalnızca ``Drop`` biçiminde kullanacağız. ``Drop`` trait'i şöyle
+tanımlanmıştır:
+
+.. code-block:: rust
+
+   pub trait Drop {
+       fn drop(&mut self);
+   }
+
+Bir trait'in desteklenmesi (*implemente* edilmesi) demek o trait içerisindeki metotların ilgili yapı ya da
+``enum`` türünde trait'te belirtilen parametrik yapıyla tanımlanması demektir. O halde biz yapımız ya da
+``enum`` türümüz için bu ``drop`` metodunu tanımlarken onun parametresini ``&mut self`` biçiminde bildirmeliyiz.
+trait'ler konusunda göreceğimiz gibi bir trait'in desteklenmesi (yani trait'teki metotların yazılması) aşağıdaki
+sentaksla yapılmaktadır:
+
+.. code-block:: rust
+
+   impl <trait_ismi> for <yapı_ya_da_enum_ismi> {
+       //...
+   }
+
+Örneğin:
+
+.. code-block:: rust
+
+   impl Drop for Sample {
+       fn drop(&mut self) {
+           //...
+       }
+   }
+
+Şimdi ``drop`` mekanizmasının çalışmasını açıklamada yardımcı olacak bir örnek verelim:
+
+.. code-block:: rust
+
+   fn main() {
+       let s: Sample = Sample::new(10, 20);
+       let mut k: Sample = Sample::new(30, 40);
+
+       println!("one");
+       k = s;
+       println!("two");
+   }
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+           println!("Sample created: {}, {}", a, b);
+           Sample { a, b }
+       }
+
+       fn disp(&self) {
+           println!("{}: {}", self.a, self.b);
+       }
+   }
+
+   impl Drop for Sample {
+       fn drop(&mut self) {
+           println!("drop called: {}, {}", self.a, self.b  );
+       }
+   }
+
+Programın çalıştırılmasıyla ekranda şunları göreceksiniz:
+
+.. code-block:: text
+
+   Sample created: 10, 20
+   Sample created: 30, 40
+   one
+   drop called: 30, 40
+   two
+   drop called: 10, 20
+
+Burada sırasıyla neler olmaktadır? Açıklayalım. Programın akışı ``s``'in bağlandığı noktaya geldiğinde
+``Sample::new`` çağrılacak ve ekrana ilk satır basılacaktır:
+
+.. code-block:: text
+
+   Sample created: 10, 20
+
+Sonra programın akışı ``k``'nın bağlandığı satıra geldiğinde yine ``Sample::new`` çağrılacak ve ekrana ikinci
+satır basılacaktır:
+
+.. code-block:: text
+
+   Sample created: 30, 40
+
+Sonra programın akışı ``println!("one")`` çağrısına gelecek ve üçüncü satır basılacaktır:
+
+.. code-block:: text
+
+   one
+
+Daha sonra programın akışı ``k = s`` atamasının yapıldığı satıra gelecektir. Burada ``Sample`` yapısı için
+``Drop`` trait'i desteklendiğinden ve ``k``'ya değer atanmış olduğundan ``k`` için ``drop`` metodu derleyici
+tarafından çağrılacaktır. Böylece ekrana dördüncü satır basılacaktır:
+
+.. code-block:: text
+
+   drop called: 30, 40
+
+``k`` için ``drop`` çağrıldıktan sonra ``s``'in karşılıklı elemanları ``k``'ya atanacaktır. Bundan sonra ``s``
+kullanılamayacağı için biz buna ``s``'in ``k``'ya taşınması da demekteyiz. Daha sonra programın akışı
+``println!("two")`` çağrısına gelecektir. Böylece ekrana beşinci satır da basılacaktır:
+
+.. code-block:: text
+
+   two
+
+Artık programın akışı ``k``'nın bildirildiği bloğu bitirdiği için ``k``'nın faaliyet alanı sona erecektir. Bu
+noktada derleyici tarafından ``k`` için ``drop`` metodu çağrılacaktır. Böylece ekrana son satır da
+basılacaktır:
+
+.. code-block:: text
+
+   drop called: 10, 20
+
+Şimdi de ``main`` fonksiyonunun aşağıdaki gibi olduğunu varsayalım:
+
+.. code-block:: rust
+
+   fn main() {
+       let s: Sample = Sample::new(10, 20);
+       let k: Sample;
+
+       println!("one");
+       k = s;
+       println!("two");
+   }
+
+Burada ``k``'ya henüz değer atanmadığına dikkat ediniz. O halde ``k = s`` atamasında ``k`` için ``drop`` metodu
+çağrılmayacaktır. Ancak tabii blok bittiğinde ``k`` için ``drop`` metodu çağrılacaktır. Program çalıştırıldığında
+ekranda şunlar görülecektir:
+
+.. code-block:: text
+
+   Sample created: 10, 20
+   one
+   two
+   drop called: 10, 20
+
+``drop`` Metodunun Açıkça Çağrılması ve ``std::mem::drop``
+-----------------------------------------------------------
+
+``drop`` metodu programcı tarafından açıkça çağrılamamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+
+       s.drop();       // error: explicit use of destructor method
+   }
+
+Burada ``drop`` metodu programcı tarafından açıkça çağrılmak istenmiştir. Bu durum error oluşturacaktır. Mevcut
+Rust derleyicimiz bu durum için aşağıdaki gibi bir hata mesajını basmaktadır:
+
+*explicit use of destructor method*
+
+Eğer ilgili değişken istenildiği zaman drop edilmek isteniyorsa ``std::mem::drop`` fonksiyonu kullanılmalıdır.
+Bu fonksiyon için standart prelude içerisinde ``use`` işlemi yapıldığı için ``drop`` ismini doğrudan da
+kullanabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+
+       println!("one");
+       drop(s);
+       println!("two");
+   }
+
+Burada ``s`` için ``drop`` metodu dolaylı olarak ``drop`` fonksiyonu yoluyla çağrılmıştır. Program
+çalıştırıldığında ekrana şunlar çıkacaktır:
+
+.. code-block:: text
+
+   Sample created: 10, 20
+   one
+   drop called: 10, 20
+   two
+
+Bu sayede dolaylı da olsa ``drop`` metodunun istediğiniz yerde çağrılmasını sağlayabilirsiniz.
+``std::mem::drop`` fonksiyonunun parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub fn drop<T>(_x: T)
+
+``drop`` generic bir fonksiyondur ve görüldüğü gibi parametresi de referans değildir. Yani ``drop``
+fonksiyonuna argüman olarak geçirdiğimiz değişken aslında fonksiyonun parametre değişkenine taşınmaktadır. Biz
+``drop`` fonksiyonundan sonra artık bu değişkeni kullanamayız. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+
+       drop(s);
+
+       s.disp();       // error!
+   }
+
+Burada ``s`` değişkeni ``drop`` fonksiyonunun parametre değişkenine taşındığı için ``drop`` çağrısından sonra
+artık ``s`` kullanılamamaktadır.
+
+``mut`` Olmayan Değişkenler ve ``drop`` Metodu
+----------------------------------------------
+
+Anımsanacağı gibi ``mut`` olmayan bir değişkenin adresi ``mut`` bir referansa ya da göstericiye
+atanamıyordu. Örneğin:
+
+.. code-block:: rust
+
+   fn foo(r: &mut Sample) {
+       //...
+   }
+   //...
+
+   let s = Sample::new(10, 20);
+   foo(&mut s);            // error!
+
+``s`` ``mut`` olmadığı için biz onun adresini ``&mut`` operatörüyle alamayız. Dolayısıyla onun adresini ``mut``
+bir referansa atayamayız. Ancak tabii istersek ilgili değişkeni ``mut`` bir değişkene atayıp (ya da taşıyıp)
+onun adresini ``&mut`` operatörüyle alabiliriz.
+
+.. code-block:: rust
+
+   fn foo(r: &mut Sample) {
+       //...
+   }
+   //...
+
+   let s = Sample::new(10, 20);
+   let mut k = s;
+
+   foo(&mut k);            // geçerli
+
+Burada ``s`` değişkeni ``mut`` değildir ancak ``mut`` bir değişkene taşınmıştır. Sonra da o ``mut`` değişkenin
+adresi ``&mut`` operatörüyle alınmıştır.
+
+Yukarıdaki açıklamalar eşliğinde artık ``std::mem::drop`` fonksiyonunun ``mut`` olmayan bir değişken için nasıl
+``mut`` olan ``drop`` metodunu çağırabildiği daha iyi anlaşılabilir.
+
+``std::ops::Drop`` trait'inin ``drop`` metodunun ``&mut self`` parametresine sahip olduğunu anımsayınız.
+Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+           println!("Sample created: {}, {}", a, b);
+           Sample { a, b }
+       }
+
+       fn disp(&self) {
+           println!("{}: {}", self.a, self.b);
+       }
+   }
+
+   impl Drop for Sample {
+       fn drop(&mut self) {
+           println!("drop called: {}, {}", self.a, self.b  );
+       }
+   }
+
+Normal olarak ``&mut self`` parametresine sahip olan metotlar ``mut`` değişkenlerle çağrılmak zorundadır. Peki
+``drop`` metodu da ``&mut self`` parametresine sahip olduğuna göre yalnızca ``mut`` değişkenler mi drop
+edilebilmektedir? İşte hayır, ``drop`` metodu manuel olarak değil derleyici tarafından çağrılmaktadır. Bu
+nedenle ``mut`` olmayan değişkenlerle de derleyici ``drop`` metodunu çağırabilmektedir. Yani biz ``mut`` olmayan
+değişkenler için de ``drop`` metodunda boşaltım işlemleri yapabiliriz.
+
+Peki ``mut`` olmayan bir değişken için derleyici nasıl ``&mut self`` parametresine sahip ``drop`` metodunu
+çağırabilmektedir? ``drop`` metodu içerisinde değişkenlerin değerleri değiştirilebileceğine göre bu durum
+``mut``'luk durumuyla çelişmez mi? İşte *The Rust Reference* dokümanlarına göre drop işlemi derleyici tarafından
+``std::ptr::drop_in_place`` fonksiyonunu çağırarak yapılmaktadır. Bu fonksiyon da drop edilecek değişkenle
+``drop`` metodunun çağrılmasına yol açmaktadır. ``drop_in_place`` fonksiyonunun parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub unsafe fn drop_in_place<T: PointeeSized>(to_drop: *mut T)
+
+Fonksiyonun generic biçimde tanımlandığına dikkat ediniz. Fonksiyonun parametresi ``*mut T`` türündendir. Yani
+fonksiyon ``mut`` bir değişkenin adresini istemektedir. Tabii fonksiyon ``unsafe`` olduğu için çağırmanın da
+``unsafe`` bağlamda yapılması gerekir. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+
+       // blok sonunda s için drop_in_place çağrısının yapıldığını varsayabilirsiniz
+   }
+
+Burada blok sonunda ``s`` için derleyici tarafından ``drop_in_place`` çağrısının yapıldığını varsayabilirsiniz.
+Ancak burada ``mut`` olmayan bir değişkenle ``*mut`` parametreli bir fonksiyon çağrılmış olacaktır. Rust
+derleyicisi bu durumu kendi içerisinde halledebilmektedir. Ancak biz de gerekli tür dönüştürmesini uygulayıp bu
+fonksiyonu kendimiz çağırabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+
+       unsafe {
+           std::ptr::drop_in_place(&s as *const Sample as *mut Sample);
+       }
+       //...
+   }
+
+Burada ``unsafe`` blok içerisinde ``drop_in_place`` fonksiyonu açıkça çağrılmıştır. Tabii bu fonksiyon da eğer
+ilgili tür tarafından ``Drop`` trait'i desteklenmişse ``drop`` metodunun çağrılmasına yol açacaktır.
+
+``drop_in_place`` fonksiyonunun açıkça çağrılmasında küçük bir sorun vardır. Bu biçimdeki açıkça çağırma
+değişkenin faaliyet alanı biterken derleyicinin kendisinin de bu fonksiyonu çağırmasını engellememektedir.
+Dolayısıyla ``drop`` metodu toplamda iki kere çağrılmış olacaktır. Çünkü ``drop_in_place`` fonksiyonu değişkenin
+sahipliğini almamaktadır. Bu tür durumlarda ``drop_in_place`` fonksiyonundan sonra ayrıca değişkenin faaliyet
+alanı bittiğinde ``drop`` metodunun çağrılması istenmiyorsa ``std::mem::forget`` fonksiyonu kullanılmalıdır.
+``forget`` fonksiyonunun parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub const fn forget<T>(t: T)
+
+Fonksiyon değişkenin sahipliğini almakta ve ``drop`` metodunun çağrılmasını kendi içerisinde engellemektedir.
+Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+
+       unsafe {
+           std::ptr::drop_in_place(&s as *const Sample as *mut Sample);
+           std::mem::forget(s);
+       }
+       //...
+   }
+
+``drop_in_place`` fonksiyonu standart prelude içerisinde ``use`` edilmemiştir. Dolayısıyla bu isim
+niteliklendirme yapılmadan tek başına kullanılamaz.
+
+Biz yukarıda derleyicinin kendisinin drop işlemi sırasında ``drop_in_place`` fonksiyonunu çağırdığını söyledik.
+Sonra da bu çağrının manuel biçimde nasıl yapılabileceğini açıkladık. Aslında programcının bu ``drop_in_place``
+fonksiyonunu doğrudan kullanması genellikle tavsiye edilmemektedir. Eğer ``drop`` metodunun istediğiniz noktada
+çağrılmasını istiyorsanız ``std::mem::drop`` fonksiyonunu kullanmalısınız.
+
+Aslında benzer semantik C++'ın *yapıcı (constructor)* ve *yıkıcı (destructor)* üye fonksiyonlarında da
+bulunmaktadır. C++'ta nesne ``const`` olsa bile bu fonksiyonlarda ``const`` semantiği ortadan kalkmaktadır.
+
+``drop`` Metotlarının Çağrılma Sırası
+-------------------------------------
+
+Peki aynı blok içerisinde birden fazla değişken bildirildiğinde akış blok sonuna geldiği zaman bu değişkenler
+için ``drop`` metotları hangi sıraya göre çağrılacaktır? İşte genel olarak programlamada en güvenli ve en
+işlevsel durum tahsisat ile boşaltımın ters sırada yapılmasıdır. Örneğin C++'ta her zaman yapıcı fonksiyonlarla
+yıkıcı fonksiyonlar ters sırada çağrılmaktadır. Rust'ta da aynı semantik uygulanmıştır. Rust'ta ``drop``
+metotları blok içerisindeki bildirim sırasının ters sırasında çağrılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+       let k = Sample::new(30, 40);
+       //...
+   }
+
+Burada önce ``s`` sonra ``k`` bildirilmiştir, o halde akış blok sonuna geldiğinde önce ``k`` için sonra ``s``
+için ``drop`` metodu çağrılacaktır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s: Sample;
+       let k: Sample;
+
+       k = Sample::new(10, 20);
+       s = Sample::new(30, 40);
+
+       //...
+   }
+
+Değişkene atama sırasının önemli olmadığına bildirim sırasının önemli olduğunu vurgulamak istiyoruz. Burada blok
+içerisinde önce ``s`` sonra ``k`` bildirilmiştir, akış blok sonuna geldiğinde önce ``k`` için sonra ``s`` için
+``drop`` metotları çağrılacaktır.
+
+Faaliyet Alanları ve ``drop``
+-----------------------------
+
+Biz yukarıda bir yapı ya da ``enum`` türünden değişken blok içerisinde bildirilmişse onlar için ``drop``
+metotlarının programın akışı bloktan çıkarken bildirime göre ters sırada çağrıldığını söylemiştik. Bu kuralın
+bazı ayrıntıları da vardır. Bu konu *The Rust Reference* dokümanlarında *10.8 Destructors* bölümünde
+*Drop scopes* başlığı altında ele alınmıştır.
+
+Biz deyimler kısmında deyimlerin blok içerebildiğini görmüştük. İşte tüm bloklu deyimlerdeki bloklar ayrı bir
+faaliyet alanı da belirtmektedir. Böylece bir fonksiyonun içerisinde iç içe bloklar söz konusu olabilir. Bu
+durumda ``drop`` metotları değişken hangi blokta bildirilmişse o bloğun sonunda çağrılacaktır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+
+       {
+           let k = Sample::new(30, 40);
+           //...
+       }
+
+       //...
+   }
+
+Burada ``k`` değişkeni için ``drop`` metodu programın akışı iç bloktan çıkarken çağrılacaktır. ``s`` değişkeni
+için ise ``drop`` metodu programın akışı ``main`` fonksiyonun ana bloğu biterken çağrılacaktır. ``drop``
+metotlarının her zaman bildirime göre ters sırada çağrıldığına dikkat ediniz.
+
+Diğer deyimlerin blokları da bu bağlamda bir faaliyet alanı belirtmektedir. Örneğin:
+
+.. code-block:: rust
+
+   if a > 0 {
+       let s = Sample::new(10, 20);
+       //...
+   }
+   else {
+       //...
+   }
+
+Burada ``a > 0`` ise ``s`` için ``drop`` metodu ``if`` deyiminin doğruysa kısmındaki bloğun sonunda
+çağrılacaktır.
+
+Programın akışı iç içe bloklara girdiğinde ``return``, ``break`` ya da ``continue`` deyimleriyle karşılaşıldığı
+zaman bazen birden fazla iç içe bloktan tek hamlede çıkılabilmektedir. Bu tür durumlarda ``drop`` metotları iç
+bloktan dış bloğa doğru o bloklarda ters sırada olacak çağrılmaktadır.
+
+``drop`` Sırası ve Ödünç Alma
+=============================
+
+İç İçe Yapılar ve ``drop`` Metotlarının Çağrılma Sırası
+-------------------------------------------------------
+
+Bir yapı başka bir yapı ya da ``enum`` türünden alanlara sahip olabilir. Örneğin:
+
+.. code-block:: rust
+
+   struct A {
+       a: i32
+   }
+
+   struct B {
+       x: A,
+       y: A,
+   }
+
+Burada ``B`` yapısının ``x`` ve ``y`` alanları ``A`` yapısı türündendir. Yapıların ``impl`` blokları şöyle olsun:
+
+.. code-block:: rust
+
+   impl A {
+       fn new(a: i32) -> A {
+           A {a}
+       }
+
+       fn disp(&self) {
+           println!("{}", self.a);
+       }
+   }
+
+   impl B {
+       fn new(x: i32, y: i32) -> B {
+           B {x: A::new(x), y: A::new(y)}
+       }
+
+       fn disp(&self) {
+           self.x.disp();
+           self.y.disp();
+       }
+   }
+
+Bu yapılar için ``Drop`` trait'inin desteklendiğini düşünelim. ``drop`` metotları da şöyle tanımlanmış olsun:
+
+.. code-block:: rust
+
+   impl Drop for A {
+       fn drop(&mut self) {
+           println!("A dropped: {}", self.a);
+       }
+   }
+
+   impl Drop for B {
+       fn drop(&mut self) {
+           println!("B dropped");
+       }
+   }
+
+Burada ``B`` türünden bir değişken oluşturmuş olalım:
+
+.. code-block:: rust
+
+   let b = B::new(10, 20);
+
+Bu değişkenle ``disp`` metodunu çağıralım:
+
+.. code-block:: rust
+
+   b.disp();
+
+``B``'nin ``disp`` metodu ``x`` ve ``y`` için ``A`` yapısının ``disp`` metodunu çağırmaktadır. Ekranda şunlar
+görülecektir:
+
+.. code-block:: text
+
+   10
+   20
+
+Peki bu ``b`` değişkeni drop edilirken (örneğin programın akışı bloğun sonuna geldiğinde) ne olacaktır? İşte bu
+durumda *önce içeren yapı değişkeni için (örneğimizde b) drop metodu çağrılır sonra alanlar için (örneğimizde x
+ve y) bildirim sırasına göre drop metotları çağrılır.* Yani derleyici bu tür durumlarda yalnızca içeren yapı
+değişkeni için ``drop`` metodunu çağırmakla yetinmez, aynı zamanda alanlardaki değişkenler için de (içerilen
+değişkenler için de) ``drop`` metotlarını çağırır. Örneğimizde ``b`` değişkeni drop edildiğinde önce ``B``
+yapısının ``drop`` metodu çalıştırılacak sonra ``x`` ve ``y`` alanları için ``A`` yapısının ``drop`` metodu
+çalıştırılacaktır. Alanlar için ``drop`` metotlarının çağrılma sırası içeren yapıdaki bildirim sırasına göredir
+(yani yukarıdan aşağıya doğrudur). Yukarıdaki örnekte programın akışı blok sonuna geldiğinde ekrana şunlar
+basılacaktır:
+
+.. code-block:: text
+
+   B dropped
+   A dropped: 10
+   A dropped: 20
+
+Tabii yapılar bu biçimde iç içe kullanılmış olabilir. Bu işlemler burada açıkladığımız gibi özyinelemeli biçimde
+yürütülmektedir.
+
+C++'ta içeren sınıfın yıkıcı (destructor) fonksiyonunun sonunda içerilen sınıf nesneleri için içerilen sınıfların
+yıkıcı fonksiyonlarının ters sırada çağrıldığını anımsayınız. Burada C++'tan farklı olarak ``drop`` metotları
+ters sırada değil düz sırada yani bildirim sırasına göre çağrılmaktadır.
+
+.. code-block:: rust
+
+   fn main() {
+       let b = B::new(10, 20);
+
+       b.disp();
+       //...
+   }
+
+   struct A {
+       a: i32
+   }
+
+   impl A {
+       fn new(a: i32) -> A {
+           A {a}
+       }
+
+       fn disp(&self) {
+           println!("{}", self.a);
+       }
+   }
+
+   impl Drop for A {
+       fn drop(&mut self) {
+           println!("A dropped: {}", self.a);
+       }
+   }
+
+   struct B {
+       x: A,
+       y: A,
+   }
+
+   impl B {
+       fn new(x: i32, y: i32) -> B {
+           B {x: A::new(x), y: A::new(y)}
+       }
+
+       fn disp(&self) {
+           self.x.disp();
+           self.y.disp();
+       }
+   }
+
+   impl Drop for B {
+       fn drop(&mut self) {
+           println!("B dropped");
+       }
+   }
+
+Demetler ve Dizilerin Drop Edilmesi
+-----------------------------------
+
+Demetler drop edilirken demet elemanları yine düz sırada drop edilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+           println!("Sample created: {}, {}", a, b);
+           Sample { a, b }
+       }
+
+       fn disp(&self) {
+           println!("{}: {}", self.a, self.b);
+       }
+   }
+
+   impl Drop for Sample {
+       fn drop(&mut self) {
+           println!("Sample dropped: {}, {}", self.a, self.b  );
+       }
+   }
+
+Aşağıdaki gibi bir demet bildirilmiş olsun:
+
+.. code-block:: rust
+
+   fn main() {
+       let t = (Sample::new(10, 20), Sample::new(30, 40), Sample::new(50, 60));
+
+       //...
+   }
+
+Blok bittiğinde demet drop edilirken demet elemanları için düz sırada ``drop`` metotları çağrılacaktır. Program
+çalıştırıldığında ekrana şunlar basılacaktır:
+
+.. code-block:: text
+
+   Sample created: 10, 20
+   Sample created: 30, 40
+   Sample created: 50, 60
+   Sample dropped: 10, 20
+   Sample dropped: 30, 40
+   Sample dropped: 50, 60
+
+.. code-block:: rust
+
+   fn main() {
+       let t = (Sample::new(10, 20), Sample::new(30, 40), Sample::new(50, 60));
+       //...
+   }
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+           println!("Sample created: {}, {}", a, b);
+           Sample { a, b }
+       }
+
+       fn disp(&self) {
+           println!("{}: {}", self.a, self.b);
+       }
+   }
+
+   impl Drop for Sample {
+       fn drop(&mut self) {
+           println!("Sample dropped: {}, {}", self.a, self.b  );
+       }
+   }
+
+Yapılar ya da ``enum`` türleri türünden diziler drop edildiğinde dizi elemanları için ilk elemandan son elemana
+doğru düz sırada ``drop`` metotları çalıştırılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s: [Sample; 3] = [Sample::new(10, 20), Sample::new(30, 40), Sample::new(50, 50)];
+       //...
+   }
+
+Burada akış blok sonuna geldiğinde dizi drop edilirken dizi elemanları ilk elemandan itibaren düz sırada drop
+edilecektir. Program çalıştırıldığında ekrana şunlar basılacaktır:
+
+.. code-block:: text
+
+   Sample created: 10, 20
+   Sample created: 30, 40
+   Sample created: 50, 50
+   Sample dropped: 10, 20
+   Sample dropped: 30, 40
+   Sample dropped: 50, 50
+
+.. code-block:: rust
+
+   fn main() {
+       let s: [Sample; 3] = [Sample::new(10, 20), Sample::new(30, 40), Sample::new(50, 50)];
+       //...
+   }
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+           println!("Sample created: {}, {}", a, b);
+           Sample { a, b }
+       }
+
+       fn disp(&self) {
+           println!("{} {}", self.a, self.b);
+       }
+   }
+
+   impl Drop for Sample {
+       fn drop(&mut self) {
+           println!("Sample dropped: {}, {}", self.a, self.b  );
+       }
+   }
+
+Geçici Değişkenlerin Drop Edilmesi
+----------------------------------
+
+Biz bir ifade içerisinde o anda bir yapı ya da ``enum`` türünden değer oluşturabiliyorduk. Bunlara geçici
+değişken demiştik. (*The Rust Reference* dokümanlarına göre bir ifadenin değişken belirtmesi için onun isminin
+olması gerekmektedir. Halbuki geçici değişkenlerin aslında isimleri yoktur. *The Rust Reference* dokümanları bu
+nedenle *temporary variables* terimi yerine *temporaries* terimini tercih etmektedir.) Geçici değişkenler de drop
+edilmektedir. Geçici değişkenler her zaman onların yaratımlarına göre ters sırada drop edilirler. Bu davranış
+C++'taki geçici sınıf nesneleri için yıkıcı fonksiyonların çağrılmasındaki sıraya oldukça benzemektedir. Örneğin:
+
+.. code-block:: rust
+
+   s.foo().bar().tar();
+
+Böyle bir ifadede ``foo`` fonksiyonu bir geçici yapı değişkeni geri döndürmüş olsun, bununla ``bar`` metodu
+çağrılmış olsun, ``bar`` metodunun da yine geçici bir yapı değişkeni ile geri döndüğünü varsayalım. Onunla da
+``tar`` metodu çağrılmış olsun. ``tar`` metodunun geri dönüş değerinin olmadığını varsayalım. Burada önce
+``foo`` çağrısında sonra ``bar`` çağrısında geçici değişkenler oluşturulmaktadır. İşte ifade bittiğinde bunlar
+ters sırada drop edilecektir. Yani önce ``bar`` metodunun geri döndürdüğü geçici değişken sonra ``foo``
+metodunun geri döndürdüğü geçici değişken drop edilecektir. Örneğin:
+
+.. code-block:: rust
+
+   foo(&Sample::new(), &Sample::new(), &Sample::new());
+
+Burada fonksiyon çağrılırken geçici değişkenler soldan sağa yaratılacak ifade bittiğinde de (yani fonksiyon geri
+döndükten sonra) boşaltım sağdan sola yapılacaktır.
+
+Aynı ifadede birden fazla geçici değişkenin yaratılması operatör işlemleri ile de karşımıza çıkabilmektedir.
+Örneğin:
+
+.. code-block:: rust
+
+   result = Complex::new(10, 2) + Complex::new(3, 3) + Complex::new(4, 1);
+
+Burada yapı türünden geçici değişkenler ``+`` operatörüyle işlemine sokulmuştur. Toplama işlemi sonucunda da
+geçici değişkenler oluşmaktadır. Son oluşan geçici değişken ``result`` değişkenine taşınmaktadır. Burada da
+boşaltımlar ters sırada yapılacaktır.
+
+Parametre Değişkenlerinin Drop Edilmesi
+---------------------------------------
+
+Rust'ta parametre değişkenleri bir yapı ya da ``enum`` türündense ve değişkenin ya da değerin sahipliğini
+alıyorsa bu parametre değişkenleri parametre listesine göre ters sırada drop edilmektedir. Bu bağlamda
+fonksiyonların parametre değişkenleri ana bloğun başında sırasıyla bildirilmiş yerel değişken gibi ele
+alınmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       foo(Sample::new(10, 20), Sample::new(30, 40), Sample::new(50, 60));
+       //...
+
+   }
+
+   fn foo(a: Sample, b: Sample, c: Sample) {
+       //...
+   }
+
+Burada yaratılan geçici değişkenlerin sahipliği ``foo`` fonksiyonunun parametre değişkenlerine devredilmiştir.
+Bunların drop edilmesi ters sırada (yani örneğimizde ``c``, ``b``, ``a`` sırasına göre) yapılacaktır.
+
+Rust'ta argümanlardan parametre değişkenlerine atamaların soldan-sağa yapılacağı garanti edilmiştir. Halbuki
+C'de bu durumun *belirsiz (unspecified)* bırakıldığını anımsayınız.
+
+Ödünç Alma (Borrowing)
+----------------------
+
+Rust'ta bir değişkenin adresi alınarak bir referansa atandığında bu durum bir taşıma anlamına gelmemektedir. Bu
+duruma Rust'ta *ödünç alma (borrowing)* denilmektedir. (Ödünç alma günlük hayatta *bir şeyi birisinden geçici
+olarak alma* anlamına geldiğine dikkat ediniz.) Bir değişkenin adresi bir referansa atandığında o değişkenin
+sahipliği devredilmez yani değişken taşınmaz, dolayısıyla değişken bu işlemden sonra kullanılabilir. Örneğin:
+
+.. code-block:: rust
+
+   let s = Sample::new(10, 20);
+   let r: &Sample;
+
+   r = &s;
+
+   r.disp();
+   s.disp();
+
+Burada biz ``r = &s`` atamasıyla ``s``'in sahipliğini devretmedik. Yalnızca ``r`` onu ödünç aldı. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+
+       foo(s);
+
+       s.disp();       // error! s taşındı
+   }
+
+   fn foo(k: Sample) {
+       k.disp();
+   }
+
+Burada ``s`` değişkeni ``foo`` fonksiyonunun ``k`` parametre değişkenine taşınmıştır. Artık akış ``foo``
+fonksiyonun ana bloğunun sonuna geldiğinde ``k`` drop edilecektir ve ``s`` de çağrı sonrasında artık
+kullanılamayacaktır. Ancak örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+
+       foo(&s);
+
+       s.disp();       // geçerli
+   }
+
+   fn foo(k: &Sample) {
+       k.disp();
+   }
+
+Burada ``s`` taşınmamıştır, ``foo`` fonksiyonu ``s``'yi ödünç almıştır. Akış ``foo`` fonksiyonun ana bloğunu
+bitirdiğinde bir drop işlemi yapılmayacaktır. Çünkü referanslar drop edilmemektedir, değişkenler ve değerler drop
+edilmektedir. Örneğimizde çağrı bittikten sonra ``s`` değişkeni kullanılabilir. Zaten *The Rust Reference*
+dokümanlarında ``&``, ``&mut`` operatörlerine *ödünç alma operatörleri (borrow operators)* denilmektedir.
+
+Yapıların ve ``enum`` türlerinin metotlarında da aynı durum söz konusudur. Eğer bir metodun parametresi ``self``
+ise bu metot çağrıldığında bir taşıma işlemi gerçekleşir. Artık böyle bir metodu çağırdıktan sonra ilgili
+değişkeni kullanamayız. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+            Sample { a, b }
+       }
+
+       fn foo(self) {
+           println!("Sample::foo");
+       }
+
+       fn disp(&self) {
+           println!("{} {}", self.a, self.b);
+       }
+   }
+   //...
+
+   let s = Sample::new(10, 20);
+
+   s.foo();
+   s.disp();           // error!
+
+Burada ``s.foo()`` çağrısı ile ``s`` değişkeni ``self`` parametre değişkenine taşınmıştır. Akış ``foo``
+metodunun ana bloğunun sonuna geldiğinde değişken drop edilecektir. ``s`` değişkeni taşındığı için artık
+``foo`` çağrısından sonra kullanılamayacaktır.
+
+Görüldüğü gibi metotların ilk parametrelerinin ``self`` olması taşımaya yol açmaktadır. Bu nedenle metotların
+birinci parametreleri özel durumlar dışında hep ``&self`` ya da ``&mut self`` biçiminde olur. Böyle metotları
+çağırdığımızda sahip devredilmeyecek metot değişkeni ödünç alacaktır. Metot bittiğinde biz de değişkeni
+kullanmaya devam edebiliriz.
+
+Eşzamanlı Programlama ve Ödünç Alma
+-----------------------------------
+
+Rust'ın en önemli özelliklerinden birinin birden fazla akışa sahip (concurrent) programlarda güvenli bir ortam
+sunması olduğunu belirtmiştik. Birden fazla akış ile programlamada (tipik olarak çok thread'li programlamayı
+kastediyoruz) akışların aynı nesneye erişmesi durumunda senkronizasyon sorunları ortaya çıkabilmektedir. Bu tür
+durumlarda eğer ilgili veri yapısı senkronizasyon nesneleriyle korunmazsa veri yapısının tutarlılığı bozulabilir,
+bunun sonucu olarak da programlar yanlış çalışabilir ya da çökebilir. Örneğin bir bağlı liste iki farklı thread
+tarafından kullanılıyor olsun. Bu iki thread bağlı liste üzerinde arama yapıyorsa herhangi bir sorun ortaya
+çıkmaz. Ancak thread'lerden biri bu bağlı listeye eleman insert ederken diğer thread'in bu bağlı liste üzerinde
+arama yapması bozulmaya yol açabilir. Thread'lerden birinin eleman insert ettiği sırada diğer thread'in de
+eleman insert etmesi ya da eleman silmesi de bozulmaya yol açabilecektir. Burada ortak erişilen veri yapısı
+üzerinde değişiklik yapan işlemlere *yazma işlemi*, onun üzerinde değişiklik yapmayan işlemlere de *okuma
+işlemi* denilmektedir. O halde birden fazla thread'in aynı veri yapısı üzerinde okuma yapmasında bir sakınca
+yoktur. Ancak bir thread yazma yaparken herhangi bir thread'in okuma ya da yazma yapması bozucu etkiye yol
+açabilmektedir. Senkronizasyon dünyasında bu sorunu çözmek için kullanılan senkronizasyon nesnelerine *okuma
+yazma kilitleri (reader-writers locks)* denilmektedir.
+
+Rust'ın sahiplik kavramı zaten aynı nesneye birden fazla yerden erişilmesine izin vermemektedir. Dolayısıyla
+Rust'ta programcı istemeden bu tür hataları zaten yapamamaktadır. Ancak önceki paragrafta değişkenlerin ve
+değerlerin ödünç alınabileceğini de görmüştük. Eğer ödünç alma ``mut`` bir referansla yapılırsa bu durum aynı
+değişkene ya da değere birden fazla yerden yazma yapılabileceği anlamına gelmektedir. İşte Rust'ta izleyen
+paragraflarda açıklayacağımız bazı kurallarla bu durumun da önüne geçilmiştir.
+
+Ödünç Alma Kuralları
+--------------------
+
+Rust'ta bir değişkenin adresi ``mut`` olmayan birden fazla referansa atanabilir. Bu referanslar nesneler
+üzerinde değişiklik yapamadığı için bir soruna yol açma potansiyeli de oluşturmamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let mut s = Sample::new(10, 20);
+   let r1: &Sample;
+   let r2: &Sample;
+
+   r1 = &s;
+   r2 = &s;
+
+Burada ``s`` değişkenin adresi hem ``r1`` referansına hem de ``r2`` referansına atanmıştır. Bu durum bir
+sakıncaya yol açmayacaktır. Çünkü bu referanslarla ancak nesne üzerinde okuma işlemleri yapılabilir. Fakat bir
+değişkenin adresi ``mut`` bir referansa atanmışsa artık o değişkenin başka bir yerden değiştirilebilmesi mümkün
+hale gelecektir. Bu da potansiyel senkronizasyon sorunlarının oluşmasına yol açabilecektir. Örneğin:
+
+.. code-block:: rust
+
+   let mut s = Sample::new(10, 20);
+   let r1: &mut Sample;
+   let r2: &Sample;
+
+   r1 = &mut s;
+   r2 = &s;                            // error!
+
+   println!("{} {}", r1.a, r2.a)
+
+Burada aynı değişkeni gösteren ``mut`` bir referans ile ``mut`` olmayan bir referans birlikte kullanılmaya
+çalışılmıştır.
+
+Rust'ta bir referans bir blok içerisinde bildirilmişse (fonksiyonun parametre değişkenlerinin de blok
+içerisinde bildirildiği kabul ediliyor) onun faaliyet alanı o referansa atama yapıldığı yerde başlamakta ve o
+blokta son kez kullanıldığı yerde bitmektedir. Başka bir deyişle yerel referansların faaliyet alanları onların
+son kullanıldıkları yerde sona ermektedir.
+
+İşte Rust'ta bu tür sorunları derleme aşamasında engellemek için üç kural oluşturulmuştur:
+
+1) Bir değişkenin adresi ``mut`` bir referansa atandıktan sonra artık o ``mut`` referansın faaliyet alanı
+   boyunca o değişken herhangi bir biçimde kullanılamaz ve o değişkenin adresi herhangi bir biçimde ``mut`` olan
+   ya da ``mut`` olmayan başka bir referansa atanamaz.
+
+2) Bir değişkenin adresi ``mut`` olmayan bir referansa atandıktan sonra artık o ``mut`` olmayan referansın
+   faaliyet alanı boyunca o değişkenin adresi ``mut`` bir referansa atanamaz ve değişken üzerinde değişiklik
+   yapılamaz. Ancak o değişken üzerinde okuma işlemleri yapılabilir.
+
+3) Bir referans ya da gösterici yoluyla (bu referanslar ``mut`` olabilir ya da olmayabilir) ``*`` operatörü
+   kullanılarak ``Copy`` türünden olmayan türlere ilişkin değerlerin ya da değişkenlerin sahipliği devredilemez.
+
+Bazı örneklerle bu kuralı açıklayalım. Aşağıdaki kod bir derleme hatasına yol açmayacaktır:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut s = Sample::new(10, 20);
+       let r1: &Sample;
+       let r2: &mut Sample;
+
+       r1 = &s;                            // r1 referansının faaliyet alanı burada bitiyor
+       r2 = &mut s;
+
+       println!("{} {}", r2.a, r2.b);      // geçerli
+   }
+
+Burada ``r1``'in faaliyet alanı henüz ``r2``'ye atama yapılmadan zaten bitmiştir. Dolayısıyla ``r2``'nin
+faaliyet boyunca ``s`` değişkenin adresi başka bir referansa atanmış değildir. Burada ``r1`` ile ``r2``'nin
+faaliyet alanlarının çakışmadığına dikkat ediniz. Bu durum yukarıda belirttiğimiz iki kurala da aykırı değildir.
+Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut s = Sample::new(10, 20);
+       let r1: &Sample;
+       let r2: &mut Sample;
+
+       r1 = &s;
+       r2 = &mut s;
+
+       println!("{} {}", r1.a, r1.b);      // error!
+   }
+
+Burada ``r1`` referansının faaliyet alanı ``println!`` çağrısının yapıldığı yerde bitmektedir. ``r2``
+referansının faaliyet alanı ise atamadan sonra bitmektedir. Burada ``r1`` ve ``r2``'nin faaliyet alanları
+çakışmaktadır. Bu durum ikinci maddeye aykırıdır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut s = Sample::new(10, 20);
+       let r1: &mut Sample;
+       let r2: &Sample;
+
+       r1 = &mut s;                            // r1'in faaliyet alanı burada bitiyor
+       r2 = &mut s;
+
+       println!("{} {}", r2.a, r2.b);        // geçerli
+   }
+
+Bu örnekte de yukarıdaki iki maddeye aykırı bir durum yoktur. ``r1`` ve ``r2`` referansları çakışık faaliyet
+alanında kullanılmamıştır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut s = Sample::new(10, 20);
+
+       {
+           let r = &mut s;
+           println!("{} {}", r.a, r.b);        // geçerli
+       }
+
+       println!("{} {}", s.a, s.b);            // geçerli
+   }
+
+Buradaki kodda da yukarıdaki iki kurala aykırılık yoktur. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut s = Sample::new(10, 20);
+       let r = &mut s;
+
+       println!("{} {}", r.a, r.b);            // r'nin faaliyet alanı burada bitiyor
+       println!("{} {}", s.a, s.b);            // geçerli
+   }
+
+Buradaki kod da geçerlidir. Çünkü referans son kullanıldığı yerde faaliyet alanını bitirmektedir. Dolayısıyla biz
+değişkenin adresini ``mut`` bir referansa atadığımızda o ``mut`` referansın faaliyet alanı boyunca o değişkene
+erişmemiz durumdayız.
+
+Burada Rust derleyicisi ile ilgili bir sorundan da bahsetmek istiyoruz. Aşağıdaki örneğin derlenmemesi gerekir.
+Ancak muhtemelen Rust derleyicisindeki bir sorundan dolayı derleniyor:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut a = 100;
+       let r1: &mut i32;
+       let r2: &mut i32;
+
+       r1 = &mut a;
+       r2 = r1;                // error olmalı ama Rust derleyicisi yanlışlıkla derliyor
+       println!("{}", *r1);
+   }
+
+Şimdi de ikinci kural için örnek verelim:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut s = Sample::new(10, 20);
+       let r: &Sample;
+
+       r = &s;
+       s.a = 10;               // error
+
+       println!("{}", r.a);
+   }
+
+Bu kod ikinci kuralı ihlal etmektedir. Bir değişkenin adresi ``mut`` olmayan bir referansa atandıktan sonra o
+referansın faaliyet alanı boyunca artık o değişken üzerinde değişiklik yapılamaz. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut s = Sample::new(10, 20);
+
+       foo(&s);
+       bar(&mut s);
+
+       s.a = 100;
+       s.b = 200;
+   }
+
+   fn foo(s: &Sample) {
+       //...
+   }
+
+   fn bar(s: &mut Sample) {
+       //...
+   }
+
+Bu örnekte de yukarıdaki iki kurala aykırı bir durum yoktur. Fonksiyonun parametre değişkenleri o fonksiyon
+içerisinde faaliyet göstermektedir.
+
+Üçüncü kuralda bir referans ya da gösterici yoluyla ``*`` operatörü kullanılarak ``Copy`` türünden olmayan
+türlerin sahipliğinin devredilemeyeceğini belirtmiştik. Şimdi buna bir örnek verelim:
+
+.. code-block:: rust
+
+   struct Sample {
+       val: i32
+   }
+   //...
+
+   let mut s: Sample = Sample {val: 10};
+   let r: &Sample = &s;
+   let k: Sample;
+
+   k = *r;     // error
+
+Burada ``r`` referansı yoluyla ``r`` referansının gösterdiği yerdeki değişkenin sahipliği devredilmeye
+çalışılmıştır. Buradaki atama işlemi error oluşturacaktır. Örneğin iki ``Sample`` referansının gösterdiği
+yerlerdeki değerlerin aşağıdaki gibi yer değiştirilmesi de mümkün değildir:
+
+.. code-block:: rust
+
+   fn swap(a: &mut Sample, b: &mut Sample) {
+       let tmp = *a;       // error!
+       *a = *b;            // error!
+       *b = tmp;
+   }
+
+``Copy`` türünden olmayan referansların gösterdiği yerdeki değerlerin atanmasında bir sorun yoktur.
+
+Kuralların ``Copy`` Türleri İçin Geçerliliği
+--------------------------------------------
+
+Referanslarla ilgili bu ödünç alma kurallarının referansların ``Copy`` türünden olup olmaması ile bir ilgisi
+yoktur. Yani referanslar ``Copy`` türünden olsa da yukarıdaki kurallar geçerlidir. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut a = 10;
+       let r = &a;
+
+       a = 20;
+       println!("{}", *r);         // error!
+   }
+
+Burada değişkenin adresi ``mut`` olmayan bir referansa atandıktan sonra referansın faaliyet alanı boyunca
+değişkenin değiştirilmemesi gerekirdi. Bu durum ikinci kuralı ihlal etmiştir. Bu kuralların ``Copy`` türleri
+için de geçerli olduğuna dikkat ediniz.
+
+Göstericilerle Kopyalama, ``Copy`` Türleri ve Ömür (Lifetime)
+=============================================================
+
+Göstericiler ve Ödünç Alma Kuralları
+------------------------------------
+
+Rust'taki göstericiler (raw pointers) ``unsafe`` bir bağlamda kullanıldığı için yukarıda açıkladığımız
+referansların ödünç alınması kurallarına tabi değildir. Biz bir değişkenin adresini istediğimiz kadar ``mut`` olan
+ya da ``const`` olan göstericiye atayıp ``unsafe`` bağlamda o göstericilerin gösterdiği değişkenlere ya da
+değerlere okuma ya da yazma amaçlı erişebiliriz. Yani Rust'ta göstericiler üzerinde bu bağlamda bir *ödünç alma
+kontrolü (borrow checking)* uygulanmamaktadır. Tabii daha önceden de belirttiğimiz gibi Rust'ta zorunlu
+olmadıkça göstericiler yerine hep referanslar tercih edilmelidir. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut s = Sample::new(10, 20);
+       let ps1: *const Sample;
+       let ps2: *mut Sample;
+
+       ps1 = &s;
+       ps2 = &mut s;
+
+       unsafe {
+           println!("{}, {}", (*ps1).a, (*ps1).b);     // geçerli
+           println!("{}, {}", (*ps2).a, (*ps2).b);     // geçerli
+           (*ps2).a = 30;                              // geçerli
+           (*ps2).b = 40;                              // geçerli
+           s.disp();                                   // geçerli
+       }
+   }
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+           println!("Sample created: {}, {}", a, b);
+           Sample { a, b }
+       }
+
+       fn disp(&self) {
+           println!("{} {}", self.a, self.b);
+       }
+   }
+
+   impl Drop for Sample {
+       fn drop(&mut self) {
+           println!("Sample dropped: {}, {}", self.a, self.b );
+       }
+   }
+
+Görüldüğü gibi göstericiler söz konusu olduğunda yukarıda belirttiğimiz referanslara ilişkin iki kurala uygunluk
+derleyici tarafından denetlenmemektedir. Bu örnekteki göstericiler yerine referanslar kullanılmış olsaydı derleme
+sırasında error oluşurdu. Ancak yukarıda belirttiğimiz üçüncü kural göstericiler söz konusu olduğunda da
+uygulanmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut s = Sample(10);
+       let p: *mut Sample;
+
+       p = &mut s;
+
+       unsafe {
+           let k: Sample;
+           k = *p;         // error!
+       }
+   }
+
+   #[derive(Debug)]
+   struct Sample(i32);
+
+``unsafe`` bir blokta dahi göstericinin gösterdiği yerdeki değişken ya da değerin türü ``Copy`` türünden
+değilse sahiplik devri yapılamamaktadır.
+
+``read`` ve ``write``: Bit Düzeyinde Kopyalama
+----------------------------------------------
+
+Bir gösterici yoluyla o göstericinin gösterdiği yerdeki değeri taşıma semantiğini kullanmadan bit bit kopyalamak
+için ``std::ptr`` modülündeki ``read`` fonksiyonu ya da doğrudan gösterici (pointer) türünün ``read`` metodu
+kullanılmaktadır. Bunların parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub const unsafe fn read<T>(src: *const T) -> T
+   pub const unsafe fn read(self) -> T
+
+Bu işlem bir taşıma (move) yani sahip devri anlamına gelmediği için taşımanın mümkün olmadığı bağlamlarda
+kullanılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut s = Sample(10);
+       let p: *mut Sample;
+
+       p = &mut s;
+
+       unsafe {
+           let k: Sample;
+           k = p.read();       // geçerli
+       }
+   }
+
+   #[derive(Debug)]
+   struct Sample(i32);
+
+Burada ``k = *p`` işlemi geçersiz olduğu halde ``k = p.read()`` işlemi geçerlidir. Aynı işlemi ``std::ptr``
+modülündeki ``read`` fonksiyonuyla da yapabilirdik:
+
+.. code-block:: rust
+
+   k = std::ptr::read(p);
+
+Bir gösterici yoluyla göstericinin gösterdiği yere atama yapmak hedefte drop işleminin gerçekleşmesine yol
+açmaktadır. Eğer hedefte bu işlemin yapılması istenmiyorsa bu durumda ``ptr`` modülündeki ``write`` fonksiyonu ya
+da gösterici türünün ``write`` metodu kullanılmaktadır. Bunların parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub const unsafe fn write(self, val: T)
+   pub const unsafe fn write<T>(dst: *mut T, src: T)
+
+Bunlar hedefe bitsel kopyalama yapar ancak hedefte drop işleminin yapılmasını engeller. Örneğin ``s`` ve ``p``
+``Copy`` türünden olmayan türlere ilişkin olsun:
+
+.. code-block:: rust
+
+   unsafe {
+      *p = s;
+   }
+
+Burada ``p`` göstericisinin gösterdiği yerdeki değer önce drop edilir, ondan sonra sahiplik devri yapılır. Ancak
+örneğin:
+
+.. code-block:: rust
+
+   unsafe {
+      p.write(s);      // s'in içeriği p'ye yazılıyor
+   }
+
+Burada ``p`` göstericisinin gösterdiği yere bit düzeyinde yazma yapılmaktadır. Dolayısıyla ``*p`` artık drop
+edilmeyecektir. ``write`` metodunun parametresinin aktarılacak değer türünden olduğuna (referans olmadığına)
+dikkat ediniz. Yani örneğimizde ``s`` eğer ``Copy`` türünden değilse sahipliğini devredecektir. Bu işlemi
+``std::ptr`` modülündeki ``write`` fonksiyonuyla da yapabilirdik:
+
+.. code-block:: rust
+
+   unsafe {
+      std::ptr::write(p, s);
+   }
+
+``std::ptr::copy`` ile Blok Kopyalama
+-------------------------------------
+
+Rust'ta bir adresten başka bir adrese kopyalama yapmak için ``std::ptr`` modülünün fonksiyonları ve gösterici
+türünün metotları kullanılmaktadır. ``std::ptr::copy`` fonksiyonu C'deki ``memmove`` fonksiyonunun semantiğini
+uygulamaktadır. Yani bu fonksiyon iki adres arasında kopyalama yapar, ancak kopyalanacak alanlar çakışıksa
+kopyalamayı duruma göre baştan ya da sondan itibaren yapmaktadır. Fonksiyonun parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub const unsafe fn copy<T>(src: *const T, dst: *mut T, count: usize)
+
+Kopyalamanın yönüne dikkat ediniz. Bu yön C'deki ``memmove`` yönün tersidir. Fonksiyon aynı türden iki adresi
+parametre olarak almaktadır. Eğer adresler farklı türdense programcı tarafından dönüştürülmelidir. Tabii
+fonksiyonun sahiplik mekanizmasıyla bir ilgisi yoktur. Örneğin:
+
+.. code-block:: rust
+
+   let a: [i32; 5] = [10, 20, 30, 40, 50];
+   let mut b: [i32; 5] = [0; 5];
+
+   unsafe {
+       std::ptr::copy(&a, &mut b, 1);
+   }
+   println!("{:?}", b);        // [10, 20, 30, 40, 50]
+
+Burada ``copy`` fonksiyonuna geçirilen her iki argüman da ``[i32; 5]`` türünden dizinin adresidir. Toplamda bir
+dizi kopyalanmaktadır. Anımsayacağınız gibi Rust'ta bir değişkenin adresinin alınabilmesi için ona bir değer
+atanmış olması gerekmektedir. Eğer bir değer atamadan adres alınmak isteniyorsa ``std::mem`` modülündeki
+``MaybeUninit`` yapısı kullanılmalıdır. ``MaybeUninit`` türünü ``std::mem`` modülünü anlattığımız bölümde ele
+alacağız. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+   //...
+
+   let s = Sample { a: 10, b: 20 };
+   let mut k = Sample {a: 0, b: 0 };
+
+   unsafe {
+       std::ptr::copy(&s, &mut k, 1);
+   }
+
+   println!("{}, {}", s.a, s.b);       // 10, 20
+   println!("{}, {}", k.a, k.b);       // 10, 20
+
+Burada ``s`` yapı değişkenin içerisindekiler ``k`` yapı değişkenine kopyalanmaktadır. ``copy`` fonksiyonunun
+sahiplik ile bir ilgisi yoktur. Yani yukarıdaki ``copy`` işlemi ile önce ``k`` drop edilmeyecektir. Tabii
+kopyalamadan sonra içerisinde aynı değer olan iki ayrı yapı değişkeni söz konusu olacaktır. Dolayısıyla bu iki
+değişken de faaliyet alanını bitirdiğinde drop edilecektir.
+
+``copy`` işleminde kaynak hedef türün aynı türden olması gerektiğine dikkat ediniz. Örneğin:
+
+.. code-block:: rust
+
+   let a: i32 = 123;
+   let mut b: u32 = 0;
+
+   unsafe {
+       std::ptr::copy(&a, &mut b, 1);      // error!
+   }
+
+Burada adres türleri farklıdır. Bu tür durumlarda tür dönüştürmesinin uygulanması gerekmektedir:
+
+.. code-block:: rust
+
+   unsafe {
+       std::ptr::copy(&a as *const i32 as *const u32, &mut b, 1);
+   }
+
+``&a`` ifadesinin bir referans belirttiğini, referansların da farklı bir gösterici türlerine
+dönüştürülemediğini anımsayınız. Bu nedenle dönüştürme iki kez ``as`` operatörü kullanılarak yapılmıştır. Artık
+burada her iki argüman da aynı ``u32`` türündendir. Tabii burada hedef tür de kaynak türe dönüştürülebilirdi.
+Ancak kaynak türün hedef türe dönüştürülmesi daha anlamlıdır:
+
+.. code-block:: rust
+
+   unsafe {
+       std::ptr::copy(&a,  &mut b as *mut u32 as *mut i32, 1);
+   }
+
+Örneğin biz ``[u8; 4]`` türünden 4 byte'lık bir dizinin içerisindekileri ``i32`` türünden bir değişkene ``copy``
+fonksiyonuyla şöyle kopyalayabiliriz:
+
+.. code-block:: rust
+
+   let bytes: [u8; 4] = [0x12, 0x34, 0x56, 0x78];
+   let mut b: i32 = 0;
+
+   unsafe {
+       std::ptr::copy(bytes.as_ptr(), &mut b as *mut i32 as *mut u8, 4);
+   }
+   println!("{:x} ", b);       // 78 56 34 12
+
+Dizilerin başlangıç adreslerinin gösterici biçiminde elde edilmesi işleminin ``as_ptr`` ve ``as_mut_ptr``
+metotlarıyla yapıldığını anımsayınız.
+
+``copy_nonoverlapping`` Fonksiyonu
+----------------------------------
+
+``std::ptr`` modülünün ``copy_nonoverlapping`` fonksiyonu C'deki ``strcpy`` semantiğini uygulamaktadır. Yani bu
+fonksiyon çakışık bloklar için kopyalama yönünü tespit etmek amacıyla karşılaştırmalar yapmaz. Doğrudan blokları
+baştan itibaren kopyalar. Eğer blokların çakışık olmadığı garanti ediliyorsa bu durumda ``copy_nonoverlapping``
+fonksiyonun kullanılması daha az işlem yapılacağı için daha uygundur. Yukarıdaki örneklerdeki bloklar çakışık
+değildir. Dolayısıyla yukarıdaki örneklerde ``copy_nonoverlapping`` fonksiyonun kullanılması daha uygundur.
+Fonksiyonun parametrik yapısı şöyledir:
+
+.. code-block:: rust
+
+   pub const unsafe fn copy_nonoverlapping<T>(src: *const T, dst: *mut T, count: usize)
+
+Görüldüğü gibi fonksiyonun parametrik yapısı ``copy`` fonksiyonuyla aynıdır. Örneğin biz bir diziye bir eleman
+insert etmek isteyelim. Burada bir kaydırma yapmamız gerekir. Bu da çakışık blokların kopyalanması anlamına
+gelmektedir. Bu tür durumlarda ``copy`` fonksiyonunu kullanmalısınız. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: [i32; 6] = [10, 20, 30, 40, 50, 0];
+
+   unsafe {
+       std::ptr::copy(&a[2], &mut a[3], 3);
+   }
+   a[2] = 100;
+   println!("{:?}", a);
+
+Burada dizinin ikinci indisli elemanına insert yapılmıştır.
+
+Modern derleyicilerde blok kopyalamaları işlemcinin sunduğu bazı özel makine komutlarıyla sağlanabilmektedir. Bu
+makine komutları da çakışık bloklarda düzgün çalışabilmektedir. Dolayısıyla derleyicinizde çakışık bloklarda
+``copy`` ile ``copy_nonoverlapping`` arasında bir farklılık göremezseniz şaşırmayınız.
+
+``copy_to`` ve ``copy_from`` Metotları
+--------------------------------------
+
+Blok kopyalama işlemleri aynı zamanda gösterici türünün ``copy_to``, ``copy_to_nonoverlapping``, ``copy_from`` ve
+``copy_from_nonoverlapping`` metotlarıyla da yapılabilmektedir. Bu metotların parametrik yapıları şöyledir:
+
+.. code-block:: rust
+
+   pub const unsafe fn copy_to(self, dest: *mut T, count: usize)
+   pub const unsafe fn copy_to_nonoverlapping(self, dest: *mut T, count: usize)
+   pub const unsafe fn copy_from(self, src: *const T, count: usize)
+   pub const unsafe fn copy_from_nonoverlapping(self, src: *const T, count: usize)
+
+Burada semantik yukarıda açıkladığımız ``std::ptr::copy`` ve ``std::ptr::copy_nonoverlapping`` fonksiyonlarında
+olduğu gibidir. Örneğin:
+
+.. code-block:: rust
+
+   let mut a: [i32; 6] = [10, 20, 30, 40, 50, 0];
+   let pi32: *mut i32;
+
+   pi32 = &mut a[2];
+   unsafe {
+       pi32.copy_to(&mut a[3], 3);
+   }
+   a[2] = 100;
+   println!("{:?}", a);
+
+Burada yukarıdaki işlem gösterici türünün ``copy_to`` metoduyla yapılmıştır. ``pi32`` göstericisinin dizinin
+2'inci indisli elemanın başlangıç adresini gösterdiğine dikkat ediniz. Aslında işlem ``copy_from`` metoduyla da
+yapılabilirdi:
+
+.. code-block:: rust
+
+   let mut a: [i32; 6] = [10, 20, 30, 40, 50, 0];
+   let pi32: *mut i32;
+
+   pi32 = &mut a[3];
+   unsafe {
+       pi32.copy_from(&mut a[2], 3);
+   }
+   a[2] = 100;
+   println!("{:?}", a);
+
+``Copy`` ve ``Clone`` Türleri
+-----------------------------
+
+Biz yapı ve ``enum`` türlerinin default olarak taşınan türler olduğunu belirtmiştik. Aslında bu default durum
+değiştirilebilmektedir. Yani biz istersek bir yapıyı ``Copy`` türü haline getirebiliriz. Böylece o türden bir
+yapı değişkenini aynı türden bir yapı değişkenine atadıktan sonra kaynak değişkeni kullanmaya devam
+edebiliriz. Yani taşıma semantiğini devre dışı bırakabiliriz. Bu işlem açıkça yapıya da ``enum`` türüne
+``#[derive(Clone, Copy)]`` özniteliğinin iliştirilmesiyle sağlanmaktadır. Bu öznitelik ilgili tür için ``Copy``
+ve ``Clone`` trait desteğinin derleyici tarafından otomatik olarak verileceğini belirtmektedir. ``Copy``
+trait'i aslında ``Clone`` trait'inden türetilmiştir. (Rust'ta yapılar ve ``enum`` türleri için türetme kavramı
+yoktur. Ancak trait'ler birbirinden türetilebilmektedir.) Örneğin:
+
+.. code-block:: rust
+
+   #[derive(Clone, Copy)]
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   fn main() {
+       let s = Sample {a: 10, b: 20};
+       let k: Sample;
+
+       k = s;                               // bu bir taşıma değil kopyalama
+
+       println!("{}, {}", s.a, s.b);       // geçerli
+       println!("{}, {}", k.a, k.b);       // geçerli
+   }
+
+Burada ``Sample`` yapısına ``#[derive(Clone, Copy)]`` özniteliği iliştirilerek yapının taşınabilirliği devre
+dışı bırakılıp onun ``Copy`` türünden olması sağlanmıştır. Artık bir ``Sample`` değişkenini başka bir ``Sample``
+değişkenine atadığımızda her iki değişkeni de kullanmaya devam edebiliriz. Örneğimizdeki atamaya dikkat ediniz:
+
+.. code-block:: rust
+
+   k = s;
+
+   println!("{}, {}", s.a, s.b);       // geçerli
+   println!("{}, {}", k.a, k.b);       // geçerli
+
+Artık ``Sample`` yapısı ``Copy`` türünden olduğu için atamadan sonra ``s`` de kullanılabilmektedir. Eğer yapı
+tanımlamasının başındaki özniteliği kaldırsaydık bu atamadan sonra ``s``'yi kullanamazdık.
+
+Java ve C# gibi dillerde türemiş arayüz zaten taban arayüzün metotlarına da sahip olmaktadır. Bu dillerde bir
+sınıf türemiş arayüzü desteklediğinde zaten o sınıf örtük olarak (implicitly) taban arayüzü de desteklemiş gibi
+olmaktadır. Bu dillerden geçen kişiler buradaki özniteliklendirmede ``Clone`` trait'inin belirtilmesinin gereksiz
+olduğunu düşünebilmektedir. Ancak Rust tasarımında her zaman bir şeyin açıkça (explicitly) belirtilmesi tercih
+edilmiştir. Bu prensip Rust'ta İngilizce *explicit is better than implicit* deyişiyle ifade edilmektedir. Ancak
+Rust'ta taban ve türemiş trait'ler ``derive`` özniteliğinde herhangi bir sırada belirtilebilirler. Yani
+``#[derive(Clone, Copy)]`` özniteliği ile ``#[derive(Copy, Clone)]`` özniteliği tamamen eşdeğerdir.
+
+``Copy`` trait'i ``std::marker`` modülünde, ``Clone`` trait'i ise ``std::clone`` modülündedir. Ancak standart
+prelude içerisinde bu isimler ``use`` edildiği için biz niteliklendirme yapmadan da ``Copy`` ve ``Clone``
+isimlerini doğrudan kullanabilmekteyiz.
+
+Daha önceden de belirttiğimiz gibi ``derive`` özniteliğinde belirtilen trait'lerin metotları derleyici tarafından
+ilgili tür için otomatik olarak yazılmaktadır. ``Copy`` trait'i ``Clone`` trait'inden türetildiği için bütün
+``Copy`` türleri aynı zamanda klonlanabilmektedir. Bu konu ileride trait'ler konusunda ayrıca ele alınacaktır.
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample {a: 10, b: 20};
+       let k: Sample;
+
+       k = s;
+
+       println!("{}, {}", s.a, s.b);       // geçerli
+       println!("{}, {}", k.a, k.b);       // geçerli
+   }
+
+   #[derive(Clone, Copy)]
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+``#[derive(Clone, Copy)]`` Özniteliğinin Koşulları
+--------------------------------------------------
+
+Bir yapı ya da ``enum`` türüne ``#[derive(Clone, Copy)]`` özniteliğinin iliştirilmesi için o yapı ya da ``enum``
+türünün tüm alanlarının ya da varyantlarının bu trait'leri destekliyor olması gerekir. Başka bir deyişle ancak
+alanları ya da varyantları ``Copy`` türünden olan yapılara ve ``enum`` türlerine ``#[derive(Clone, Copy)]``
+özniteliği iliştirilebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   #[derive(Clone, Copy)]
+   struct Person {
+       name: String,           // error!
+       no: i32
+   }
+
+Buradaki ``Person`` yapısına biz ``#[derive(Clone, Copy)]`` özniteliğini iliştiremeyiz. Çünkü yapının ``name``
+alanı ``Copy`` türünden değildir. Tabii bir yapının bir alanı başka bir yapı türünden olabilir. Bu durumda
+``#[derive(Clone, Copy)]`` özniteliğinin iliştirilmesi için özyinelemeli olarak yapının bütün alanlarının
+``Copy`` trait'ini destekliyor olması (yani ``Copy`` türünden olması) gerekmektedir. ``i32``, ``i64``, ``f64``,
+``bool`` gibi bütün temel (primitive) türler default olarak ``Copy`` türündendir. Yani bu temel türlerin ``Copy``
+ve dolayısıyla da ``Clone`` trait'ini desteklediğini varsayabilirsiniz.
+
+Aslında biz bir yapı için yalnızca ``#[derive(Copy)]`` özniteliğini iliştirip ``Clone`` trait'ini açıkça da
+destekleyebiliriz. Örneğin aşağıdaki gibi bir tanımlama geçerlidir:
+
+.. code-block:: rust
+
+   #[derive(Copy)]
+   struct Sample {
+       a: i32, b: i32
+   }
+
+   impl Clone for Sample {
+       fn clone(&self) -> Sample {
+           Sample { a: self.a, b: self.b }
+       }
+   }
+
+Trait'ler ilerleyen bölümlerde ayrıntılarıyla ele alınacaktır.
+
+Fonksiyon İmzası (Function Signature)
+-------------------------------------
+
+Rust'ta bir fonksiyonun ya da metodun isminden, parametrik yapısından, geri dönüş değerinin türünden, ömür
+parametrelerinden (lifetime parameters) ve görünürlüğünden (visibility) oluşan bilgi topluluğuna *fonksiyonun
+imzası (function signature)* denilmektedir. İmza (signature) terimi Rust'a özgü değildir. C++, Java ve C# gibi
+dillerde de bu terim benzer anlamda kullanılmaktadır. Ancak C'de imza diye bir terim yoktur. Örneğin:
+
+.. code-block:: rust
+
+   fn foo(a: i32, b: i32) -> i32 {
+       //...
+   }
+
+Burada ``foo`` fonksiyonunun imzası fonksiyonun isminden, parametre türlerinden (isimlerinden değil), geri dönüş
+değerinin türünden oluşmaktadır. Ancak yukarıda da belirttiğimiz gibi henüz görmediğimiz *ömür parametreleri
+(lifetime parameters)* ve *görünürlük (visibility)* gibi fonksiyonun diğer özellikleri de imzaya dahildir. Siz
+bir fonksiyonun ana gövdesinin dışındaki kısmını onun imzası gibi düşünebilirsiniz. Örneğin yukarıdaki
+fonksiyonun imzası şöyledir:
+
+.. code-block:: rust
+
+   fn foo(a: i32, b: i32) -> i32
+
+Rust'ta C'deki gibi bir prototip kavramı yoktur. Rust'taki fonksiyon imzasını C'deki prototip gibi
+düşünebilirsiniz. (C'de (C99 ve sonrasında) çağrılma noktasına kadar tanımlaması yapılmamış olan fonksiyonlar
+için prototip bildiriminin zorunlu olduğunu anımsayınız.) Peki Rust derleyicileri çağrılan fonksiyonun imzasını
+nasıl elde etmektedir? İşte eğer derleme birden fazla kaynak dosyayla tek aşamada yapılıyorsa zaten derleyici
+bütün fonksiyonların ve metotların imzalarını onların tanımlamalarını gördüğü için biliyor durumda olur. Peki ya
+statik ya da dinamik kütüphane içerisinden bir fonksiyon çağrılıyorsa? Bilindiği gibi kütüphaneler derlenmiş
+fonksiyonları barındırmaktadır. Biz bir kütüphaneden bir fonksiyon çağırdığımızda derleyici fonksiyonun içini
+göremez. Ancak imzasını görebilmektedir. Fonksiyonların ve metotların imzaları kütüphane dosyalarının özel
+bölümlerinde (sections) saklanmaktadır. Rust derleyicileri de kütüphane dosyalarının bu özel bölümlerine bakarak
+bu imzaları elde edebilmektedir. Durumu şöyle özetleyebiliriz:
+
+1) Eğer derleme tek aşamada (birden fazla kaynak dosya da söz konusu olabilir) gerçekleştiriliyorsa zaten
+   derleyici bütün fonksiyonların ve metotların imzalarını ve içlerini görmektedir.
+
+2) Eğer kütüphaneden bir fonksiyon ya da metot çağrılıyorsa derleyici bu fonksiyon ya da metodun içini göremez ama
+   imzasını görebilmektedir.
+
+İşte yukarıda açıkladığımız gerekçelerden dolayı Rust'ta prototip kavramı yoktur. Adeta derleyici bu prototip
+bilgisini otomatik elde etmektedir.
+
+Ömür (Lifetime) Kavramı
+-----------------------
+
+Şimdi de taşıma ve ödünç alma mekanizmasıyla ilgili olan ve ismine *ömür (lifetime)* denilen konu üzerinde
+duracağız. Bu konunun benzeri diğer programlama dillerinde bulunmadığı için Rust'a geçiş yapanlar bu konuyu
+anlamakta biraz zorlanabilmektedir.
+
+Kopuk (Dangling) Referanslar
+----------------------------
+
+Bir referansa bir değişkeninin adresinin yerleştirildiğini düşünelim. Eğer referans adresini tuttuğu değişkenden
+daha uzun yaşarsa başka bir deyişle referansın gösterdiği yerdeki değişken referanstan daha önce yok edilirse bu
+durum referansın gösterdiği yere erişildiğinde programın çökmesine yol açabilir. C'de bu tür durumlarla çok sık
+karşılaşılmaktadır. Ancak iyi bir C programcısı zaten bu tür hataları yapmayacak biçimde eğitilmektedir. C'de
+yazılmış aşağıdaki fonksiyona dikkat ediniz:
+
+.. code-block:: c
+
+   int *foo(void)
+   {
+       int a = 10;
+
+       return &a;
+   }
+
+Bu kod C'de derlenir. Ancak bu fonksiyonun geri döndürdüğü adresin kullanılması tanımsız davranışa (undefined
+behavior) yol açacaktır. Örneğin:
+
+.. code-block:: c
+
+   int *pi;
+
+   pi = foo();
+
+Burada ``pi`` göstericisi bellekten yok edilmiş yani artık yaşamayan bir nesnenin eski yerini gösteriyor
+durumdadır. Tabii bu kod bu haliyle bir tanımsız davranış oluşturmaz. Ancak ``pi`` gösterdiği yere erişilmesi
+tanımsız davranışa yol açacaktır. Bu durum programın çökmesiyle sonuçlanabilecektir:
+
+.. code-block:: c
+
+   printf("%d\n", *pi);        // tanımsız davranış
+
+Şimdi de aşağıdaki C koduna dikkat ediniz:
+
+.. code-block:: c
+
+   char s[] = "ankara";
+   char *str;
+
+   str = strchr(s, 'k');
+
+Burada her şey düzgündür. Çünkü ``strchr`` fonksiyonunun geri döndürdüğü adres zaten ``s`` dizisinin bir
+elemanının adresidir. Dolayısıyla fonksiyon sonlandığında hala ``s`` dizisi yaşamaktadır.
+
+İşte Rust'ta bir referansın tahsis edilmemiş bir yeri göstermesi durumu zaten derleme aşamasında derleyici
+tarafından engellenmektedir. Yani Rust programcıları isteseler bile bu tür hataları yapamamaktadır. Rust'ta
+derleyicinin bu tür kopuk (dangling) referansları tespit edebilmesi için *ömür (lifetime)* denilen bir özellik
+dile eklenmiştir.
+
+Rust derleyicileri bir referansın gösterdiği yerdeki değişken ya da değer yok olduğu halde (yani ömrünü
+bitirdiği halde) referansın yaşamaya devam etmesi durumunu derleme aşamasında tespit etmeye çalışmaktadır. Bazen
+bu tespit derleme aşamasında basit bir biçimde yapılabilmektedir. Ancak bazı durumlarda bu tespitin derleme
+aşamasında yapılabilmesi mümkün olamamaktadır. İşte bu tür durumlarda Rust derleyicileri referansın gösterdiği
+yerdeki değişken ya da değerin ömrü hakkında programcının bilgilendirme yapmasını istemektedir. Yani iki durum
+söz konusudur:
+
+1) Derleyici referansın ömrünün onun gösterdiği yerdeki değişken ya da değerin ömründen daha uzun olup
+   olmadığını derleme aşamasında akıl yürütmeyle tespit edebilir ve duruma göre error mesajı verir.
+
+2) Derleyici referansın ömrünün onun gösterdiği yerdeki değişken ya da değerin ömründen daha uzun olup
+   olmadığını derleme aşamasında tespit edemeyebilir. Bu durumda programcı ömür konusunda derleyiciyi
+   bilgilendirmek zorundadır.
+
+Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let r: &i32;
+
+       {
+           let a: i32 = 10;
+           r = &a;
+       }
+       println!("{}", *r);         // error!
+   }
+
+Burada ``a`` değişkeni programın akışı iç bloktan çıktığında yok edilecektir. Görüldüğü gibi referans onun
+gösterdiği değişkenden daha uzun süre yaşamaktadır. Bu durumu Rust derleyicisi kolaylıkla tespit eder ve error
+oluşturur. Programcı da çökebilecek bir programı derleyememiş olur. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let r: &i32;
+
+       r = foo();
+       println!("{}", *r);
+   }
+
+   fn foo() -> &i32
+   {
+       let a: i32 = 10;
+
+       &a              // error!
+   }
+
+Burada da ``a`` değişkeni fonksiyon bittiğinde yok edildiği halde geri döndürülen referans yaşamaya devam
+edecektir. Bu tespit de derleme aşamasında derleyici tarafından kolaylıkla yapılabilmektedir. Dolayısıyla Rust
+derleyicisi bu durumda da error oluşturacak ve program derlenmeyecektir.
+
+Ancak Rust derleyicisi bazı durumlarda referansın yaşam süresinin onun gösterdiği yerdeki değişkenden daha uzun
+olup olmadığı tespitini yapamamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   fn foo(s1: &Sample, s2: &Sample) -> &Sample {           // error!
+       if s1.a + s1.b > s2.a + s2.b {
+           s1
+       }
+       else {
+           s2
+       }
+   }
+
+   #[derive(Debug)]
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+Buradaki ``foo`` fonksiyonu ``Sample`` türünden iki referansı parametre olarak alıp o referanslardan biriyle geri
+dönmektedir. İlk bakışta siz bu kodda *adresi aktarılan değişkenlerin fonksiyon sonlandığında da yaşamaya devam
+ettiğinden dolayı* bir sorun olmadığını düşünebilirsiniz. Ancak eğer derleyici bu fonksiyonu derlerse ve makine
+diline dönüştürürse derleme aşamasında kopuk (dangling) referans kontrolünü gerektiği gibi yapamayabilir. Önce
+buradaki fonksiyonun aşağıdaki gibi çağrıldığını varsayalım:
+
+.. code-block:: rust
+
+   fn main() {
+
+       let s = Sample {a: 10, b: 20};
+       let k = Sample { a: 30, b: 40 };
+       let result: &Sample;
+
+       result = foo(&s, &k);
+
+       println!("{:?}", result);
+   }
+
+Burada referanslarla ilgili kopuk (dangling) bir durum ortaya çıkmayacaktır. Şimdi de fonksiyonun aşağıdaki gibi
+çağrıldığını varsayalım:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample {a: 10, b: 20};
+       let result: &Sample;
+
+       {
+           let k = Sample { a: 30, b: 40 };
+           result = foo(&s, &k);
+       }
+
+       println!("{:?}", result);
+   }
+
+Burada artık kopuk bir referans (dangling reference) sorunu vardır. Şimdi siz *derleyici fonksiyonu derlesin ama
+kopuk referans sorununu da öncekiler gibi derleme aşamasında tespit etsin* diyebilirsiniz. Ancak derleyiciler bu
+programı derlerken ``foo`` fonksiyonun içini göremeyebilir. Örneğin fonksiyon kütüphanenin içerisinde olabilir.
+Bu durumda derleyici fonksiyonun imzasını görür ancak içini göremez. Derleyici bakış açısıyla yukarıdaki koda
+bakıldığında ``foo`` fonksiyonun içi görülmeyebileceği için ``foo`` fonksiyonunun ``s`` ya da ``k``
+referanslarından biriyle geri dönmesi de zorunda değildir. Pekala ``foo`` yaşamakta olan bir değişkenin
+referansıyla da geri dönüyor olabilir. Görüldüğü gibi derleyici ``foo`` fonksiyonun içini görmedikten sonra
+(genel olarak göremeyebilir) fonksiyonunun geri dönüş değerinin kopuk bir referans oluşturup oluşturmayacağını
+anlayamaz. Başka bir deyişle Rust derleyicisi eğer ``foo`` fonksiyonu kütüphane içerisindeyse onun içini göremez,
+yalnızca onun imzasını görebilir. Derleyicinin yalnızca bu fonksiyonun ilk satırını gördüğünü
+varsayabilirsiniz:
+
+.. code-block:: rust
+
+   fn foo(s1: &Sample, s2: &Sample) -> &Sample
+
+Bu imzayı gören derleyici ``foo`` fonksiyonun ``Sample`` türünden bir referansa geri döndüğünü anlar ancak
+``s1`` ya da ``s2``'ye geri döndüğünü anlayamaz.
+
+Ömür Bilgisi (Lifetime Annotation)
+----------------------------------
+
+İşte derleyicilerin yukarıdaki ``foo`` fonksiyonu örneğinde olduğu gibi özellikle geri dönüş değeri referans olan
+fonksiyonlarda geri döndürülen referansın gösterdiği yerdeki değişkenin ya da değerin ömrü konusunda
+bilgilendirilmesi gerekmektedir. Bu bilgilendirme işlemi *ömür bilgisi (lifetime annotation)* denilen özel bir
+sentaksla yapılmaktadır. Ömür bilgisi tek tırnak karakteri ve ona yapışık bir isimden oluşmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   'a
+   'b
+   'life
+   'test
+
+Genellikle Rust programcıları bu ömür bilgilerini ``'a``, ``'b``, ``'c`` gibi alfabenin ilk harfleriyle
+isimlendirmektedir. Ömür bilgilerinin (lifetime annotations) fonksiyonda kullanılmadan önce açısal parantezler
+içerisinde belirtilmesi gerekmektedir. Fonksiyonun açısal parantezleri içerisinde bildirilen ömür bilgilerine
+fonksiyonun *ömür parametreleri (lifetime parameters)* denilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a, 'b>(...) -> ... {
+       //...
+   }
+
+Burada ``foo`` fonksiyonun ``'a`` ve ``'b`` biçiminde iki ömür parametresi vardır.
+
+Ömür bilgileri yalnızca referanslarda kullanılabilmektedir. Referanslar için ömür bilgisi ``&`` atomundan sonra
+ancak tür belirten atomdan önce iliştirilmektedir. Geleneksel olarak ``&`` ile ömür bilgisi bitişik olarak
+yazılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>(a: &'a i32, b: &'a i32) -> &'a i32 {
+       if *a > *b {
+           a
+       }
+       else {
+           b
+       }
+   }
+
+Burada geri dönüş değerine ilişkin referansta ömür bilgisi ``&'a`` biçiminde kullanılmıştır. Yukarıda da
+belirttiğimiz gibi burada ``&`` atomu ile ömür bilgisi olan ``'a`` bitişik yazılmak zorunda değildir. Ancak
+bitişik yazmak bir Rust geleneğidir. Fonksiyon imzalarına ömür bilgisinin de dahil olduğuna dikkat ediniz.
+Yukarıdaki fonksiyonun imzası şöyledir:
+
+.. code-block:: rust
+
+   fn foo<'a>(a: &'a i32, b: &'a i32) -> &'a i32
+
+Eğer buradaki ``foo`` fonksiyonu kütüphanede olsaydı derleyici fonksiyonun içini göremeyecekti ancak imzasını
+görebilecekti.
+
+Girdi ve Çıktı Ömür Bilgileri
+-----------------------------
+
+Fonksiyonun parametrelerindeki ömür bilgilerine *girdi ömür bilgileri (input lifetimes)*, geri dönüş
+değerindeki ömür bilgilerine ise *çıktı ömür bilgileri (output lifetimes)* denilmektedir. Programcı derleyiciye
+*girdi ömür bilgileri ile çıktı ömür bilgileri arasındaki ilişkiyi* açıklamaktadır. Örneğin derleyicinin
+aşağıdaki gibi bir fonksiyonun imzasını gördüğünü düşünelim:
+
+.. code-block:: rust
+
+   fn foo<'a>(a: &'a i32, b: &'a i32) -> &'a i32
+
+Buradaki girdi ve çıktı ömür bilgileri adeta derleyiciye şunları söylemektedir: *Bu fonksiyona adresi geçirilen
+değişkenlerin her ikisinin de ömrü en az geri dönüş değerinin atandığı referansın ömrü kadar olmak zorundadır.
+Eğer bu durum ihlal ediliyorsa derleme aşamasında error oluştur*.
+
+Örneğin fonksiyon şöyle çağrılmış olsun:
+
+.. code-block:: rust
+
+   fn main() {
+       let a = 10;
+       let b = 20;
+       let r: &i32;
+
+       r = foo(&a, &b);
+
+       println!("{}", *r);
+   }
+
+Burada derleyiciye vermiş olduğumuz sözü tutmuş olduk. ``a`` ve ``b`` değişkenleri en az ``r`` referansı kadar
+yaşamaktadır. Burada ``a``, ``b`` ve ``r``'nin aynı ömre sahip olduğuna dikkat ediniz. Şimdi de fonksiyonu
+şöyle çağırmış olalım:
+
+.. code-block:: rust
+
+   fn main() {
+       let r: &i32;
+
+       {
+           let a = 10;
+           let b = 20;
+
+           r = foo(&a, &b);            // error!
+       }
+
+       println!("{}", *r);
+   }
+
+Burada ``a`` ve ``b`` değişkenleri fonksiyonun geri dönüş değerinin atandığı referanstan daha kısa ömürlüdür. Bu
+da yukarıda verilen sözün tutulmadığı anlamına gelmektedir.
+
+Ömür Parametresinin Elimine Edilmesi (Lifetime Elision)
+-------------------------------------------------------
+
+Fonksiyonun geri dönüş değerinin referans olduğu durumda fonksiyonun tek bir referans parametresi varsa bu
+durumda derleyici otomatik olarak geri dönüş değerine ilişkin referansın ömrünü parametre değişkenine geçirilen
+değişkenin ya da değerin ömrü ile ilişkilendirmektedir. Yani bu özel durumda programcının bir ömür parametresi
+kullanmasına gerek kalmamaktadır. Bu tür durumlarda ömür belirtme zorunluluğunun olmamasına *The Rust Reference*
+dokümanlarında *lifetime elision* denilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   fn foo(r: &i32) -> &i32 {           // geçerli
+       //...
+   }
+
+Burada bir ömür parametresinin kullanılmasına gerek yoktur. Bu tanımlama aşağıdakiyle tamamen eşdeğer kabul
+edilmektedir:
+
+.. code-block:: rust
+
+   fn foo<'a>(a: &'a i32) -> &'a i32 {
+       //...
+   }
+
+Bu özel durumda parametre değişkenindeki referans ile geri dönüş değerinde belirtilen referansın aynı türden
+olması zorunlu değildir. Ancak parametrenin referans olması zorunludur. Örneğin:
+
+.. code-block:: rust
+
+   fn foo(a: i32) -> &i32 {        // error!
+       //...
+   }
+
+Burada geri dönüş değeri için ömür belirlemesinin yapılması zorunludur. Bu özel durum kuralında fonksiyonun
+birden fazla parametresi olabilir. Ancak parametrelerin *yalnızca herhangi birinin* referans belirtmesi gerekir.
+Örneğin:
+
+.. code-block:: rust
+
+   fn foo(a: i32, b: &i32) -> &i32 {
+       //...
+   }
+
+Burada da geri dönüş değerine ömür bilgisinin iliştirilmesi gerekmez. Bu tanımlama aşağıdakiyle eşdeğer kabul
+edilmektedir:
+
+.. code-block:: rust
+
+   fn foo<'a>(a: i32, b: &'a i32) -> &'a i32 {
+       //...
+   }
+
+Fonksiyonun geri dönüş değerine bir ömür bilgisi iliştirilmiş olsun. Fonksiyonun bütün referans parametrelerine
+ömür bilgisinin iliştirilmiş olması gerekmez. Ancak fonksiyon ömür bilgisi iliştirilmemiş referansla geri
+döndürülemez. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>(a: &'a i32, b: &i32) -> &'a i32 {
+       a           // geçerli
+   }
+
+Burada fonksiyon ömür bilgisi iliştirilmiş referans parametresiyle geri döndürülmüştür. Ancak örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>(a: &'a i32, b: &i32) -> &'a i32 {
+       b           // error!
+   }
+
+Burada fonksiyon ömür bilgisi iliştirilmemiş referans parametresiyle geri döndürülmüştür. Özetle biz eğer
+fonksiyonumuzu bir referansla geri döndürüyorsak o referansa ömür bilgisinin iliştirilmiş olması gerekmektedir.
+
+Geçici Değişkenler ve Ömür
+--------------------------
+
+Bir referansa geçici bir değişkenin adresi atandığında geçici değişkenin tıpkı C++'ta olduğu gibi referansın
+ömrü kadar yaşadığını, referans ömrünü bitirdiğinde yok edildiğini belirtmiştik. Örneğin:
+
+.. code-block:: rust
+
+   {
+       let r: &Sample = &Sample{a: 10, b: 20};
+       //...
+   }
+
+Burada yaratılan geçici değişken referansın ömrü boyunca yaşamaya devam etmektedir. Tabii referans daha sonra
+daha uzun ömürlü bir referansa atanırsa uzun ömürlü referans bloğun dışında kullanılamaz. Bu tür durumlarda ömür
+kontrolleri ömür bilgisine gereksinim duyulmadan derleyici tarafından yapılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   let k: &Sample;
+   {
+       let r = &Sample { a: 10, b: 20 };
+       println!("{}, {}", r.a, r.b);
+       k = r;
+   }
+   println!("{}, {}", k.a, k.b);       // error!
+
+Geçici değişken bir fonksiyonun içerisinde oluşturuluyorsa tıpkı C++'ta olduğu gibi onun adresi ile geri
+dönülememektedir. Bu tür durumlarda da ömür kontrolü derleyici tarafından ömür bilgisine gereksinim
+duyulmadan yapılabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>() -> &'a Sample {
+       &Sample{a: 10, b: 20}           // error!
+   }
+
+Burada geçici değişkenin adresi fonksiyonun geri dönüş değeri için yaratılan referansa atanmaktadır. Fonksiyon
+çağrısından sonra bu değişken yok edileceği için bu durum error'e yol açmaktadır.
+
+Ancak Rust'ta sabit ifadeleri için özel bir durum söz konusudur. Bir blok içerisinde bir sabit ifadesinin adresi
+bir referansa yerleştirilirse bloktan çıkılsa bile o referans kullanılabilmektedir. Rust derleyicileri bu
+durumda sabit ifadelerini ``static`` ömürlü bir geçici değişkene yerleştirip onun adresini referansa
+yerleştirmektedir. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>() -> &'a i32 {
+       &10             // geçerli
+   }
+
+Burada adresi alınan ifade bir sabit ifadesi olduğu için bu sabit ifadesi statik ömürlü bir değişkene
+yerleştirilmektedir. Dolayısıyla artık bu özel durum geçerlidir. Biz geri döndürülen referansı kullanabiliriz:
+
+.. code-block:: rust
+
+   fn main() {
+       let r: &i32;
+
+       r = foo();
+       println!("{}", *r);
+   }
+
+Parametresiz Fonksiyonlar ve Ömür
+---------------------------------
+
+Fonksiyonun parametre değişkeninin olmadığını ancak geri dönüş değerinin bir referans olduğunu düşünelim. Bu
+durumda derleyici fonksiyonun imzasına bakarak onun geri döndürdüğü referansın hangi ömürdeki bir değişkenin
+adresi olduğunu anlayamaz. Örneğin:
+
+.. code-block:: rust
+
+   fn foo() -> &i32 {           // error!
+       //...
+   }
+
+Burada da yine geri dönüş değeri olan referansa bir ömür bilgisinin iliştirilmesi gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>() -> &'a i32 {           // geçerli
+       //...
+   }
+
+Burada fonksiyonun girdi ömür bilgilerinin olmadığına yalnızca çıktı ömür bilgisinin olduğuna dikkat ediniz.
+Burada tabii fonksiyonu yazan kişi zaten yerel bir değişkenin adresiyle geri dönemez. Olsa olsa statik ömürlü bir
+değişkenin ya da değerin adresiyle geri dönebilir. Bu örnekte fonksiyona iliştirilen ömür parametresinin bir
+anlamının olmadığını düşünebilirsiniz. Çünkü burada önceki örneklerde olduğu gibi ömrün ilişkilendirilebileceği
+bir parametre değişkeni yoktur. Ancak bu tür durumlarda ömür parametresi henüz görmediğimiz bir konu nedeniyle
+uç bir noktada gerekebilmektedir.
+
+Geri Dönüş Değeri Referans Olmayan Fonksiyonlar
+-----------------------------------------------
+
+Fonksiyonların ve metotların geri dönüş değerleri referans olmadıktan sonra parametre değişkenleri olan
+referanslara ömür bilgisi iliştirmenin bir faydası yoktur. Ancak bu durumda derleyici bir error vermemektedir.
+Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>(a: &'a i32, b: &'a i32) {
+       //...
+   }
+
+Böyle bir fonksiyonun ömür parametresine sahip olmasının bir anlamı yoktur. Yani fonksiyon aşağıdaki gibi
+tanımlansaydı da değişen bir şey olmayacaktı:
+
+.. code-block:: rust
+
+   fn foo(a: &i32, b: &i32) {
+       //...
+   }
+
+Ömür parametresine sahip fonksiyonlarda ve metotlarda bu ömür parametresi fonksiyonun yerel değişkeni olan
+referanslarda kullanılabilir. Ancak yerel referanslarda bu biçimde ömür belirtmenin bir faydası yoktur. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>(a: &'a i32, b: &'a i32) -> &'a i32 {
+       let x = 10;
+       let r: &'a i32 = &x;        // error!
+       //...
+   }
+
+Burada yerel ``r`` referansına ``'a`` ömür bilgisi iliştirilmiştir. Bu referansa adresi atanacak olan
+değişkenin en az ``a`` ve ``b`` parametre değişkenlerine adresi atanacak değişkenler kadar uzun yaşaması
+gerekir. Örneğimizde bu koşul sağlanmamaktadır.
+
+Metotlarda Ömür Bilgisi
+-----------------------
+
+Metotların geri dönüş değerlerinin referans olması durumunda özel bir kural da vardır. Eğer metotların geri
+dönüş değeri referans ise ve metodun birinci parametresi ``&self`` ya da ``&mut self`` biçimindeyse metoda ömür
+parametresi iliştirilmediği durumda metodun geri dönüş değeri ``self`` referansının gösterdiği değişkenin ya da
+değerin ömrüyle ilişkilendirilmektedir. Burada metodun birden fazla referans parametresi olsa da ilişkilendirme
+otomatik olarak her zaman ``self`` referansıyla yapılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn foo(&self) -> &i32 {             // geçerli
+           &self.a
+       }
+   }
+
+Burada ``foo`` metodunun geri dönüş değeri için bir ömür parametresinin iliştirilmesine gerek yoktur. Zaten bu
+ömür otomatik olarak ``self`` ile ilişkilendirilmektedir. Yani bu metot aşağıdakiyle tamamen eşdeğerdir:
+
+.. code-block:: rust
+
+   impl Sample {
+       fn foo<'a>(&'a self) -> &'a i32 {         // geçerli
+           &self.a
+       }
+   }
+
+Biz burada derleyiciye şunu söylemekteyiz: *Derleyici self referansının gösterdiği yerdeki değişkenin ya da
+değerin ömrü en az geri dönüş değerinin atandığı referansın ömrü kadar olmalıdır*. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample {a: 10, b: 20};
+       let r: &i32;
+
+       r = s.foo();                // geçerli
+       println!("{}", *r);
+   }
+
+Burada verilen söz yerine getirilmiştir. Ancak örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let r: &i32;
+
+       {
+           let s = Sample { a: 10, b: 20 };
+           r = s.foo();            // error!
+       }
+       println!("{}", *r);
+   }
+
+Burada verilen söz yerine getirilmemiştir. ``foo`` metodunun geri döndürdüğü adresin yerleştirildiği referansın
+ömrü ``self`` referansının gösterdiği ``s`` değişkenin ömründen daha fazladır.
+
+Metotlar söz konusu olduğunda eğer metoda ömür parametresi iliştirilmemişse metot birden fazla referans
+parametresine sahip olsa bile ilişkilendirme ``self`` parametresine göre yapılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   impl Sample {
+       fn foo(&self, r: &i32) -> &i32 {        // geçerli
+           &self.a
+       }
+   }
+
+Burada ömür ilişkilendirmesi ``self`` referansına göre yapılmaktadır. Tabii biz artık ``r`` referansıyla
+geri dönemeyiz:
+
+.. code-block:: rust
+
+   impl Sample {
+       fn foo(&self, r: &i32) -> &i32 {        // error!
+           r
+       }
+   }
+
+Bir fonksiyonun ya da metodun bir referans parametresi içerisindeki adresle geri dönebilmesi için o parametreye
+ömür bilgisinin iliştirilmiş olması gerekmektedir.
+
+Lifetime Elision Kuralları
+--------------------------
+
+Yukarıda açıkladığımız geri dönüş değeri referans olan fonksiyonlarda ve metotlarda ömür parametresinin
+elimine edildiği (lifetime elision) durumlar hakkında özet bir kural da vermek istiyoruz. Eğer fonksiyonun hiçbir
+parametre değişkeninde ve geri dönüş değerinin türünde bir ömür bilgisi kullanılmamışsa aşağıdaki üç kuralın
+uygulandığını varsayabilirsiniz:
+
+1) Önce referans olan her parametre değişkenine farklı bir ömür parametresi iliştirilir.
+
+2) Eğer söz konusu olan bir fonksiyonsa ve fonksiyonun tek bir referans parametresi varsa geri dönüş değerindeki
+   referansa bu parametreye ilişkin ömür bilgisi iliştirilir.
+
+3) Eğer söz konusu olan bir metotsa ve metodun birinci parametresi ``&self`` ya da ``&mut self`` ise metodun
+   başka ne kadar çok referans parametresi olursa olsun geri dönüş değerindeki referansa ``&self`` ya da
+   ``&mut self`` parametresine iliştirilen ömür bilgisiyle aynı ömür bilgisi iliştirilir.
+
+Bu kurallara ilişkin birkaç örnek verelim:
+
+.. code-block:: rust
+
+   fn foo(a: &i32) -> &i32 {       // geçerli
+       //...
+   }
+
+Yukarıdaki birinci ve ikinci kurala göre bu fonksiyon aşağıdakiyle eşdeğerdir:
+
+.. code-block:: rust
+
+   fn foo<'a>(a: &'a i32) -> &'a i32 {
+       //...
+   }
+
+Örneğin:
+
+.. code-block:: rust
+
+   impl Sample {
+       fn foo(&self, r: &i32) -> &i32 {        // geçerli
+           //...
+       }
+       //...
+   }
+
+Buradaki metoda birinci ve üçüncü kurallar uygulandığında aşağıdakiyle eşdeğerdir:
+
+.. code-block:: rust
+
+   impl Sample {
+       fn foo<'a>(&'a self, r: &i32) -> &'a i32 {
+           //...
+       }
+   }
+
+Birden Fazla Ömür Parametresi
+-----------------------------
+
+Peki bir fonksiyonun referans parametrelerinde birden fazla farklı ömür bilgisinin iliştirilmesinin bir anlamı
+olabilir mi? Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a, 'b>(x: &'a i32, y: &'b i32) -> &'a i32 {
+       //...
+   }
+
+Biz ömür parametrelerini fonksiyonlarda ve metotlarda eğer fonksiyonların ya da metotların geri dönüş değerleri
+referansa kullanmak zorundayız. Yukarıdaki örnekte geri dönüş değerinde yalnızca bir ömür kullanılacağına göre
+bu durum size anlamlı gelmeyebilir. Ancak izleyen paragraflarda göreceğimiz gibi fonksiyonun geri dönüş değeri
+birden fazla ömür parametresi içeren bir yapı ya da ``enum`` türünden olduğu durumlarda ya da fonksiyonun
+kısıtlarının bulunduğu durumlarda fonksiyonun birden fazla ömür parametresine sahip olması anlamlı hale
+gelebilmektedir.
+
+Ömür Kısıtları (``where 'a : 'b``)
+----------------------------------
+
+Biz generic fonksiyonlarda ve metotlarda trait kısıtlarını (trait bound) trait'ler konusunda göreceğiz. Ancak bu
+noktada özel bir ömür kısıtlama sentaksı üzerinde durmak istiyoruz. Kısıtlama (bounding) ileride de göreceğimiz
+gibi fonksiyonun imzasından sonra (yani geri dönüş değerinin türünden sonra) ``where`` anahtar sözcüğü ile
+yapılmaktadır. Burada açıklayacağımız özel ömür kısıtlamasının sentaksı şu biçimdedir:
+
+.. code-block:: rust
+
+   where  'a : 'b
+
+Burada ``'a`` ve ``'b`` fonksiyonun ömür parametreleridir. Bu sentaks *'a ömrü en az 'b kadardır* anlamına
+gelmektedir. Bu kısıtlama belirtildikten sonra derleyici buradaki koşulun sağlanıp sağlanmadığını kontrol
+etmektedir. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a, 'b>(x: &'a i32, y: &'b i32) -> &'b i32
+   where
+       'a : 'b
+   {
+       if x > y {
+           x
+       }
+       else {
+           y
+       }
+   }
+
+Burada biz derleyiciye ``'a`` ömrünün en az ``'b`` ömrü kadar olduğunu söyledik. Fonksiyonun geri dönüş
+değerinde ``'b`` ömrünün kullanıldığına dikkat ediniz. Bu fonksiyonun ``x`` ile geri dönmesinde bir sakınca
+yoktur. Çünkü ``x``'in gösterdiği yerdeki değişken ya da değerin ömrü ``y``'nin gösterdiği yerdeki değişken ya da
+değerin ömründen fazladır.
+
+.. code-block:: rust
+
+   fn main() {
+       let a = 10;
+       let b = 20;
+       let r: &i32;
+
+       r = foo(&a, &b);
+       println!("{}", r);
+   }
+
+   fn foo<'a, 'b>(x: &'a i32, y: &'b i32) -> &'b i32
+   where
+       'a : 'b
+   {
+       if x > y {
+           x
+       }
+       else {
+           y
+       }
+   }
+
+``mut`` Referanslar ve Ömür Bilgisi
+-----------------------------------
+
+Biz yukarıdaki örneklerimizde ömür bilgilerini hep ``mut`` olmayan referanslarla kullandık. ``mut``
+referanslarla da ömür bilgileri aynı biçimde kullanılabilmektedir. ``mut`` referanslarda ``mut`` anahtar sözcüğü
+ömür bilgisinden sonra getirilmelidir. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>(x: &'a mut i32, y: &'a mut i32) -> &'a mut i32
+   {
+       if x > y {
+           x
+       }
+       else {
+           y
+       }
+   }
+
+Buradaki yazım stiline dikkat ediniz. ``&`` ile ömür parametresi bitişik yazılmış, sonra bir boşluk bırakılmış
+sonra ``mut`` anahtar sözcüğü yazılmıştır.
+
+.. code-block:: rust
+
+   fn main() {
+       let mut a = 10;
+       let mut b = 20;
+       let r: &mut i32;
+
+       r = foo(&mut a, &mut b);
+       println!("{}", *r);
+   }
+
+   fn foo<'a>(x: &'a mut i32, y: &'a mut i32) -> &'a mut i32
+   {
+       if x > y {
+           x
+       }
+       else {
+           y
+       }
+   }
+
+Demetler ve Ömür Bilgisi
+------------------------
+
+Ömür bilgileri demetlerde de aynı biçimde kullanılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>(rt1: &'a(i32, i32), rt2: &'a (i32, i32)) -> &'a(i32, i32)
+   {
+       if rt1.0 + rt1.1 > rt2.0 + rt2.1 {
+           rt1
+       }
+       else {
+           rt2
+       }
+   }
+
+Burada fonksiyon iki demet referansını parametre olarak almış ve bunlardan birinin adresini referans olarak geri
+döndürmüştür. Tabii demetlerin de elemanları referans olabilirdi. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>(x: &'a i32, y: &'a i32) -> (&'a i32, &'a i32)
+   {
+       (x, y)
+   }
+
+.. code-block:: rust
+
+   fn main() {
+       let t1 = (10, 20);
+       let t2 = (30, 40);
+       let r: &(i32, i32);
+
+       r = foo(&t1, &t2);
+
+       println!("{}, {}", r.0, r.1);
+   }
+
+   fn foo<'a>(rt1: &'a(i32, i32), rt2: &'a (i32, i32)) -> &'a(i32, i32)
+   {
+       if rt1.0 + rt1.1 > rt2.0 + rt2.1 {
+           rt1
+       }
+       else {
+           rt2
+       }
+   }
+
+Ömür ve Generic Parametreler
+----------------------------
+
+Fonksiyonlardaki ve metotlardaki ömür parametreleri açısal parantezler içerisinde belirtiliyordu. Ancak Rust'ta
+generic fonksiyonlar ve metotlarda da generic parametreler aynı biçimde açısal parantezler içerisinde
+belirtilmektedir. Peki generic bir fonksiyon ya da metot aynı zamanda ömür parametresine de sahipse bunlar açısal
+parantezler içerisinde nasıl belirtilecektir? İşte generic fonksiyonlar ve metotlar ömür parametrelerine de
+sahipse açısal parantezler içerisinde *önce ömür parametrelerinin sonra generic parametrelerin belirtilmesi*
+gerekir. Aksi takdirde error oluşacaktır. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a, T>(x: &'a T, y: &'a T) -> &'a T {
+       //...
+   }
+
+Burada önce ömür parametresi sonra generic parametre belirtilmiştir.
+
+Yapılarda ve ``enum`` Türlerinde Ömür Bilgisi
+---------------------------------------------
+
+Şimdi de ömür bilgilerinin yapılardaki ve referanslardaki kullanımları üzerinde duralım. Yapı alanlarında ve
+``enum`` varyantlarında referanslar bulunuyorsa bu referanslar için ömür belirtilmesi zorunludur. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       x: &i32,            // error!
+       y: &i32             // error!
+   }
+
+Burada ``Sample`` yapısının alanlarında referans kullanıldığı halde bu referanslara bir ömür bilgisi
+iliştirilmemiştir. Yapıların tüm referans alanlarına ömür bilgisinin iliştirilmesi gerekmektedir. Aynı durum
+``enum`` türlerindeki varyantlar için de söz konusudur. Örneğin:
+
+.. code-block:: rust
+
+   enum Color {
+       Red(&i32),          // error!
+       Green(&i32),        // error!
+       Blue(&i32),         // error!
+   }
+
+Yapı alanlarına ve ``enum`` varyantlarına ömür parametreleri yapı ismi ya da ``enum`` isminden sonra açısal
+parantezlerle iliştirilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample<'a> {
+       x: &'a i32,
+       y: &'a i32
+   }
+
+Burada ömür parametresinin tıpkı fonksiyonlarda ve metotlarda olduğu gibi isimden sonra açısal parantezler
+içerisinde belirtildiğine dikkat ediniz. Aynı durum ``enum`` türleri için de geçerlidir:
+
+.. code-block:: rust
+
+   enum Color<'a> {
+       Red(&'a i32),
+       Green(&'a i32),
+       Blue(&'a i32),
+   }
+
+Peki aşağıdaki gibi bir yapı tanımlamasındaki ömür ne anlama gelmektedir?
+
+.. code-block:: rust
+
+   struct Sample<'a> {
+       x: &'a i32,
+       y: &'a i32
+   }
+
+İşte burada biz derleyiciye şunları söylemekteyiz: *Bu yapı türünden değişken ya da değer oluştururken x ve y
+alanlarına yerleştireceğimiz adreslerdeki değişkenlerin ömürleri en az bu alanların ömürleri kadar olmalıdır.* Eğer
+bu ömür koşulu ihlal edilirse error oluşacaktır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let a = 10;
+       let b = 20;
+
+       let s = Sample { x: &a, y: &b };        // geçerli
+       println!("{}, {}", s.x, s.y);
+   }
+
+   struct Sample<'a> {
+       x: &'a i32,
+       y: &'a i32
+   }
+
+Buradaki örnekte herhangi bir sorun yoktur. Yapının alanlarına adresini yerleştirdiğimiz değişkenler en az yapı
+alanları kadar yaşamaktadır. Ancak örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s: Sample;
+
+       {
+           let a = 10;
+           let b = 20;
+           s = Sample { x: &a, y: &b };        // error!
+       }
+       println!("{}, {}", s.x, s.y);
+   }
+
+Burada verilen söz tutulmamıştır. Yapının alanlarına adresini yerleştirdiğimiz ``a`` ve ``b`` değişkenlerinin en
+az yapı alanları kadar yaşaması gerekmektedir. Halbuki örneğimizde bu söz tutulmamıştır.
+
+``impl`` Blokları ve Ömür Parametreleri
+---------------------------------------
+
+Ömür parametresine sahip yapı ve ``enum`` türleri için metotlar yazılırken ömür parametresinin hem ``impl``
+anahtar sözcüğünden sonra hem de yapı ya da ``enum`` isminden sonra açısal parantezler içerisinde belirtilmesi
+gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample<'a> {
+       x: &'a i32,
+       y: &'a i32
+   }
+
+   impl Sample {           // error!
+       //...
+   }
+
+Burada ``Sample`` için ``impl`` bloğu düzgün oluşturulmamıştır. Bu bloğun şöyle oluşturulması gerekirdi:
+
+.. code-block:: rust
+
+   impl<'a> Sample<'a> {           // geçerli
+       //...
+   }
+
+Aslında ``impl`` bloğundaki ömür parametreleri yapıdaki ömür parametreleriyle aynı isimde olmak zorunda
+değildir. Bunlar pozisyonel olarak ilişkilendirilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample<'a, 'b> {
+       x: &'a i32,
+       y: &'b i32
+   }
+
+   impl<'x, 'y> Sample<'x, 'y> {           // geçerli
+       //...
+   }
+
+``impl`` bloğundaki ``'x`` aslında yapıdaki ``'a`` anlamına, ``'y`` ise yapıdaki ``'b`` anlamına gelmektedir.
+Tabii yapıda ve ``impl`` bloğunda farklı ömür isimlerinin verilmesine hiç gerek yoktur.
+
+Yapı ve ``enum`` türlerinin ``impl`` bloklarında ``'_`` özel ömür bilgisi de kullanılabilmektedir. ``'_`` ömür
+bilgisini sonraki paragraflarda ele alacağız.
+
+Ömür Parametreli Türlerle Geri Dönen Fonksiyonlar
+-------------------------------------------------
+
+Referans alanlarına sahip olan yapı ve ``enum`` türlerinin ömür parametresine sahip olması gerektiğini
+belirttik. İşte ömür parametresine sahip olan yapılar ve ``enum`` türleriyle geri dönen fonksiyonlarda yapı ya da
+``enum`` türü ömür parametresiyle belirtilmelidir. Yani siz referans alanlarına sahip bir yapıyı ya da referans
+varyantlarına sahip bir ``enum`` türünü bir referans gibi düşünmelisiniz. Çünkü bu türden değişkenler ya da
+değerler aslında bir referans içermektedir. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample<'a> {
+       x: &'a i32,
+       y: &'a i32
+   }
+
+   fn foo(x: &i32, y: &i32) -> Sample {            // error!
+       Sample { x, y }
+   }
+
+Burada fonksiyonun geri dönüş değeri ömür parametresine sahip bir yapı türündendir. Geri dönüş değerinde ömür
+parametresinin belirtilmesi gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+   fn foo<'a>(x: &'a i32, y: &'a i32) -> Sample<'a> {
+       Sample { x, y }
+   }
+
+Görüldüğü gibi nasıl fonksiyonun geri dönüş değeri referans iken ömür bilgisi gerekiyorsa burada da ömür bilgisi
+gerekmektedir. Başka bir deyişle eğer fonksiyon bir ömür parametresine sahip yapı ya da ``enum`` türü ile
+geri dönüyorsa geri dönüş değerinde ömür bilgisinin de belirtilmesi gerekmektedir. Peki bu kuralın anlamı
+nedir? Yani yukarıdaki fonksiyonun geri dönüş değeri neden ``Sample`` biçiminde değil de ``Sample<'a>``
+biçiminde olmak zorundadır? İşte aslında programcının derleyiciye geri döndürdüğü yapı değerinin alanlarındaki
+referansların ömürleri konusunda da bildirimde bulunması gerekmektedir. Çünkü her ne kadar fonksiyonun geri
+dönüş değeri bir referans değilse de aslında gizli bir biçimde bu fonksiyon referans geri döndürmektedir. Peki
+biz aşağıdaki imza ile derleyiciye ne söylemiş olmaktayız?
+
+.. code-block:: rust
+
+   fn foo<'a>(x: &'a i32, y: &'a i32) -> Sample<'a>
+
+Burada biz derleyiciye aslında şunları söylemekteyiz: *Bu fonksiyonun x ve y referans parametrelerinin
+gösterdiği yerdeki değişkenler en az fonksiyonun geri döndürdüğü yapının x ve y referansları kadar
+yaşayacaktır.*
+
+Fonksiyon ya da yapının geri dönüş değeri ömür parametresine sahip olan bir türdense *ömür parametresinin
+elimine edilmesi* kuralları burada da işletilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample<'a> {
+       x: &'a i32,
+   }
+
+   fn foo(x: &i32) -> Sample {     // geçerli
+       Sample { x }
+   }
+
+Burada geri dönüş değerine ömür bilgisinin iliştirilmesine gerek yoktur. Buradaki fonksiyon aşağıdakiyle
+eşdeğerdir:
+
+.. code-block:: rust
+
+   fn foo<'a>(x: &'a i32) -> Sample<'a> {
+       Sample { x }
+   }
+
+Örneğin:
+
+.. code-block:: rust
+
+   impl<'a> Sample<'a> {
+       fn foo(&self) -> Sample {
+           Sample { x: self.x }
+       }
+   }
+
+Burada da geri dönüş değerine ömür bilgisinin iliştirilmesine gerek yoktur. Bu metot tanımlaması aşağıdakiyle
+eşdeğerdir:
+
+.. code-block:: rust
+
+   impl<'a> Sample<'a> {
+       fn foo(&'a self) -> Sample<'a> {
+           Sample { x: self.x }
+       }
+   }
+
+Yapının bir alanının ömür parametresi içeren yapı ya da ``enum`` türünden olması durumunda da alana ömür
+bilgisinin iliştirilmesi gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample<'a> {
+       x: &'a i32,
+       y: &'a i32
+   }
+
+   struct Mample {
+       s: Sample       // error!
+   }
+
+Bu konuyu kolay anlayabilmek için yine şu öneride bulunacağız: Siz ömür parametresine sahip olan yapı ve
+``enum`` türlerini ömür bakımından sanki bir referans gibi düşünmelisiniz. Böyle düşündüğünüzde yukarıdaki
+``Mample`` yapı tanımlamasının neden error oluşturduğunu hemen anlayabilirsiniz. Anımsanacağı gibi *bir yapının
+elemanı bir referanssa yapıya ömür parametresi iliştirmek gerekiyordu.* O halde ``Mample`` yapısı şöyle
+tanımlanmalıydı:
+
+.. code-block:: rust
+
+   struct Sample<'a> {
+       x: &'a i32,
+       y: &'a i32
+   }
+
+   struct Mample<'a> {
+       s: Sample<'a>       // geçerli
+   }
+
+Kullanılmayan Ömür Parametreleri ve ``PhantomData``
+---------------------------------------------------
+
+Ömür parametresine sahip bir yapı ya da ``enum`` türünde bu ömür parametresi yapı alanlarında kullanılmamışsa bu
+durum da error oluşturmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample<'a> {         // error!
+       x: i32,
+       y: i32
+   }
+
+Burada ömür parametresi gereksiz biçimde kullanılmıştır. Bu durum error oluşturacaktır.
+
+Rust'ta bazı durumlarda yapı ve ``enum`` gibi türler için bir ömür bilgisinin iliştirilmesi gerekebilmektedir.
+Öte yandan yukarıda da belirttiğimiz gibi iliştirilen ömür bilgisinin de kullanılması gerekmektedir. Dolayısıyla
+aşağıdaki gibi bir tanımlama error ile sonuçlanmaktadır:
+
+.. code-block:: rust
+
+   struct Sample<'a> {         // error!
+       a: i32,
+       b: i32
+   }
+
+Burada yapıya bir ömür parametresi iliştirilmiştir ancak yapının hiçbir elemanı bunu kullanmamaktadır. Bu nedenle
+tanımlama geçerli değildir. İşte bazen böylesi durumlara gereksinim duyulabilmektedir. Bunun gerektiği durumlara
+ilişkin ileride bazı örnekler verilecektir. İşte bu tür durumlarda türlere aslında kullanılmayan *hayalet
+(phantom)* yani dummy bir alan eklenmektedir. Bu tür alanlar ``std::marker`` modülündeki ``PhantomData`` yapısı
+yoluyla oluşturulmaktadır. ``PhantomData`` yapısı generic bir yapıdır. Yapının generic parametresi bir referans
+olur. Bu referansa ömür bilgisi iliştirilir. Böylece yapının ömür parametresi sanki kullanılmış gibi bir etki
+yaratılır. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample<'a> {
+       a: i32,
+       b: i32,
+       _phantom: std::marker::PhantomData<&'a i32>
+   }
+
+``PhantomData`` türünden değişken ya da alan aslında bellekte yer kaplamamaktadır. Yani yukarıdaki yapının
+``size_of`` değeri 8'dir.
+
+Ömür Parametreli Türlerin Metotları
+-----------------------------------
+
+Şimdi de ömür parametresine sahip olan yapı ve ``enum`` türlerinin metotlarının nasıl tanımlanacağı üzerinde
+duralım. Yine aşağıdaki gibi bir yapımız olsun:
+
+.. code-block:: rust
+
+   struct Sample<'a> {
+       x: &'a i32,
+       y: &'a i32
+   }
+
+Bunun için ``impl`` bloğunun aşağıdaki gibi oluşturulması gerektiğini belirtmiştik:
+
+.. code-block:: rust
+
+   impl<'a> Sample<'a> {
+       //...
+   }
+
+İşte yapının metotları ve ilişkili fonksiyonları yazılırken ``impl`` bloğunda belirtilen ömür parametrelerinden
+faydalanılabilmektedir. Örneğin bu yapıya ``new`` isimli bir ilişkili fonksiyon yerleştirelim:
+
+.. code-block:: rust
+
+   impl<'a> Sample<'a> {
+       fn new(x: &'a i32, y: &'a i32) -> Sample<'a> {      // geçerli
+           Sample { x, y }
+       }
+   }
+
+Burada ``new`` ilişkili fonksiyonunun geri dönüş değerinde ömür bilgisinin kullanıldığına dikkat ediniz. Biz
+burada derleyiciye şu sözü vermekteyiz: *new fonksiyonuna adresi geçirilen değişkenler en az bu fonksiyonun
+geri döndürdüğü yapı değerinin x ve y referansları kadar yaşayacaktır.* Aşağıdaki örnekte sözümüzü tutuyoruz:
+
+.. code-block:: rust
+
+   fn main() {
+       let a = 10;
+       let b = 20;
+
+       let s = Sample::new(&a, &b);
+       println!("{}, {}", *s.x, *s.y);
+   }
+
+Aşağıdaki örnekte ise sözümüzü tutmadığımız için error oluşacaktır:
+
+.. code-block:: rust
+
+   fn main() {
+       let s: Sample;
+
+       {
+           let a = 10;
+           let b = 20;
+           s = Sample::new(&a, &b);    // error!
+       }
+
+       println!("{}, {}", *s.x, *s.y);
+   }
+
+Şimdi de yapımıza bir ``disp`` metodu da ekleyelim:
+
+.. code-block:: rust
+
+   impl<'a> Sample<'a> {
+       fn new(x: &'a i32, y: &'a i32) -> Sample<'a> {
+           Sample { x, y }
+       }
+
+       fn disp(&self) {
+           println!("x: {}, y: {}", self.x, self.y);
+       }
+   }
+
+``disp`` metodunda bizim ömür parametresini kullanmamız gerekmemiştir. Ömür parametreleri ancak *geri dönüş
+değeri referans olan fonksiyonlar ve metotlarda, referans parametresine sahip olan yapılarda ve enum
+türlerinde* gerekmektedir.
+
+``'static`` Ömür, ``const`` ve ``static`` Öğeler
+================================================
+
+``'static`` Ömür Bilgisi
+------------------------
+
+Rust'ta ``'static`` biçiminde belirtilen özel bir ömür bilgisi de vardır. Bu ömür bilgisinin kullanılması için
+buna ilişkin bir ömür parametresinin belirtilmesine gerek yoktur. Örneğin:
+
+.. code-block:: rust
+
+   let r: &'static str;
+
+``&'static`` ömür bilgisi şu anlama gelmektedir: *Bu referansın gösterdiği yerdeki değişken ya da değer program
+çalıştığı sürece bellekte kalacaktır.* Tabii eğer bu sözde durulmazsa derleme aşamasında error oluşacaktır.
+
+Rust'ta tüm string sabitleri (yani iki tırnak içerisindeki yazılar) tıpkı C'de olduğu gibi program çalıştığı
+sürece bellekte kalmaktadır. Yani Rust'ta string sabitlerini biz string dilim referansına atarken istersek
+``'static`` ömür bilgisini de kullanabiliriz. Ancak bu kullanmamıza gerek yoktur. Örneğin:
+
+.. code-block:: rust
+
+   let sr: &'static str;
+
+   sr = "ankara";     // geçerli
+
+Ancak örneğin:
+
+.. code-block:: rust
+
+   let s = String::from("ankara");
+   let sr: &'static str;
+
+   sr = s.as_str();        // error!
+
+Burada verilen söz tutulmamıştır. Çünkü ``String`` türünden yapı değişkenin içerisindeki dizide bulunan yazıdan
+elde edilen string diliminin ömrü ``'static`` değildir.
+
+Tabii yukarıdaki gibi yerel referanslarda ``'static`` ömür bilgisinin kullanılması aslında gerekli değildir. Biz
+burada yalnızca konuyu açıklamak için bu örneği verdik. Aşağıdaki gibi bir fonksiyon imzası söz konusu olsun:
+
+.. code-block:: rust
+
+   fn foo() -> &'static str
+
+Burada ``foo`` fonksiyonu çağrıldığında elde edilen string dilim referansının gösterdiği yerdeki dilim programın
+çalışma zamanı boyunca bellekte kalmak zorundadır. Tabii muhtemelen bu fonksiyon tipik olarak bir string sabiti
+ile geri döndürülecektir. Örneğin:
+
+.. code-block:: rust
+
+   fn foo() -> &'static str {
+       "ankara"
+   }
+
+Böyle bir fonksiyonda geri dönüş değerine bir ömür parametresinin iliştirilmesi gerektiğini belirtmiştik:
+
+.. code-block:: rust
+
+   fn foo() -> &str {          // error!
+       "ankara"
+   }
+
+Ömür Bilgisinin Zorunlu Olduğu Durumlar
+---------------------------------------
+
+Konuyu kapatmadan ömür parametresinin ve ömür bilgisinin iliştirilmesinin zorunlu olduğu durumları yeniden
+özetliyoruz:
+
+1) Fonksiyonun geri dönüş değerinin referans olması durumunda geri dönüş değerine ömür bilgisi
+   iliştirilmelidir. Ancak eğer fonksiyonun tek bir referans parametresi varsa ve metotlarda ``self`` ile ilgili
+   bir referansa geri dönülmüşse bu durumda ömür belirtilemeyebilir. Buna *lifetime elision* denildiğini
+   anımsayınız. Tabii metotlardaki geri dönüş değeri başka bir metot parametresi ile ilgiliyse ömür bilgisinin
+   iliştirilmesi gerekir.
+
+2) Yapı alanlarının ve ``enum`` varyantlarının referans olması durumunda bu elemanlara ömür bilgisinin
+   iliştirilmesi ve ``impl`` bloklarında da bu ömür bilgisinin bulundurulması zorunludur. Bu tür durumlarda yapı
+   ve ``enum`` türleri tanımlanırken yapı ve ``enum`` isminden sonra açısal parantezler içerisinde ömür
+   parametrelerinin belirtilmesi gerekir.
+
+3) Fonksiyon bir referans içeren yapı ya da ``enum`` türü ile geri dönüyorsa başka bir deyişle ömür parametresi
+   içeren bir yapı ya da ``enum`` türüyle geri dönüyorsa (bu durum özyinelemeli olarak ele alınmaktadır) geri
+   dönüş değerinde ömür bilgisinin bulunması gerekir.
+
+4) Bir yapının bir alanı ya da bir ``enum`` türünün bir varyantı ömür parametresine sahip bir yapı ya da ``enum``
+   türündense bu yapı ya da ``enum`` türünde ömür parametreleri belirtilmeli ve alanlarına da ömür bilgisi
+   iliştirilmelidir.
+
+Son olarak bizim ömür ifadeleri için tavsiyelerimiz şunlardır:
+
+1) Eğer ömür ifadesi (lifetime annotation) gerekmiyorsa kullanmayınız.
+2) Eğer ``'_`` ömür ifadesi yeterli oluyorsa bunu kullanınız.
+3) Eğer ``'_`` ifadesi de yeterli olmuyorsa isimli ömür ifadesi kullanınız.
+
+``const`` Öğeler
+----------------
+
+Rust'ta ``const`` öğeler (constant items) bildirilebilmektedir. ``const`` öğelerin bildirilmesinin genel biçimi
+şöyledir:
+
+.. code-block:: rust
+
+   const <değişken_ismi>: <tür> = <sabit_ifadesi>;
+
+Görüldüğü gibi bildirim ``const`` anahtar sözcüğü ile başlatılmıştır. Onu bir isim, tür bilgisi ve ilkdeğer kısmı
+izlemektedir. Örneğin:
+
+.. code-block:: rust
+
+   const SIZE: i32 = 10;       // geçerli
+
+``const`` bir öğeye verilen ilkdeğerin sabit ifadesi olması zorunludur. Örneğin:
+
+.. code-block:: rust
+
+   const SIZE: i32 = foo();        // error!
+
+Burada ``const`` öğeye verilen ilkdeğer bir sabit ifadesi değildir. Ancak örneğin:
+
+.. code-block:: rust
+
+   const SIZE: i32 = 10 + 20;      // geçerli
+
+Buradaki ``10 + 20`` bir sabit ifadesi belirtmektedir.
+
+``const`` bir öğeye ilkdeğer verilmesi zorunludur. Özel bir durum olarak trait'lerdeki ``const`` öğelere ilkdeğer
+verilmeyebilir. Örneğin:
+
+.. code-block:: rust
+
+   const SIZE: i32;            // error!
+
+Rust derleyicileri bu biçimde bildirilmiş olan ``const`` öğeler için yer ayırmamaktadır. Bunlar C'deki
+``#define`` ile oluşturulmuş sembolik sabitlere benzetilebilir.
+
+``const`` bir öğede mutlaka türün açıkça belirtilmesi gerekmektedir. Yani ``const`` öğeye verilen ilkdeğerden tür
+çıkarımı yapılmamaktadır. Örneğin:
+
+.. code-block:: rust
+
+   const SIZE = 10i32;     // error!
+
+``let`` deyimi bir kalıp uyuşumu semantiği ile çalışır. Halbuki ``const`` öğeler farklı crate'lerden
+kullanılabilmektedir. Nasıl fonksiyonların dış kullanım için imzaları varsa ``const`` öğelerin de açıkça bir
+türünün olması istenmiştir.
+
+Global ``const`` öğeleri biz bütün fonksiyonlardan sanki sembolik sabitlermiş gibi kullanabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       println!("{}", SIZE);       // geçerli
+   }
+
+   const SIZE: i32 = 10;
+
+   fn foo() {
+       println!("{}", SIZE);       // geçerli
+   }
+
+   fn bar() {
+       println!("{}", SIZE);       // geçerli
+   }
+
+``const`` öğenin bildirim yerinden daha yukarıda da kullanılabildiğine dikkat ediniz. *The Rust Reference*
+dokümanlarındaki gramerde *const öğeler (constant item)* tıpkı fonksiyon tanımlamaları gibi, yapı ve ``enum``
+tanımlamaları gibi *öğe (item)* grubunun içerisinde bulundurulmuştur. Global ve hatta yerel öğelerde sıranın bir
+öneminin olmadığını anımsayınız.
+
+``const`` bir öğeye isim verilmeyebilir. İsimsiz ``const`` öğeler oluşturmak için isim yerine ``_`` karakteri
+kullanılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   const _: i32 = 10;      // geçerli ama anlamsız!
+
+Yukarıdaki ``const`` öğe bildirimi geçerlidir. Ancak bu haliyle anlamsızdır. Peki o zaman isimsiz ``const`` öğe
+oluşturmanın ne anlamı olabilir? ``const`` öğelerin her zaman derleme zamanında ele alındığını belirtmiştik. İşte
+kodumuzda derleme zamanında yapılmasını istediğimiz çeşitli kontrolleri bu sayede yapabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   const _: () = assert!(std::mem::size_of::<usize>() == 8);
+
+Burada aslında bir çeşit *static assert mekanizması* oluşturulmuştur. Rust'ta global bölgede yalnızca öğeleri
+(items) bulundurabiliriz. Orada bir fonksiyon ya da makro çağırması yapamayız. İşte bu alana bazı kontrolleri
+isimsiz ``const`` öğelerle yukarıdaki gibi dolaylı bir biçimde yerleştirebilmekteyiz.
+
+*The Rust Reference* dokümanlarında ``const`` öğeye verilen ilkdeğerin bir *ifade (expression)* olabileceği
+belirtilmiştir. Ancak bu ifadenin sabit ifadesi belirtmesi gerekir. Blokların da bir ifade belirttiğini
+anımsayınız. Yani gramer olarak aşağıdaki ``const`` öğe bildirimi de geçerlidir:
+
+.. code-block:: rust
+
+   const SIZE: i32 = {     // geçerli
+       10
+   };
+
+Tabii bu ifadedeki her ifadenin de sabit ifadesi belirtmesi gerekir. Örneğin:
+
+.. code-block:: rust
+
+   const SIZE: i32 = {             // error!
+       println!("ankara");
+       10
+   };
+
+Örneğin:
+
+.. code-block:: rust
+
+   const SIZE: i32 = {             // geçerli
+       assert!(1 == 1);
+       10
+   };
+
+``assert!`` makrosunun bir ifadesi oluşturduğunu belirtmiştik.
+
+``const`` öğelere ``const`` fonksiyonlarla da ilkdeğer verilebilmektedir. ``const`` fonksiyonları izleyen
+paragraflarda ele alacağız.
+
+Yerel ve Serbest ``const`` Öğeler
+---------------------------------
+
+``const`` öğeler fonksiyonların yerel bloklarında da bildirilebilir. Örneğin:
+
+.. code-block:: rust
+
+   fn hello() {
+       const SIZE: i32 = 100;
+
+       println!("{}", SIZE);
+   }
+
+Tabii bu biçimdeki ``const`` öğeler yalnızca bildirildikleri blokta kullanılabilmektedir. Böyle bir kullanımla
+oldukça seyrek karşılaşılmaktadır. Öğeler için öncelik sonralık ilişkisi olmadığı için aşağıdaki kullanım tuhaf
+olmakla birlikte geçerlidir:
+
+.. code-block:: rust
+
+   fn foo() {
+       println!("{}", SIZE);
+
+       const SIZE: i32 = 100;
+   }
+
+*The Rust Reference* dokümanlarında bir türle ilişkili olmayan ``const`` öğelere *serbest const öğeler (free
+constant)* de denilmektedir. Dokümanlar herhangi bir türe ilişkin olmayan serbest ``const`` öğelerin her zaman
+derleme aşamasında ele alındığını belirtmektedir. Dolayısıyla aşağıdaki static assert etkisi oluşturan ``const``
+öğe bir fonksiyonda yazılmış olsa da derleme aşamasında etki göstermektedir:
+
+.. code-block:: rust
+
+   fn hello() {
+       const _: () = assert!(std::mem::size_of::<usize>() == 8);
+       //...
+   }
+
+Ancak ``impl`` bloğu içerisindeki ``const`` öğeler *serbest const* öğe kabul edilmemektedir.
+
+Rust'ta ``const`` öğelere büyük harflerden oluşan isimler vermek bir yazım geleneğidir. (C'de ``#define``
+sembolik sabitlerinin de genellikle büyük harflerle isimlendirildiğini anımsayınız.)
+
+``const`` Öğelerin ``inline`` Etkisi
+------------------------------------
+
+Rust'ta ``const`` öğe bir referans olabilir. Ancak o referansın gösterdiği yerin ``'static`` ömre sahip olması
+gerekir. Örneğin:
+
+.. code-block:: rust
+
+   const MSG: &str = "ankara";     // geçerli
+
+Biz ``MSG`` öğesini kullandığımızda aslında *ankara* yazısının adresine ilişkin dilim referansını kullanmış
+oluruz.
+
+``const`` bir öğe ``mut`` bir referans olamaz. Örneğin:
+
+.. code-block:: rust
+
+   const REF: &mut i32 = &mut 10;      // error!
+
+``const`` öğeler sabit ifadesi belirtmektedir. Yani siz ``const`` bir öğenin kullanılması durumunda aslında
+derleyicinin kullanılan yere ``const`` öğeye verilen ilkdeğerin yerleştirdiğini varsayabilirsiniz. Dolayısıyla
+``const`` bir öğe için bellekte bir yer ayrılmamaktadır. Bu durum *The Rust Reference* dokümanlarında ``const``
+öğelerin *inline* etki yarattığı biçiminde açıklanmıştır. *The Rust Reference* dokümanları şöyle demektedir:
+
+*Constants are essentially inlined wherever they are used, meaning that they are copied directly into the
+relevant context when used. This includes usage of constants from external crates, and non-Copy types.*
+
+Burada denmek istenen şey şudur: Bir ``const`` öğe kullanıldığında adeta C'deki ``#define`` gibi ona verilen
+ilkdeğer kullanım yerine yerleştirilmektedir.
+
+``const`` öğeler için bellekte bir yer ayrılmadığından onların ``mut`` olması zaten anlamsızdır:
+
+.. code-block:: rust
+
+   const mut SIZE: i32 = 10;       // error! const öğe için yer ayrılmıyor ki mut olsun
+
+Örneğin:
+
+.. code-block:: rust
+
+   const SIZE: usize = 5;
+   //...
+
+   let a: [i32; SIZE];     // geçerli
+
+Dizi uzunluklarının ``usize`` türünden sabit ifadesi olması gerektiğini belirtmiştik. Burada derleyici yukarıdaki
+bildirimin şöyle yapılmış olduğunu varsaymaktadır:
+
+.. code-block:: rust
+
+   let a: [i32; 5usize];
+
+Örneğin:
+
+.. code-block:: rust
+
+   const MIN: i32 = 5;
+   const MAX: i32 = MIN + 10;          // geçerli
+
+Burada ``MIN`` bir sabit ifadesi belirttiği için derleyici ``MAX`` bildirimini aşağıdakiyle eşdeğer kabul
+etmektedir:
+
+.. code-block:: rust
+
+   const MAX: i32 = 5i32 + 10;
+
+``const`` Yapı, ``enum`` ve Dizi Öğeleri
+----------------------------------------
+
+``const`` bir öğe bir yapı türünden ya da ``enum`` türünden olabilir. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   const CS: Sample = Sample { a: 10, b: 20 };
+
+Burada ``CS`` ``const`` öğesi ``Sample`` yapısı türündendir. ``const`` öğelere sabit ifadeleriyle ilkdeğer
+verilmesinin zorunlu olduğunu belirtmiştik. Burada ilkdeğer olarak verilen ``Sample`` yapı değerinin her alanının
+sabit ifadesiyle değer aldığına dikkat ediniz. Örneğin:
+
+.. code-block:: rust
+
+   let x = 10;
+   let y = 20;
+
+   const S: Sample = Sample { a: x, b: y };          // error!
+
+Burada muhtemelen yerel bir ``const`` öğe tanımlanmak istenmiştir. Ancak yapı alanlarına sabit ifadesiyle
+ilkdeğer verilmediği için ``const`` öğe bildirimi geçerli değildir.
+
+Yukarıdaki gibi yapı türünden ``const`` öğe program içerisinde kullanıldığında sanki ona verilen ilkdeğerdeki
+geçici yapı değişkeni kullanılıyormuş gibi olur. Sonuçta yine bu ``const`` öğe için de bellekte bir yer
+ayrılmayacaktır. Ancak bu ``const`` öğe kullanıldığında geçici değişken oluşturulacaktır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let x: i32;
+       let y: i32;
+
+       x = CS.a;       // x = Sample { a: 10, b: 20 }.a
+       y = CS.b;       // y = Sample { a: 10, b: 20 }.b
+   }
+
+   const CS: Sample = Sample { a: 10, b: 20 };
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Drop for Sample {
+       fn drop(&mut self) {
+           println!("Dropping a sample");
+       }
+   }
+
+Burada ``main`` fonksiyonu içerisinde yapı türünden ``const`` öğe ``CS.a`` ve ``CS.b`` biçiminde
+kullanılmıştır. Yukarıda da belirttiğimiz gibi aslında bir ``const`` öğe kullanıldığında o ``const`` öğeye
+verilen ilkdeğer kullanılmış gibi olmaktadır. Bu C'deki ``#define`` oluşturulmuş makrolara semantik olarak
+oldukça benzemektedir. ``main`` içerisindeki ``CS.a`` ifadesi tamamen derleyici tarafından
+``Sample {a: 10, b: 20}.a`` biçiminde, ``CS.b`` ifadesi ise ``Sample {a: 10, b: 20}.b`` biçiminde ele alınacaktır.
+Görüldüğü gibi burada geçici bir yapı değişkeni yaratılmaktadır. Bu örneğimizde eğer ``Sample`` türü için
+``drop`` metodu yazılmışsa bu ``drop`` metotlarının çağrıldığını göreceksiniz. Peki ne olursa olsun ``CS.a`` ve
+``CS.b`` ifadeleri yine de sabit ifadesi belirtmekte midir? İşte eğer ilgili yapı için ``Drop`` trait'i
+desteklenmemişse (yani yapı için ``drop`` metodu yazılmamışsa) ``Sample {a: 10, b: 20}.a`` ve
+``Sample {a: 10, b: 20}.b`` ifadeleri sabit ifadesi olarak ele alınmaktadır. Başka bir deyişle bu durumda
+derleyici aslında bir geçici değişken yaratmayacaktır. Ancak ilgili tür (örneğimizde ``Sample``) ``Drop``
+trait'ini destekliyorsa bu durumda ``CS.a`` ve ``CS.b`` ifadeleri sabit ifadesi belirtmemektedir. Tabii biz yapı
+türünden ``const`` bir öğeyi bir bütün olarak kullandığımızda bu ifade söz konusu yapı ``Drop`` trait'ini
+desteklese de desteklemese de sabit ifadesi belirtmektedir. Örneğin:
+
+.. code-block:: rust
+
+   const CS: Sample = Sample {a: 10, b: 20};
+   const XS: Sample = CS;             // Sample drop trait'ini desteklese de geçerli
+
+Bir dizi türünden ``const`` bir öğe de söz konusu olabilir. Tabii bu durumda dizi elemanlarına verilen
+ilkdeğerlerin sabit ifadesi olması gerekir. Örneğin:
+
+.. code-block:: rust
+
+   const SIZES: [i32; 5] = [1, 2, 3, 4, 5];
+
+``const`` bir dizi öğesi ile ilgili dizinin herhangi bir elemanına erişildiğinde artık o eleman da sabit ifadesi
+belirtecektir. Örneğin:
+
+.. code-block:: rust
+
+   const SIZES: [i32; 5] = [1, 2, 3, 4, 5];
+   const VAL: i32 = SIZES[2];      // geçerli
+
+Burada ``SIZES[2]`` sabit ifadesi belirtmektedir. Yani ifade adeta ``[1, 2, 3, 4, 5][2]`` ifadesi ile
+eşdeğerdir. Bu ifadeden derleme aşamasında sabit bir değer elde edilebilmektedir. Tabii dizi elemanına erişmekte
+kullanılan köşeli parantez içerisindeki ifadenin de sabit ifadesi olması gerekir. Yani örneğin ``SIZES[2]`` bir
+sabit ifadesi belirtir, ancak ``SIZES[i]`` bir sabit ifadesi belirtmez.
+
+``const`` Öğelerin Adreslerinin Alınması
+----------------------------------------
+
+Peki ``const`` bir öğenin adresi alınabilir mi? İlk bakışta ``const`` öğeler bellekte bir yer belirtmedikleri
+için onların adreslerinin alınmasının da geçerli olmadığını düşünebilirsiniz. Ancak anımsayacağınız gibi Rust'ta
+sabitlerin de adresleri alınabilmektedir. O halde ``const`` öğelerin de adreslerini alabiliriz. Bu durumda
+aslında o ``const`` öğenin temsil ettiği sabitin adresi alınmış olur. Bir sabitin adresi alındığında da önce o
+sabitin geçici bir değişkene yerleştirildiğini ve aslında o geçici değişkenin adresinin alındığını anımsayınız. O
+halde sonuçta Rust'ta ``const`` öğelerin adresleri alınabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let r: &i32 = &SIZE;
+
+       println!("{}", *r);         // 10
+       //...
+   }
+
+   const SIZE: i32 = 10;
+
+Burada ``main`` fonksiyonunda yapılanların eşdeğeri şöyledir:
+
+.. code-block:: rust
+
+   fn main() {
+       let r: &i32 = &10;
+
+       println!("{}", *r);         // 10
+       //...
+   }
+
+Aynı sabitin adresi ``mut`` olmayan bir biçimde alındığında derleyicilerin her defasında ayrı bir yer
+ayırmayabileceğini belirtmiştik. Aşağıdaki örnekte ekrana aynı adresler basılabilecektir:
+
+.. code-block:: rust
+
+   fn main() {
+       let r: &i32 = &SIZE;
+       let k: &i32 = &SIZE;
+
+       println!("{:p}", r);
+       println!("{:p}", k);
+   }
+
+   const SIZE: i32 = 10;
+
+Tabii yukarıdaki örnekte referansların biri ``mut`` olsaydı derleyici mecburen her iki sabit için farklı geçici
+değişkenler oluşturacaktı. Burada önemli bir noktayı vurgulamak istiyoruz. ``const`` bir öğe bir değişken
+belirtmemektedir. Yani ``const`` öğeler için bellekte bir yer ayrılmamaktadır. Dolayısıyla ``const`` bir öğenin
+adresini aldığınızda siz aslında bir sabitin adresini almış gibi olmaktasınız.
+
+``static`` Öğeler
+-----------------
+
+Şimdi de Rust'ta ``static`` öğeleri görelim. ``static`` öğelerin bildiriminin genel biçimi şöyledir:
+
+.. code-block:: rust
+
+   static <değişken_ismi>: <tür> = <sabit_ifadesi>;
+
+Bu genel biçimden de görüldüğü gibi ``static`` öğeler de ``const`` öğeler gibi bildirilmektedir. Ancak bildirimde
+``const`` anahtar sözcüğü yerine ``static`` anahtar sözcüğü kullanılmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   static COUNT: i32 = 10;
+
+``static`` öğelere de sabit ifadeleriyle ilkdeğer verilmesi zorunludur. ``static`` öğeler bildirilirken yine
+türün açıkça belirtilmesi gerekir.
+
+Peki ``static`` ile ``const`` öğe arasında ne farklılık vardır? ``const`` öğeler için bellekte bir yer
+ayrılmamaktadır. ``const`` öğe kullanıldığında ona verilmiş ilkdeğer kullanılıyor gibi olmaktadır. ``static``
+öğeler ise bir değişken belirtmektedir. Yani ``static`` öğeler için bellekte yer ayrılmaktadır. Biz ``static``
+öğeleri kullandığımızda bir değişkeni kullanmış oluruz.
+
+``static`` öğeler yine global ve yerel düzeyde bildirilebilmektedir. ``static`` global bir öğeyi biz programın
+her yerinde kullanabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       println!("{}", COUNT);
+
+       foo();
+       bar();
+   }
+
+   fn foo() {
+       println!("{}", COUNT);
+   }
+
+   fn bar() {
+       println!("{}", COUNT);
+   }
+
+   static COUNT: i32 = 10;
+
+Global ``static`` bir öğenin programın farklı yerlerinde adresi alındığında hep aynı adres elde edilmektedir.
+Çünkü global ``static`` bir öğe için toplamda tek bir yer ayrılmaktadır. Dolayısıyla her zaman o yerin adresi
+elde edilir. ``mut`` olmayan ``static`` öğeleri biz C'deki global ``const`` değişkenlere benzetebiliriz.
+
+Rust'ta ``static`` öğeler yerel de olabilmektedir. Bu durum tamamen C'deki ``static`` yerel değişkenlere
+benzemektedir. ``static`` yerel öğeler ancak bildirildikleri blokta kullanılabilirler. Programın akışı bloktan
+çıksa bile bellekte kalmaya devam ederler. ``static`` yerel öğeler ``static`` ömre sahiptir. Örneğin aşağıdaki
+programda ekrana hep aynı adres basılacaktır:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut r: &i32;
+
+       r = foo();
+       println!("{:p}", r);
+
+       r = foo();
+       println!("{:p}", r);
+
+       r = foo();
+       println!("{:p}", r);
+   }
+
+   fn foo() -> &'static i32 {
+       static COUNT: i32 = 0;
+
+       &COUNT
+   }
+
+``static`` öğelere sabit ifadesi ile ilkdeğer veriliyor olsa da ``static`` öğeler sabit ifadesi belirtmezler.
+Örneğin:
+
+.. code-block:: rust
+
+   static COUNT: i32 = 10;
+   const SIZE: i32 = COUNT;            // error!
+
+Burada ``COUNT`` değişkeni bir sabit ifadesi belirtmediği için error oluşacaktır.
+
+``static mut`` Öğeler
+---------------------
+
+Rust'ta ``static`` ömürlü değişkenlerin değiştirilmesi Rust'ın temel tasarım özelliklerine aykırı bir
+durumdur. Peki o zaman ``static`` bir öğe ``mut`` olabilir mi? Evet ``static`` bir öğe ``mut`` olabilir. Fakat o
+öğenin değeri ancak ``unsafe`` bir blok içerisinde değiştirilebilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       println!("{}", COUNTER);            // error!
+       COUNTER += 1;
+       println!("{}", COUNTER);            // error!
+   }
+
+   static mut COUNTER: u32 = 0;
+
+Yukarıdaki örnekte ``mut`` bir ``static`` öğe ``unsafe`` blok olmadan değiştirilmek istenmiştir. Bu nedenle
+error oluşacaktır. Ancak ``mut`` bir ``static`` öğeyi biz ``unsafe`` blok içerisinde değiştirebiliriz:
+
+.. code-block:: rust
+
+   fn main() {
+       unsafe {
+           println!("{}", COUNTER);            // geçerli
+           COUNTER += 1;
+           println!("{}", COUNTER);            // geçerli
+       }
+   }
+
+   static mut COUNTER: u32 = 0;
+
+``static`` yerel bir öğe ``static`` ömürlü olduğu için program çalışmaya başladığında yaratılır, akış
+fonksiyondan çıksa bile yaşamaya devam eder. Aşağıdaki örnekte ``foo`` fonksiyonunun içerisinde ``COUNTER``
+isimli ``mut`` bir ``static`` öğe kullanılmıştır. Fonksiyon her çağrıldığında bu öğenin değeri 1
+artırılmıştır.
+
+.. code-block:: rust
+
+   fn main() {
+       for i in 0..10 {
+           println!("{}", foo());
+       }
+   }
+
+   fn foo() -> i32 {
+       static mut COUNTER: i32 = 0;
+
+       unsafe {
+           COUNTER += 1;
+       }
+       COUNTER
+   }
+
+Burada ``static`` yerel öğeye ilkdeğerin derleme aşamasında yerleştirildiğine ve bu ilkdeğer verme işleminin
+fonksiyon çağrıldığında tekrar tekrar yapılmadığına dikkat ediniz.
+
+Görüldüğü gibi Rust'taki global ``static`` öğeler C'deki global değişkenlere, yerel ``static`` öğeler ise C'deki
+``static`` yerel değişkenlere benzemektedir.
+
+Rust'ta tıpkı ``const`` öğeler gibi ``static`` öğeler de geleneksel olarak büyük harflerle
+isimlendirilmektedir.
+
+Referans Türünden ``static`` Öğeler
+-----------------------------------
+
+``static`` bir öğe bir referans türünden olabilir. Fakat referansların gösterdiği yerdeki değişkenlerin en az
+referanslar kadar yaşaması gerektiği için referans türünden ``static`` öğelere ancak ``static`` öğelerin
+adresleri atanabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   fn foo() {
+       let x = 10;
+       static RX: &i32 = &x;       // error!
+       //...
+   }
+
+Burada referans türünden ``static`` öğeye daha kısa ömürlü bir yerel değişkenin adresi atanmıştır. Bu durum
+error oluşturacaktır. Örneğin:
+
+.. code-block:: rust
+
+   static X: i32 = 10;
+
+   fn foo() {
+       let x = 10;
+       static RX: &i32 = &X;       // geçerli
+       //...
+   }
+
+Burada ise referans türünden yerel ``static`` öğeye ``static`` ömürlü bir öğenin adresi atanmıştır. Tabii biz
+istersek referans türünden ``static`` öğelere ``'static`` ömür bilgisini iliştirebiliriz:
+
+.. code-block:: rust
+
+   static X: i32 = 10;
+
+   fn foo() {
+       let x = 10;
+       static RX: &'static i32 = &X;       // geçerli
+       //...
+   }
+
+Tabii buna gerek yoktur.
+
+Trait'lere Giriş
+================
+
+Trait Kavramı
+-------------
+
+Bu bölümde Rust'ta *trait'ler* konusunu ele alacağız. Trait sözcüğü İngilizce *karakteristik özellikler*, *bir
+şeyi diğerinden ayırt eden özellikler*, *bir şeyin özünde var olan özellikler* anlamına gelmektedir. Örneğin
+psikolojide *kişilik özellikleri* anlamında *personality traits* terimi kullanılmaktadır.
+
+Rust'taki trait'ler nesne yönelimli programlama dillerinin çoğunda var olan *arayüzlere (interfaces)* oldukça
+benzemektedir. Bu bakımdan trait'ler Rust'ı biraz *nesne yönelimli hale getiren* özelliklerdendir. C++'ta böyle
+bir kavram yoktur. Çünkü C++'ta zaten *çoklu türetme (multiple inheritance)* bütün arayüz işlevselliğini
+sağlayabilmektedir. Rust'ta *trait'ler* oldukça sık kullanılan ve her konuda karşımıza çıkabilen bir dil
+özelliğidir.
+
+Bir trait yapı ve ``enum`` türleri için bir kontrat niteliği taşımaktadır. Bir yapı ya da ``enum`` türü bir
+trait'i destekleyebilir. Bu durumda bu yapı ya da ``enum`` türü o trait'te belirtilen metotlara ve ilişkili
+türlere sahip olmak zorundadır. Bir yapı ya da ``enum`` türünün bir trait'i desteklemesine İngilizce o yapı ya da
+``enum`` türünün o trait'i *implemente* etmesi de denilmektedir. İngilizce *implement* sözcüğü *bir şeyi tasarım
+boyutundan çıkartarak yapıp, gerçekleştirmek* anlamına gelmektedir. Örneğin *Operating Systems and
+Implementation* gibi bir kitap ismi *işletim sistemlerinin tasarımı ve yazımını* konu almaktadır. Bir programlama
+dilinin *implemente edilmesi* onun için derleyici ya da yorumlayıcının yazılması anlamına gelmektedir. C ve C++
+standartlarında *implementation* sözcüğü mantıksal dilin somut gerçekleştirimi olan *derleyici* anlamına
+gelmektedir. *Implementation* sözcüğü Türkçeye *gerçekleştirim* biçiminde çevrilebilmektedir. Biz kursumuzda
+*gerçekleştirim* sözcüğü yerine *destekleme* sözcüğünü kullanacağız.
+
+Trait'lerin Java ve C# gibi programlama dillerinde *arayüzlere (interfaces)* oldukça benzediğini belirtmiştik.
+Arayüzler o programlama dillerinde *çokbiçimli (polymorphic)* davranışların oluşturulması için kullanılmaktadır.
+Bu bağlamda çokbiçimli davranış trait'lerle Rust'ta oluşturulabilmektedir. Bize bir yapı ya da ``enum``
+türünün bir trait'i desteklediği (*implemente* ettiği) söylendiğinde biz o yapı ya da ``enum`` türünün o
+trait'te belirtilen davranışları gösterebildiğini anlarız.
+
+Trait Tanımlama
+---------------
+
+Bir trait tanımlamanın yalın genel biçimi şöyledir:
+
+.. code-block:: rust
+
+   trait <isim> {
+       <ilişkili_öğeler (associated_items)>
+   }
+
+Görüldüğü gibi bir trait tanımlaması ``trait`` anahtar sözcüğüyle başlatılır. ``trait`` anahtar sözcüğünü bir
+trait ismi izler. Trait tanımlamalarının blok içerdiğine dikkat ediniz. Bu bloğun içerisinde trait'e ilişkin
+öğeler (items) bulunmaktadır. Bu öğelere *The Rust Reference* dokümanlarında *ilişkili öğeler (associated
+items)* denilmektedir. İlişkili öğeler şunlardan oluşmaktadır:
+
+- Metotlar ve İlişkili Fonksiyonlar
+- İlişkili Türler
+- Sabitler
+
+Biz trait'in içerisindeki öğeler için bazen *trait öğeleri* terimini bazen de öğenin türüne göre *trait metodu*,
+*trait sabiti*, *trait'in ilişkili türü* gibi terimleri kullanacağız.
+
+Trait'ler *The Rust Reference* dokümanlarında gramer olarak *öğe (items)* grubunun içerisinde yer almaktadır.
+*The Rust Reference* dokümanlarındaki *Item* ara sembolünün açılımına ilişkin listeyi aşağıda yeniden veriyoruz:
+
+.. code-block:: text
+
+   Item:
+       modules
+       extern crate declarations
+       use declarations
+       function definitions
+       type definitions
+       struct definitions
+       enumeration definitions
+       union definitions
+       constant items
+       static items
+       trait definitions
+       implementations
+       extern blocks
+
+Trait'lerin Desteklenmesi
+-------------------------
+
+Bir trait'in içerisindeki metotların ya da ilişkili fonksiyonların yalnızca imzaları (yani tanımlamadaki ilk
+satırları) trait içerisinde bulundurulabilmektedir. Yani trait'in içerisindeki metotlar ve ilişkili fonksiyonlar
+gövde içermeyebilirler. Örneğin:
+
+.. code-block:: rust
+
+   trait Test {
+       fn foo(&self);
+       fn bar(&self);
+       fn tar(a: i32);
+   }
+
+Burada ``foo`` ve ``bar`` ``Test`` trait'inin metotlarıdır, ``tar`` ise ilişkili fonksiyonudur. Buradaki
+metotların ve ilişkili fonksiyonun gövde içermediğine dikkat ediniz. Metot ve fonksiyon imzaları ``;`` atomuyla
+bitirilmiştir.
+
+Bu örnekte ``Test`` trait'i bir arayüz oluşturmaktadır. Arayüz demekle bir şeyin kavramsal hali
+kastedilmektedir. ``Test`` trait'indeki ``foo`` ve ``bar`` metotları ve ``tar`` ilişkili fonksiyonu bu trait'i
+destekleyecek olan yapı ya da ``enum`` türleri tarafından tanımlanmak zorundadır. Yani bir trait'i destekleyen
+bir yapı ya da ``enum`` türü eğer o trait'teki metotlar ya da ilişkili fonksiyonlar gövde içermiyorsa onları
+tanımlamak zorundadır.
+
+Bir yapı ya da ``enum`` türünün bir trait'i desteklemesi sentaktik olarak şu genel biçimle sağlanmaktadır:
+
+.. code-block:: rust
+
+   impl <trait_ismi> for <yapı_ya_da_enum_ismi> {
+       //...
+   }
+
+Görüldüğü gibi destekleme (implemente etme) yine bir ``impl`` bloğu oluşturularak yapılmaktadır.
+
+Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Test for Sample {
+       fn foo(&self) {
+           println!("Sample foo");
+       }
+
+       fn bar(&self) {
+           println!("Sample bar");
+       }
+
+       fn tar(a: i32) {
+           println!("Sample tar");
+       }
+   }
+
+Buradaki destekleme için oluşturulan ``impl`` bloğunun sentaksına dikkat ediniz:
+
+.. code-block:: rust
+
+   impl Test for Sample {
+       //...
+   }
+
+Sentaksta ``impl`` anahtar sözcüğünden sonra trait ismi sonra ``for`` anahtar sözcüğü ve sonra da yapı ya da
+``enum`` ismi bulundurulmaktadır. Burada adeta derleyiciye şunlar söylenmektedir: *Ben Test trait'ini Sample
+türü için destekliyorum*.
+
+Biz bir trait'in gövdesi olmayan bazı metotlarını tanımlayıp bazılarını tanımlamadan bırakamayız. Bir
+trait'teki tüm gövdesi olmayan tüm metotların ve ilişkili fonksiyonların destekleme sırasında ilgili tür için
+tanımlanması gerekmektedir. Örneğin:
+
+.. code-block:: rust
+
+   impl Test for Sample {          // error!
+       fn foo(&self) {
+           println!("Sample foo");
+       }
+   }
+
+Burada yalnızca ``Test`` trait'inin ``foo`` metodu tanımlanmıştır. Halbuki ``bar`` metodunun ve ilişkili ``tar``
+fonksiyonun da tanımlanması gerekirdi. Tabii ``impl`` bloğu içerisinde metotların tanımlama sırasının bir önemi
+yoktur.
+
+Bir yapı ya da ``enum`` türünün hem kendi metotları ve ilişkili fonksiyonları olabilir hem de bu türler
+trait'leri destekleyebilir. Bu durumda iki farklı ``impl`` blok sentaksı bulundurulacaktır. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+           Sample { a, b }
+       }
+
+       fn disp(&self) {
+           println!("{}, {}", self.a, self.b);
+       }
+   }
+
+   impl Test for Sample {
+       fn foo(&self) {
+           println!("Sample foo");
+       }
+
+       fn bar(&self) {
+           println!("Sample bar");
+       }
+
+       fn tar(a: i32) {
+           println!("Sample tar");
+       }
+   }
+
+Burada birinci ``impl`` bloğunda yapının kendi metotları ve ilişkili fonksiyonları ikincisinde ise trait'lerden
+gelen metotlar ve ilişkili fonksiyonlar tanımlanmıştır.
+
+Yapı ya da ``enum`` türlerinin metotlarının ve ilişkili fonksiyonlarının birden fazla ``impl`` bloğu içerisinde
+tanımlanabileceğini belirtmiştik. Ancak aynı durum trait'ler için geçerli değildir. Trait'ler desteklenirken tüm
+trait metotları ve ilişkili fonksiyonlar tek bir ``impl`` bloğu içerisinde tanımlanmalıdır. Aşağıdaki tanımlama
+error oluşturacaktır:
+
+.. code-block:: rust
+
+   impl Test for Sample {
+       fn foo(&self) {
+           println!("Sample foo");
+       }
+   }
+
+   impl Test for Sample {              // error! trait desteği için tek bir impl bloğu bulundurulabilir.
+       fn bar(&self) {
+           println!("Sample bar");
+       }
+
+       fn tar(a: i32) {
+           println!("Sample tar");
+       }
+   }
+
+Bir yapı ya da ``enum`` türünün bir trait'i desteklediğinde o trait'in öğelerini içermek zorunda olduğunu
+belirtmiştik. Her ne kadar bu destekleme ayrı bir ``impl`` bloğu ile yapılıyorsa da metotlar ve ilişkili
+fonksiyonlar yine o yapı ya da ``enum`` türünün elemanları durumundadır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new( 10, 20 );      // geçerli
+
+       s.disp();                           // geçerli
+       s.foo();                            // geçerli
+       s.bar();                            // geçerli
+       Sample::tar(10);                    // geçerli
+   }
+
+Burada ``new``, ``disp``, ``foo``, ``bar`` ve ``tar`` yapının metotları ve ilişkili fonksiyonlarıdır. Ancak
+yapının kendi metotları ve ilişkili fonksiyonları o yapının elemanları kabul edilmektedir.
+
+Zorunlu ve İsteğe Bağlı Metotlar
+--------------------------------
+
+Bir trait'in metotları ve ilişkili fonksiyonları gövde de içerebilir. Yani bunların tanımlaması trait bloğu
+içerisinde de yapılabilir. Gövde içermeyen yalnızca imza içeren metotlara ve ilişkili fonksiyonlara *zorunlu
+(required)* metotlar ve ilişkili fonksiyonlar, gövde içerenlere ise *isteğe bağlı (optional) metotlar ve
+ilişkili fonksiyonlar* denilmektedir. *İsteğe bağlı metotlar ya da ilişkili fonksiyonlar* terimi yerine
+*default metotlar ya da ilişkili fonksiyonlar* terimi de kullanılmaktadır. Bir trait desteklenirken yalnızca
+*zorunlu (required)* (yani gövde içermeyen) metotların ve ilişkili fonksiyonların tanımlanması zorunludur.
+İsteğe bağlı (yani gövde içeren) ilişkili metotlar ya da fonksiyonlar için trait desteklenirken tanımlama
+yapılması zorunlu değildir. Örneğin:
+
+.. code-block:: rust
+
+   trait Test {
+       fn foo(&self);                  // required method
+       fn bar(&self) {                 // optional method
+           println!("Test bar");
+       }
+   }
+
+Burada görüldüğü gibi trait'in ``foo`` metodu için gövde bulundurulmamış ancak ``bar`` metodu için gövde
+bulundurulmuştur. Bu durumda ``Test`` trait'i desteklenirken destekleyen yapı ya da ``enum`` türü için ``bar``
+metodu yazılmayabilir. Ancak ``foo`` metodunun yazılması zorunludur. İşte bu yüzden gövde içermeyen trait
+metotlarına ya da ilişkili fonksiyonlarına *zorunlu (required)* içerenlere ise *isteğe bağlı (optional)*
+denilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+           Sample { a, b }
+       }
+
+       fn disp(&self) {
+           println!("{}, {}", self.a, self.b);
+       }
+   }
+
+   impl Test for Sample {
+       fn foo(&self) {
+           println!("Sample foo");
+       }
+   }
+
+Burada biz ``Sample`` yapısı türünden bir değişken bildirip ``bar`` metodunu çağırsak trait içerisinde
+tanımladığımız ``bar`` metodu çağrılacaktır. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+
+       s.disp();
+       s.foo();
+       s.bar();            // geçerli, trait içerisinde tanımlanan bar metodu çağrılır
+   }
+
+İsteğe bağlı (yani gövde içeren) trait metotlarının ve ilişkili fonksiyonlarının destekleme sırasında
+tanımlanmayabileceğini belirtmiştik. Ancak isterse programcı bunları tanımlayabilir. Bu durumda bu metotlar
+çağrıldığında destekleme sentaksında tanımlanmış olan metot ya da ilişkili fonksiyon çağrılır. Örneğin:
+
+.. code-block:: rust
+
+   trait Test {
+       fn foo(&self);                  // required method
+       fn bar(&self) {                 // optional method
+           println!("Test bar");
+       }
+   }
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+           Sample { a, b }
+       }
+
+       fn disp(&self) {
+           println!("{}, {}", self.a, self.b);
+       }
+   }
+
+   impl Test for Sample {
+       fn foo(&self) {
+           println!("Sample foo");
+       }
+
+       fn bar(&self) {
+           println!("Sample bar");
+       }
+   }
+
+Burada ``Sample`` yapısı ``Test`` trait'ini desteklerken ``bar`` metodunu tanımlamayabilirdi. Ancak isteğe bağlı
+trait metotlarının destekleme sırasında tanımlaması da yapılabilmektedir. Zaten bu nedenle *isteğe bağlı
+(optional)* terimi kullanılmıştır. (Yani buradaki isteğe bağlı *ister tanımlarım, ister tanımlamam* anlamına
+gelmektedir.) İsteğe bağlı trait metotları ya da ilişkili fonksiyonları destekleme sırasında tanımlanmışsa
+Rust'ta artık trait'teki aynı imzaya sahip metotların çağrılmasının bir yolu yoktur. (Halbuki C++'ta, Java ve
+C#'ta sınıf ismi belirtilerek ya da ``base`` anahtar sözcüğüyle taban sınıftaki aynı isimli metotlar
+çağrılabilmektedir.) Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+
+       s.disp();
+       s.foo();
+       s.bar();        // destekleme sırasında tanımlanan bar metodu çağrılır
+   }
+
+Burada ``s.bar()`` çağrısı ile artık trait içerisinde tanımlanan değil destekleme sırasında tanımlanan ``bar``
+metodu çağrılmaktadır. Rust'ta trait içerisinde tanımlanan ``bar`` metodunun çağrılmasının bir yolu yoktur.
+
+İsteğe Bağlı Metotların Kullanım Amacı
+--------------------------------------
+
+Peki trait'ler birer kontrat oluşturuyorsa yani belirli metotların ve ilişkili fonksiyonların bulunmasını garanti
+ediyorsa isteğe bağlı metotların ve ilişkili fonksiyonların anlamı nedir? İşte bazen bazı olgularda bazı
+işlemler yapılabildikten sonra ona dayalı olarak başka işlemler de yapılabilmektedir. Bu tür durumlarda zorunlu
+olan minimal işlemler trait'teki zorunlu metotlarla ve ilişkili fonksiyonlarla diğerleri ise isteğe bağlı
+metotlarla ve ilişkili fonksiyonlarla gerçekleştirilebilmektedir. İsteğe bağlı metotlar ve ilişkili
+fonksiyonlar sayesinde ilgili trait'i destekleyenlerin daha az sayıda metot ve ilişkili fonksiyonu yazması
+sağlanabilmektedir. Örneğin:
+
+.. code-block:: rust
+
+   trait Distance {
+       fn start(&self) -> i32;
+       fn end(&self) -> i32;
+       fn length(&self) -> i32 {
+           self.end() - self.start()
+       }
+   }
+
+Burada ``Distance`` isimli trait'i destekleyen bir yapı ``start`` ve ``end`` metotlarını tanımlamak zorundadır
+ancak ``length`` metodunu tanımlamak zorunda değildir. Çünkü ``length`` metodu ``start`` ve ``end`` metotları
+kullanılarak yazılabilmektedir. Burada ``start`` ve ``end`` metotlarının *zorunlu (required)* metotlar olduğunu,
+``length`` metodunun ise *isteğe bağlı (optional)* bir metot olduğuna dikkat ediniz. Tabii eğer ``length``
+bilgisini elde etmenin daha hızlı bir yolu varsa trait'i destekleyen yapı bu metodu da tanımlayabilir.
+Görüldüğü gibi isteğe bağlı metotlar zorunlu metotlar kullanılarak yazılabilen metotlardır. Bizi çok sayıda
+metodu yazma zorunluluğundan kurtarmaktadır. Örneğin:
+
+.. code-block:: rust
+
+   struct Sample {
+       a: i32,
+       b: i32
+   }
+
+   impl Sample {
+       fn new(a: i32, b: i32) -> Sample {
+           Sample { a, b }
+       }
+
+       fn disp(&self) {
+           println!("{}, {}", self.a, self.b);
+       }
+   }
+
+   impl Distance for Sample {
+       fn start(&self) ->i32 {
+           self.a
+       }
+       fn end(&self) -> i32 {
+           self.b
+       }
+   }
+
+``Sample`` yapısı ``Distance`` trait'ini desteklerken yalnızca ``start`` ve ``end`` metotlarını tanımlamıştır.
+Ancak biz ``length`` metodunu da kullanabiliriz. Örneğin:
+
+.. code-block:: rust
+
+   fn main() {
+       let s = Sample::new(10, 20);
+       let len;
+
+       len = s.length();
+       println!("{}", len);
+   }
+
+Örneğin ``Source`` isimli bir trait olsun. Bu trait belli bir kaynaktaki sıradaki karakteri elde etmek için
+kullanılan ``getchar`` isimli zorunlu (required) metoda sahip olsun. Bir kaynaktaki karakterler tek tek
+okunarak o kaynaktaki tüm bilgi yazdırılabilir. Bu durumda örneğin ``disp`` isimli metot zorunlu olmayabilir:
+
+.. code-block:: rust
+
+   trait Source {
+       fn getchar(&mut self) -> Option<char>;
+       fn disp(&mut self) {
+           while let Some(ch) = self.getchar() {
+               print!("{}", ch);
+           }
+           println!();
+       }
+   }
+
+Burada ``getchar`` metodunun ``Option<char>`` türüne geri döndüğüne dikkat ediniz. ``disp`` metodu içerisinde
+``getchar`` metodu ``Option<char>::None`` değer verene kadar tüm karakterler yazdırılmıştır. Trait'i string için
+aşağıdaki gibi destekleyebiliriz:
+
+.. code-block:: rust
+
+   struct StringSource {
+       text: String,
+       index: usize,
+   }
+
+   impl StringSource {
+       fn new(s: &str) -> Self {
+           StringSource {
+               text: s.to_string(),
+               index: 0,
+           }
+       }
+   }
+
+   impl Source for StringSource {
+       fn getchar(&mut self) -> Option<char> {
+           self.index += 1;
+           self.text.chars().nth(self.index - 1)
+       }
+   }
+
+Biz henüz ``String`` yapısını incelemedik. Aslında string içerisindeki karakterlerin sırasıyla elde edilmesi
+için yukarıda uyguladığımız yöntem iyi bir yöntem değildir. Biz burada örneği basit tutmak istedik. Örnek
+kullanım şöyle olabilir:
+
+.. code-block:: rust
+
+   fn main() {
+       let mut ss = StringSource::new("ankara");
+
+       ss.disp();
+   }
+
+.. code-block:: rust
+
+   fn main() {
+       let mut ss = StringSource::new("ankara");
+
+       ss.disp();
+   }
+
+   trait Source {
+       fn getchar(&mut self) -> Option<char>;
+       fn disp(&mut self) {
+           while let Some(ch) = self.getchar() {
+               print!("{}", ch);
+           }
+           println!();
+       }
+   }
+
+   struct StringSource {
+       text: String,
+       index: usize,
+   }
+
+   impl StringSource {
+       fn new(s: &str) -> Self {
+           StringSource {
+               text: s.to_string(),
+               index: 0,
+           }
+       }
+   }
+
+   impl Source for StringSource {
+       fn getchar(&mut self) -> Option<char> {
+           self.index += 1;
+           self.text.chars().nth(self.index - 1)
+       }
+   }
