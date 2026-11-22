@@ -19343,7 +19343,7 @@ ekranda şunlar görülecektir:
    drop called: 10, 20
 
 ``drop`` Metodunun Açıkça Çağrılması ve ``std::mem::drop``
------------------------------------------------------------
+----------------------------------------------------------
 
 ``drop`` metodu programcı tarafından açıkça çağrılamamaktadır. Örneğin:
 
@@ -23249,10 +23249,10 @@ kullanım şöyle olabilir:
    }
 
 Trait'lerin Birden Fazla Desteklenmesi, Türetme ve İlişkili Türler
-=====================================================================================
+==================================================================
 
 Bir Yapının ya da enum Türünün Birden Fazla Trait'i Desteklemesi
--------------------------------------------------------------------------------------
+----------------------------------------------------------------
 
 Bir yapı ya da enum türü birden fazla trait'i de destekleyebilir. Örneğin:
 
@@ -23329,7 +23329,7 @@ metotları yine ``Sample`` yapısının metotları gibi ``Sample`` türünden de
     }
 
 Farklı Trait'lerde Aynı İsimli Metotlar ve İki Anlamlılık Sorunu
--------------------------------------------------------------------------------------
+----------------------------------------------------------------
 
 Farklı trait'lerde aynı isimli metotlar bulunabilir. Bir yapı ya da enum türü bu trait'leri destekleyebilir. Bu durumda
 farklı ``impl`` bloklarında aynı isimli metotlar bulunuyor olacaktır. Örneğin:
@@ -23538,7 +23538,7 @@ fonksiyonu çağır* anlamına gelmektedir. Yukarıdaki örneği bu sentaksı ku
 Hem UFCS hem de tür bağlamında nitelikli yol ifadesi sentaksları çoğu durumda eşdeğer etki göstermektedir.
 
 Trait'lerin Referans, Demet ve Dizi Türleri İçin Desteklenmesi
--------------------------------------------------------------------------------------
+--------------------------------------------------------------
 
 Bir trait yapı referans, demet ve dizi türleri için de desteklenebilmektedir. Örneğin:
 
@@ -23623,7 +23623,7 @@ Eğer yalnızca ``&Sample`` türü için destekleme yapılmış olsaydı biz o m
 ``&mut Sample`` türüyle çağırabilirdik.
 
 Trait'lerde Türetme
--------------------------------------------------------------------------------------
+-------------------
 
 Rust'ta yapılar ve enum türleri başka türlerden türetilemez. Yani Rust'ta *türetme (inheritance)* özelliği yoktur.
 Ancak istisna olarak bir trait başka bir trait'ten türetilebilmektedir. Trait'lerdeki türetme sentaksının yalın genel
@@ -23688,7 +23688,7 @@ Tabii türemiş trait'ten de başka trait'ler türetilebilir. Bu destekleme zoru
 trait'ler için söz konusu olmaktadır.
 
 Trait'ler İçerisinde Self Anahtar Sözcüğü
--------------------------------------------------------------------------------------
+-----------------------------------------
 
 Bir trait içerisinde kullanılan ``Self`` anahtar sözcüğü (``'S'`` harfinin büyük yazıldığına dikkat ediniz)
 trait'in türünü değil trait'i destekleyen türü belirtmektedir. Örneğin:
@@ -23729,7 +23729,7 @@ Rust programcıları destekleme sırasında da ``Self`` anahtar sözcüğünü k
     }
 
 İlişkili Türler (Associated Types)
--------------------------------------------------------------------------------------
+----------------------------------
 
 Trait'ler *ilişkili türlere (associated types)* sahip olabilirler. Trait'lerin ilişkili türleri Rust'a yeni
 başlayanlarda haklı olarak *generic* çağrışımı yaratmaktadır. Gerçekten de *generic* konusu ile *ilişkili türler*
@@ -23821,7 +23821,7 @@ Görüldüğü gibi trait'teki ``Item`` türünün ne olduğu ``impl`` bloğu i�
 açıkça ``i32`` de yazabilirdik. Ancak bu türün ``Self::Item`` biçiminde belirtilmesi tercih edilmektedir.
 
 İlişkili Türlere Default Tür Verilmesi
--------------------------------------------------------------------------------------
+--------------------------------------
 
 Trait bildiriminde ilişkili türe default bir tür de iliştirilebilmektedir. Bu durumda ilişkili türün gerçekte hangi tür
 olduğu onu destekleyen türde belirtilmeyebilir. Örneğin:
@@ -23962,7 +23962,7 @@ Burada ``Sample`` türü ``Test`` trait'ini farklı ilişkili türler için bird
 durum geçerli değildir.
 
 İlişkili Türlerde Tür Kısıtları
--------------------------------------------------------------------------------------
+-------------------------------
 
 Trait'lerin ilişkili türlerinde *kısıt (bound)* belirtilebilmektedir. Aslında Rust'ta *kısıt oluşturma (bounding)*
 generic'ler konusuyla da ilgili olan genel bir konudur. Biz bu konuyu ayrıntılı olarak generic'leri anlattığımız
@@ -24093,7 +24093,7 @@ türünden olmalıdır. Örneğin:
 Burada ``Mample`` yapısının hem ``B`` trait'ini hem de ``C`` trait'ini desteklediğine dikkat ediniz.
 
 Tür Kısıtlarında İlişkili Türlerin Belirtilmesi
--------------------------------------------------------------------------------------
+-----------------------------------------------
 
 ``A`` trait'inin ``Item`` isimli ilişkili türünde ``B`` trait'ine ilişkin bir kısıt oluşturduğumuzu düşünelim.
 Örneğin:
@@ -24145,10 +24145,10 @@ türler için de kısıtlar belirtebiliriz. Bu belirleme aşağıdaki sentaksla 
 ``f64`` *olması gerektiği* anlamına gelmektedir.
 
 Trait'lerde Tür Kısıtları, From ve TryFrom Trait'leri ve Başka Türlere Trait Desteği
-=====================================================================================
+====================================================================================
 
 Karmaşık İlişkili Tür Kısıtlarının Açıklanması
--------------------------------------------------------------------------------------
+----------------------------------------------
 
 Yukarıda açıkladığımız karmaşık ilişkili tür kısıtını maddeler halinde açıklayalım. Trait'ler aşağıdaki gibi olsun:
 
@@ -24270,7 +24270,7 @@ Artık ``A`` trait'ini destekleyen yapıdaki ``Item`` ilişkili türünün ``B``
 türündeki ``Target`` türü destekleme yapılırken herhangi bir tür olabilir.
 
 Standart Kütüphanede Tür Kısıtları: IntoIterator Trait'i
--------------------------------------------------------------------------------------
+--------------------------------------------------------
 
 Yukarıdaki gibi tür kısıtlarına Rust'ın standart kütüphanesinde oldukça sık rastlanmaktadır. Örneğin:
 
@@ -24379,7 +24379,7 @@ Artık ``IntoIterator`` trait'indeki kısıtların sağlandığını görüyorsu
     }
 
 Trait'lerde İlişkili Fonksiyonlar ve From Trait'i
--------------------------------------------------------------------------------------
+-------------------------------------------------
 
 Biz yukarıdaki örneklerimizde genellikle trait'lerin içerisine metotlar yerleştirdik. Halbuki trait'lerde ilişkili
 fonksiyonlar da bulundurulabilmektedir. Yani trait'teki fonksiyonların ilk parametreleri ``self``, ``&self`` ve
@@ -24441,7 +24441,7 @@ değil yapı ismiyle çağrılmalıdır:
     }
 
 TryFrom Trait'i
--------------------------------------------------------------------------------------
+---------------
 
 Rust'ın standart kütüphanesinde ``std::convert`` modülünde ``TryFrom`` isimli bir trait daha vardır. Bu trait de
 aşağıdaki gibi tanımlanmıştır:
@@ -24550,7 +24550,7 @@ olup olmadığına baktık. Tabii buradaki ``try_from`` ilişkili fonksiyonunda 
     }
 
 Başka Crate'lerdeki Türlere Trait Desteği Verilmesi
--------------------------------------------------------------------------------------
+---------------------------------------------------
 
 Rust'ta biz başka bir crate'te başkaları tarafından yazılmış olan türlerin (hatta ``i32``, ``i64``, ``f32``, ``f64``
 gibi temel türlerin de) kendi trait'lerimizi desteklemesini sağlayabiliriz. Böylece biz adeta başkaları tarafından
@@ -24618,10 +24618,10 @@ başkaları tarafından yazılmış olan türlere metot ekleyemez miyim* sorusu 
 oluşturulamamaktadır. O halde bu tür işlemleri ancak trait desteği ile yapabilmekteyiz.
 
 Generic Trait'ler ve Kapsayıcı Destekleme (Blanket Implementation)
-=====================================================================================
+==================================================================
 
 Generic Trait'ler
--------------------------------------------------------------------------------------
+-----------------
 
 Trait'lerin generic olabileceğini açıklamıştık. Bir trait generic olursa trait'lerin içerisindeki metotlarda ve ilişkili
 fonksiyonlarda generic tür parametresi kullanılabilir. Tabii generic bir trait'i kullanırken açısal parantezler
@@ -24684,7 +24684,7 @@ Generic trait'lerle ilgili ve genel olarak generic konusuyla ilgili çeşitli ay
 konusu ayrı bölümde sıfırdan ele alınacaktır.
 
 Kapsayıcı Destekleme (Blanket Implementation)
--------------------------------------------------------------------------------------
+---------------------------------------------
 
 Rust'ta trait'lerin desteklenmesi konusunda *kapsayıcı destekleme (blanket implementation)* denilen bir destekleme
 sentaksı da vardır. Kapsayıcı desteklemeler ilk karşılaşanlara biraz karmaşık gelebilmektedir. Kapsayıcı destekleme
@@ -24801,7 +24801,7 @@ değerle hem ``A`` trait'indeki ``foo`` metodunu hem de ``B`` trait'indeki ``bar
     }
 
 Kapsayıcı Desteklemenin Amacı
--------------------------------------------------------------------------------------
+-----------------------------
 
 Peki kapsayıcı desteklemenin (blanket implementation) anlamı nedir ve kapsayıcı destekleme ne işe yaramaktadır? İşte
 kapsayıcı desteklemelerde bir trait'teki metotlar başka bir trait'teki metotlar kullanılarak yazılabilmektedir ya da bir
@@ -24861,7 +24861,7 @@ bir trait'i destekleyen programcı artık bu trait kullanılarak yazılabilecek 
 olmaktadır.
 
 Standart Kütüphanede Kapsayıcı Destekleme: Display ve Print Örneği
--------------------------------------------------------------------------------------
+------------------------------------------------------------------
 
 Kapsayıcı destekleme Rust'ın standart kütüphanesinde pek çok yerinde karşımıza çıkabilmektedir. Örneğin standart
 kütüphanede ``std::fmt`` modülünde ``Display`` isimli bir trait bulunmaktadır. Bu trait'in ``fmt`` isimli zorunlu
@@ -24969,7 +24969,7 @@ Buradaki ``print`` metodunun aslında gizli bir biçimde ``fmt`` çağrısı iç
 tür eğer ``Display`` trait'ini destekliyorsa sanki ``Print`` trait'ini otomatik biçimde desteklemiş gibi olmaktadır.
 
 ToString Trait'i
--------------------------------------------------------------------------------------
+----------------
 
 Yukarıdaki örnekte ``Print`` trait'i Rust'ın standart kütüphanesinde var olan bir trait değildir. Ancak ``Display``
 standart kütüphanede bulunan bir trait'tir. Kapsayıcı desteklemeye Rust'ın standart kütüphanesinden basit bir örnek de
@@ -25027,7 +25027,7 @@ Buradaki ``to_string`` çağrısı geçerlidir. Çünkü ``Display`` trait'ini d
 kapsayıcı bir biçimde desteklenmiştir.
 
 Kapsayıcı Destekleme Varken Açık Destekleme
--------------------------------------------------------------------------------------
+-------------------------------------------
 
 Rust'ta bir trait için bir kapsayıcı destekleme zaten varsa ayrıca o trait ilgili tür için açıkça
 desteklenememektedir. Örneğin:
@@ -25073,7 +25073,7 @@ biz ``Sample`` yapısının açıkça ``B`` trait'ini desteklemesini sağlayamay
 Eğer böyle bir durum mümkün olsaydı sanki aynı trait ikinci kez destekleniyormuş gibi bir durum oluşurdu.
 
 Kapsayıcı Desteklemeyi Kimin Yaptığı
--------------------------------------------------------------------------------------
+------------------------------------
 
 Aşağıdaki gibi bir kapsayıcı destekleme söz konusu olsun:
 
@@ -25090,7 +25090,7 @@ desteklemeyi yapar. Yukarıdaki örneğini verdiğimiz ``ToString`` trait'i ``st
 trait'ini oluşturanlar ``Display`` trait'i üzerinde kapsayıcı destekleme yapmıştır.
 
 Birden Fazla Trait'e Bağlı Kısıtlar ve where Sentaksı
--------------------------------------------------------------------------------------
+-----------------------------------------------------
 
 Kapsayıcı desteklemede kısıt birden fazla trait'e de bağlı olabilir. Bu durumda daha önce de gördüğümüz gibi söz konusu
 trait'ler ``'+'`` atomuyla belirtilmelidir. Örneğin:
@@ -25127,10 +25127,10 @@ Genel olarak ``where`` sentaksı açısal parantezler içerisinde ``':'`` ile k�
 ancak fazlalıkları da vardır.
 
 Fonksiyon Parametrelerinde ve Geri Dönüş Değerlerinde impl Anahtar Sözcüğü
-=====================================================================================
+==========================================================================
 
 impl Anahtar Sözcüğünün Tür Olarak Kullanımı
--------------------------------------------------------------------------------------
+--------------------------------------------
 
 Fonksiyonların ve metotların parametre değişkenlerinde ve geri dönüş değerlerinde ``impl`` anahtar sözcüğü
 kullanılabilmektedir. Parametre değişkeninde kullanılan ``impl`` anahtar sözcüğü ile geri dönüş değerinde kullanılan
@@ -25139,7 +25139,7 @@ kullanılabilmektedir. Parametre değişkeninde kullanılan ``impl`` anahtar sö
 türe ilişkin bir anahtar sözcüktür.
 
 Parametre Değişkeninde impl Trait
--------------------------------------------------------------------------------------
+---------------------------------
 
 Parametre değişkeninde ``impl`` anahtar sözcüğü ile bir trait belirtilirse bu durum
 *bu parametre değişkeni söz konusu trait'i destekleyen herhangi bir türden olabilir* anlamına gelmektedir. Örneğin:
@@ -25234,7 +25234,7 @@ kullanılabilmektedir.
     }
 
 impl Trait Parametrelerinin Generic Eşdeğeri
--------------------------------------------------------------------------------------
+--------------------------------------------
 
 Peki yukarıdaki ``foo`` fonksiyonunda parametre değişkeni hangi türdendir? Fonksiyonun tanımına bir kez daha
 bakınız:
@@ -25385,7 +25385,7 @@ Rust'ta trait'ler türünden referanslar bildirilebilir. Ancak referansların ``
     }
 
 Geri Dönüş Değerinde impl Trait
--------------------------------------------------------------------------------------
+-------------------------------
 
 Fonksiyonların ya da metotların geri dönüş değerlerinde ``impl T`` (burada ``T`` bir trait belirtmektedir)
 kullanılırsa parametredeki semantik değişmektedir. Örneğin:
@@ -25504,7 +25504,7 @@ tür durumlarda trait'in çağrılacak fonksiyonunu derleme aşamasında belirle
 ``impl`` anahtar sözcüğü kullanıldığında onun gerçek türünü de kütüphanenin meta data alanına yazmaktadır.
 
 Birden Fazla Trait Belirtilmesi
--------------------------------------------------------------------------------------
+-------------------------------
 
 Parametre değişkeninde ve geri dönüş değerinde belirtilen trait birden fazla olabilir. Bu durumda
 *o trait'lerin hepsinin desteklenmesi* gerekir. Birden fazla trait daha önceden de gördüğümüz gibi ``'+'`` atomuyla
@@ -25593,10 +25593,10 @@ Burada fonksiyonun geri dönüş değeri hem ``A`` hem de ``B`` trait'ini destek
     }
 
 Çokbiçimlilik (Polymorphism) ve dyn Referanslar
-=====================================================================================
+===============================================
 
 Rust'ta Çokbiçimlilik
--------------------------------------------------------------------------------------
+---------------------
 
 Rust nesne yönelimli bir dil olmasa da trait'ler yoluyla nesne yönelimli dillerdeki *çokbiçimli (polymorphic)*
 mekanizma Rust'ta kullanılabilmektedir. Çokbiçimlilik (polymorphism) nesne yönelimli programlama tekniğinde
@@ -25609,7 +25609,7 @@ sistemine sahip programlama dilleri zaten doğuştan çokbiçimlidir.
 Rust'ta çokbiçimlilik ``dyn`` trait'ler ve referanslar yoluyla sağlanmaktadır.
 
 dyn Referanslar
--------------------------------------------------------------------------------------
+---------------
 
 Rust'ta bir trait türünden değişken bildirilemeyeceğini söylemiştik. Örneğin:
 
@@ -25692,7 +25692,7 @@ programın akışı içerisinde o trait'i destekleyen farklı türlerden değiş
     t = &m;     // geçerli
 
 dyn Referanslar ve Çokbiçimli Mekanizma
--------------------------------------------------------------------------------------
+---------------------------------------
 
 ``dyn`` trait türünden bir referansla o trait'in metotları çağrıldığında o anda o referans hangi türden bir değişkeni
 ya da değeri gösteriyorsa o tür için desteklenen (implemente edilmiş olan) trait metotları çağrılmaktadır. Örneğin
@@ -25760,7 +25760,7 @@ konusu trait aslında *o türü destekleyen herhangi bir tür* işlevini görmek
 parçalarının yazımı mümkün olmaktadır.
 
 Türden Bağımsız Kod Yazımı ve Fabrika Kalıbı
--------------------------------------------------------------------------------------
+--------------------------------------------
 
 .. figure:: _static/z-shape.png
    :align: center
@@ -25802,10 +25802,10 @@ denilmektedir. Bu örnekte kodlamanın spesifik şekillere dayalı değil kavram
 dikkat ediniz.
 
 Komut Satırı Uygulaması ve dyn Trait Referanslarının Çalışma Mekanizması
-=====================================================================================
+========================================================================
 
 Çokbiçimli Mekanizma ile Komut Satırı Uygulaması
--------------------------------------------------------------------------------------
+------------------------------------------------
 
 Şimdi de bir komut satırı (command prompt) uygulaması yapalım. Ekrana (``stdout`` dosyasına) bir komut satırı çıkartıp
 klavyeden (``stdin`` dosyasından) komut alan bir yapı oluşturabiliriz. Ancak komutları işlemeyi çokbiçimli mekanizmayı
@@ -25939,7 +25939,7 @@ Burada ``CmdLine`` değişkeninin nasıl yaratıldığına dikkat ediniz:
     }
 
 Dynamic Dispatch ve Sanal Fonksiyon Tablosu
--------------------------------------------------------------------------------------
+-------------------------------------------
 
 Aşağıdaki gibi bir trait bulunuyor olsun:
 
@@ -26068,7 +26068,7 @@ tablosunu gösterecektir. Dolayısıyla artık ``r`` ile ``foo`` ve ``bar`` meto
 ``foo`` ve ``bar`` metotları çağrılmış olacaktır.
 
 Birden Fazla Trait'i Destekleyen Türlerde Sanal Fonksiyon Tabloları
--------------------------------------------------------------------------------------
+-------------------------------------------------------------------
 
 Peki bir tür birden fazla trait'i destekliyorsa bu tür için sanal fonksiyon tablosu nasıl oluşturulur? Örneğin:
 
@@ -26148,7 +26148,7 @@ uygulamaları da göz önüne alındığında sanal fonksiyon tablo göstericile
 içerisinde tutulması Rust için daha uygundur.
 
 Dynamic Dispatch ve Static Dispatch
--------------------------------------------------------------------------------------
+-----------------------------------
 
 Bilindiği gibi derleyiciler *gözlemlenebilen (başka bir deyişle yan etki (side effect) oluşturan)* bir davranış
 değişikliği oluşturmadıktan sonra kodun daha etkin üretilmesi için her türlü optimizasyonu yapabilmektedir. Bu
@@ -26167,10 +26167,10 @@ Burada her ne kadar çokbiçimli bir çağırma söz konusuysa da aslında ``Sam
 ``foo`` fonksiyonunu çağıracak bir kod üretebilir. Yani *dynamic dispatch* yerine *static dispatch* uygulayabilir.
 
 dyn Uyumluluk ve Default Trait'i
-=====================================================================================
+================================
 
 dyn Uyumlu (Nesne Güvenli) Trait'ler
--------------------------------------------------------------------------------------
+------------------------------------
 
 Rust'ta bazı durumlarda trait'ler türünden ``dyn`` referans bildirilememektedir. Başka bir deyişle her trait
 ``dyn`` *uyumlu* (``dyn`` *compatible)* değildir. Rust'ta ``dyn`` uyumlu trait'lere *nesne güvenli (object safe)*
@@ -26273,7 +26273,7 @@ trait'ler de denilmektedir. Trait'lerin ``dyn`` uyumunu bozan birkaç unsur vard
    Bu örnekte ``Test`` trait'i türünden ``dyn`` referans bildirilemediği için error oluşacaktır.
 
 Self: Sized Kısıtı ile dyn Uyumluluk Sağlanması
--------------------------------------------------------------------------------------
+-----------------------------------------------
 
 Yukarıdaki iki durumda trait ``dyn`` uyumlu olmadığı halde trait'teki metoda ya da ilişkili fonksiyona
 ``Self: Sized`` kısıtı iliştirilirse trait ``dyn`` uyumlu hale getirilebilmektedir. Biz birinci maddede ``Self`` ile
@@ -26332,7 +26332,7 @@ Tabii yine bu ``dyn`` trait referansı ile ``foo`` metodu çağrılabilir ancak 
 fonksiyonlar ilgili türden değişken, değer ya da referansla çağrılamamaktadır.)
 
 Default Trait'i
--------------------------------------------------------------------------------------
+---------------
 
 Rust'ta yaygın kullanılan trait'lerden biri de ``std::default`` modülündeki ``Default`` isimli trait'tir. Biz bu
 ``Default`` trait'ini trait'ler konusundan önce ele almıştık. Burada yeniden bu trait üzerinde durmak istiyoruz.
@@ -26452,10 +26452,10 @@ trait'ini destekliyor olması gerekir. Aşağıdaki örnekte ``Point`` yapısı 
     }
 
 Generic'ler
-=====================================================================================
+===========
 
 Generic'lere Giriş
--------------------------------------------------------------------------------------
+------------------
 
 Bu bölümde Rust'ta generic'ler konusunu ele alacağız. Biz daha önce generic'ler konusunu üstünkörü ele almıştık. Ancak
 bu bölümde sıfırdan başlayarak konuyu ayrıntılarıyla ele alacağız.
@@ -26540,7 +26540,7 @@ görünmesini sağlar. Bu özellik C++'ta *template*, Java ve C#'ta *generic* is
 çok dil de artık bu mekanizmayı desteklemektedir.
 
 Monomorfizasyon
--------------------------------------------------------------------------------------
+---------------
 
 Rust'ta generic fonksiyonların ve türlerin kullanılması durumunda derleyicinin o türlere dayalı olarak o generic
 şablondan hareketle gerçek fonksiyonları ya da türleri oluşturması sürecine *monomorfizasyon (monomorphisation)*
@@ -26553,7 +26553,7 @@ Rust'ta fonksiyonlar, metotlar, yapılar, enum türleri ve trait'ler generic bi�
 generic fonksiyonları daha sonra da generic türleri ele alacağız.
 
 Generic Fonksiyonlar ve Tür Çıkarımı
--------------------------------------------------------------------------------------
+------------------------------------
 
 Generic fonksiyonlar ve metotlar tanımlanırken fonksiyon isminden sonra açısal parantezler içerisinde generic
 parametreler aralarına ``','`` atomu yerleştirilerek bildirilmektedir. Fonksiyonun ya da metodun generic olduğu bu
@@ -26585,7 +26585,7 @@ Eğer generic tür parametreleri açıkça belirtilmediyse ve derleyici de gener
 çıkarımını yapamazsa bu durum error oluşturmaktadır.
 
 Generic Parametrelerin Açıkça Belirtilmesi
--------------------------------------------------------------------------------------
+------------------------------------------
 
 Generic fonksiyon çağrılırken tür parametreleri programcı tarafından fonksiyon isminden sonra ``::`` operatörü ve bunu
 izleyen açısal parantezlerle açıkça belirtilebilmektedir. Örneğin:
@@ -26643,7 +26643,7 @@ tespit etmesini istedik. Tabii ``_`` atomu birden fazla generic parametre için 
     foo::<_, f64>(10, 3.14);        // geçerli
 
 Argümanlardan Tür Çıkarımı
--------------------------------------------------------------------------------------
+--------------------------
 
 Eğer çağrım sırasında generic parametrelerin türleri programcı tarafından açıkça belirtilmemişse derleyici generic
 parametrelerin türlerini argümanların türlerinden ve geri dönüş değerinin türünden hareketle çıkarsamaya çalışmaktadır.
@@ -26706,7 +26706,7 @@ Burada ``T`` türü derleyici tarafından çıkarsanamayacağı için error olu�
 Burada da bir sorun ortaya çıkmayacaktır. Çünkü ``10`` ve ``20`` sabitleri ``i64`` türü için geçerli sabitlerdir.
 
 Geri Dönüş Değerinde Generic Parametre
--------------------------------------------------------------------------------------
+--------------------------------------
 
 Fonksiyonun geri dönüş değerinde de generic parametreler kullanılabilir. Örneğin:
 
@@ -26747,7 +26747,7 @@ Burada ``foo`` fonksiyonunun geri dönüş değeri ``i32`` türüne atandığı 
 olarak çıkarsanacaktır.
 
 Tür Sınırlaması (Type Bounding)
--------------------------------------------------------------------------------------
+-------------------------------
 
 Rust'ta generic bir fonksiyon ya da metodun içerisindeki kodların generic parametrelerin türü ne olursa olsun geçerli
 olması gerekir. Örneğin:
@@ -26901,7 +26901,7 @@ bulunuyor olması gerekir. Biz burada ``foo`` fonksiyonunu ``Default`` trait'ini
 Derleyici ``foo`` fonksiyonunu ``Point`` için monomorfize edemeyecektir.
 
 Birden Fazla Kısıt ile Generic Fonksiyon: get_max
--------------------------------------------------------------------------------------
+-------------------------------------------------
 
 Şimdi de bir dizinin en büyük elemanı ile geri dönen ``get_max`` isimli generic fonksiyonu yazmaya çalışalım.
 Fonksiyonu aşağıdaki gibi yazarsak error oluşacaktır:
@@ -26939,10 +26939,10 @@ destekliyor olması sözü ve ``T`` türünün ``Copy`` trait'ini destekliyor ol
     }
 
 Generic Fonksiyonlar, Generic Yapılar ve Tür Sınırlamaları
-=====================================================================================
+==========================================================
 
 Generic Fonksiyonlarda Display Sınırlaması
--------------------------------------------------------------------------------------
+------------------------------------------
 
 Adresiyle aldığı bir değişken ya da değeri ekrana (``stdout`` dosyasına) yazdıran aşağıdaki ``disp`` isimli generic
 fonksiyonun yazımında bir sorun vardır:
@@ -26989,7 +26989,7 @@ Artık biz ``Point`` türünü de ``disp`` generic fonksiyonu ile yazdırabiliri
     disp(&pt);
 
 Generic Metotlar
--------------------------------------------------------------------------------------
+----------------
 
 Biz yukarıda generic fonksiyonlara örnek verdik. Generic olmayan yapı ve enum türlerinin metotları da generic
 olabilmektedir. Örneğin:
@@ -27018,7 +27018,7 @@ belirtilebilir ya da derleyicinin bunu çıkarsaması istenebilir:
     s.foo(3.14);            // geçerli
 
 Generic Yapılar
--------------------------------------------------------------------------------------
+---------------
 
 Bir yapı generic olabilir. Generic yapılar yapı isminden sonra açısal parantezler içerisinde generic parametreler
 belirtilerek tanımlanmaktadır. Örneğin:
@@ -27071,7 +27071,7 @@ Bu örnekte türü belirtirken ``Point<i32>`` sentaksının kullanıldığına a
 Özellikle C++'tan Rust'a geçen programcılar buradaki hataları sık yapmaktadır.
 
 Generic Yapılarda impl Blokları
--------------------------------------------------------------------------------------
+-------------------------------
 
 Generic bir yapının metotları ve ilişkili fonksiyonları tanımlanırken generic parametreler hem ``impl`` anahtar
 sözcüğünden sonra hem de yapı isminden sonra belirtilmek zorundadır. Örneğin:
@@ -27144,7 +27144,7 @@ Burada ``T`` tür parametresinin metotlarda ve ilişkili fonksiyonlarda doğruda
     println!("{}, {}", pt.x, pt.y);
 
 Generic Yapılarda Tür Sınırlamasının Yeri
--------------------------------------------------------------------------------------
+-----------------------------------------
 
 Peki yukarıdaki ``Point`` yapısına ``disp`` isimli bir metot ekleyecek olalım. Bu metotta ``Point`` yapısının ``x`` ve
 ``y`` elemanlarını ``println!`` makrosu ile yazdıracaksak ``disp`` metodunun ``Display`` trait'ini destekliyor olması
@@ -27356,7 +27356,7 @@ Tabii aslında yapıdaki sınırlamalar da ``where`` sentaksıyla oluşturulabil
     }
 
 Metot ya da İlişkili Fonksiyon Düzeyinde Sınırlama
--------------------------------------------------------------------------------------
+--------------------------------------------------
 
 Tür sınırlaması yalnızca bir metot ya da ilişkili fonksiyon için de söz konusu olabilir. Bu durumda açısal parantez
 sentaksı kullanılamaz kısıtın ``where`` sentaksıyla belirtilmesi gerekir. Örneğin:
@@ -27391,7 +27391,7 @@ Burada ``Display`` trait sınırlaması yalnızca ``disp`` metoduna uygulanmış
 özgü sınırlamaların ancak ``where`` sentaksıyla oluşturulabildiğini bir kez daha vurgulamak istiyoruz.
 
 Örnek: Generic Kuyruk Sistemi
--------------------------------------------------------------------------------------
+-----------------------------
 
 Şimdi basit bir FIFO kuyruk sistemini generic bir yapı biçiminde gerçekleştirelim. Yapımız şöyle olabilir:
 
@@ -27551,10 +27551,10 @@ ekleyebilirsiniz.
     }
 
 const Generic Parametreler, Generic Enum Türleri ve Generic Sınırlamalar
-=====================================================================================
+========================================================================
 
 const Generic Parametreler
--------------------------------------------------------------------------------------
+--------------------------
 
 Rust'ta ``const`` generic parametre denilen bir generic parametre türü de vardır. ``const`` generic parametreler
 aşağıdaki genel biçimle bildirilmektedir:
@@ -27740,7 +27740,7 @@ Yukarıdaki ``Queue`` yapısının ``const`` generic parametre gerçekleştirimi
     }
 
 const Generic Parametrelerin Çıkarsanması
--------------------------------------------------------------------------------------
+-----------------------------------------
 
 ``const`` generic parametrelerin değerlerini de derleyici eğer bağlam uygunsa otomatik çıkarsayabilmektedir. Örneğin:
 
@@ -27763,7 +27763,7 @@ Burada derleyici argüman olarak girilen diziden hareketle ``T`` türünün ``i3
 ``5`` olduğunu anlayabilmektedir.
 
 Generic enum Türleri: Option ve Result
--------------------------------------------------------------------------------------
+--------------------------------------
 
 ``enum`` türlerinin de generic olabileceğini belirtmiştik. Örneğin çok kullandığımız ``Option`` ve ``Result`` enum
 türlerinin de generic olduğunu anımsayınız. ``Option`` enum türü şöyle tanımlanmıştır:
@@ -27899,7 +27899,7 @@ Bu örnekten de görüldüğü gibi Rust derleyicisi hedef enum değişkenin gen
 ataması sırasında programcının ayrıca generic parametreyi açıkça belirtmesine gerek kalmamaktadır.
 
 Generic Yapılar İçin Farklı Türlerden impl Blokları
--------------------------------------------------------------------------------------
+---------------------------------------------------
 
 Rust'ta generic bir yapı ya da enum türü için farklı türlerden ``impl`` blokları oluşturulabilmektedir. Örneğin:
 
@@ -28024,7 +28024,7 @@ oluşturabileceğinden generic tür sınırlamalarını hiç dikkate almamaktad�
 bloğu yine error oluşturmaktadır.
 
 Generic Parametreler İçin Default Türler
--------------------------------------------------------------------------------------
+----------------------------------------
 
 Rust'ta bazı nesne yönelimli programlama dillerinde olduğu gibi generic tür parametreleri için default tür belirlemesi
 yapılabilmektedir. Default tür belirleme işlemi açısal parantezler içerisinde generic tür isminden sonra ``'='``
@@ -28149,7 +28149,7 @@ gerekmektedir. Aşağıdaki gibi bir sentaks da geçerli değildir:
     let s: Sample<, f64>;      // error! böyle bir sentaks yok
 
 Default Tür Taşıyan Yapılarda impl Blokları
--------------------------------------------------------------------------------------
+-------------------------------------------
 
 Peki default tür iliştirilen generic yapılar ve enum türlerinde ``impl`` blokları nasıl olacaktır? İşte normal olarak
 ``impl`` bloklarının yine generic bir biçimde yazılması gerekir. Örneğin:
@@ -28188,7 +28188,7 @@ Bu ``impl`` bloğu tamamen aşağıdakiyle eşdeğerdir:
     }
 
 Default Tür ve Trait Sınırlaması Birlikte
--------------------------------------------------------------------------------------
+-----------------------------------------
 
 Generic bir yapı ya da enum türünün generic parametresi hem default türe hem de trait sınırlamasına sahip olabilir. Bu
 durumda önce ``':'`` sentaksı ile trait sınırlaması belirtilir sonra da ``'='`` sentaksı ile default tür belirtilir.
@@ -28201,7 +28201,7 @@ durumda önce ``':'`` sentaksı ile trait sınırlaması belirtilir sonra da ``'
     }
 
 Generic Sınırlamalar (Generic Bounds)
--------------------------------------------------------------------------------------
+-------------------------------------
 
 Şimdi de generic sınırlamaları (generic bounds) konusunu baştan itibaren ele alalım.
 
@@ -28290,7 +28290,7 @@ Bu tür virgülle ayrılmış listelerin bazılarında son virgülün kasten yer
 gelmiştir.
 
 Açısal Parantez ve where Sentaksının Tercihi
--------------------------------------------------------------------------------------
+--------------------------------------------
 
 Peki ``where`` sentaksının zorunlu olduğu durumlar dışında biz hangi sentaksı tercih etmeliyiz? Açısal parantez
 sentaksını mı ``where`` sentaksını mı? Eğer generic parametreler fazla değilse ve sınırlamalar karmaşık değilse açısal
@@ -28325,10 +28325,10 @@ durumlarda ``where`` sentaksı okunabilirlik bakımından tercih edilebilir:
     }
 
 Generic Sınırlamalar (Devam) ve Operatör Metotlarına Giriş
-=====================================================================================
+==========================================================
 
 Açısal Parantez ve where Sentaksının Birlikte Kullanılması
--------------------------------------------------------------------------------------
+----------------------------------------------------------
 
 Generic tür sınırlamalarının bazıları açısal parantez sentaksıyla bazıları ise ``where`` sentaksıyla
 oluşturulabilmektedir. Örneğin:
@@ -28362,7 +28362,7 @@ iyi bir teknik değildir. Rust programcıları ya tüm sınırlamaları açısal
 sentaksına belirtmeyi tercih etmektedir.
 
 İlişkili Türlere Sahip Trait'lerde Sınırlamalar
--------------------------------------------------------------------------------------
+-----------------------------------------------
 
 Trait sınırlamasında bir trait ilişkili türlere sahipse sınırlamada eğer ilişkili türün ne olacağı konusunda bir
 sınırlama yapılmazsa bu durum ilişkili türün herhangi bir olabileceği anlamına gelmektedir. Örneğin ``Test`` trait'i
@@ -28521,7 +28521,7 @@ Burada ``T`` generic parametre için belirtilen kısıt şu anlama gelmektedir: 
 ``AnotherTest`` *türünü destekleyen türde ise* ``AnotherItem`` *türü* ``Copy`` *trait'ini desteklemelidir.*
 
 Operatör Metotları
--------------------------------------------------------------------------------------
+------------------
 
 Bu bölümde Rust'ta *operatör metotları* konusunu ele alacağız. Operatör metotları ya da operatör fonksiyonları nesne
 yönelimli pek çok programlama dilinde var olan bir özelliktir. Çeşitli diller operatör metotlarını kendilerine uygun
@@ -28538,7 +28538,7 @@ bir biçimde bünyesine dahil etmiştir. Operatör metotlarının bulunduğu yay
 Java her ne kadar C#'a oldukça benzese de operatör metotlarına sahip değildir.
 
 Operatör Metotlarının Amacı
--------------------------------------------------------------------------------------
+---------------------------
 
 Operatör metotları aslında dile ek bir işlevsellik kazandırmamaktadır. Yalnızca okunabilirliği artıran bir işlev
 görmektedir. Operatör metotları sayesinde programcının kendi oluşturduğu türler ``+``, ``-``, ``*``, ``/``, ``>``,
@@ -28651,10 +28651,10 @@ Aşağıdaki örnekte iki ``Complex`` sayı ``Complex`` yapısının ``add`` isi
     }
 
 Operatör Metotları ve Add Trait'i
-=====================================================================================
+=================================
 
 Operatör Metotlarının Trait Tabanlı Olması
--------------------------------------------------------------------------------------
+------------------------------------------
 
 Rust'ta operatör metotları trait tabanlıdır. Yani operatör metotlarını oluşturabilmek için özel bazı trait'lerin
 desteklenmesi gerekmektedir. Rust derleyicisi ilgili tür bu özel trait'leri destekliyorsa bu türlere ilişkin
@@ -28686,7 +28686,7 @@ Biz kursumuzda operatörleri tek tek ele alıp bunlar için hangi trait'lerin de
 açıklayacağız.
 
 Örnek Yapı: Rational
--------------------------------------------------------------------------------------
+--------------------
 
 Operatör metotları konusunu birkaç örnek yapı ile ele alacağız. Bunlardan biri rasyonel sayıları temsil eden
 ``Rational`` yapısıdır. Bilindiği gibi rasyonel sayılar ``a`` ve ``b`` tamsayı olmak üzere ``a / b`` biçimindeki
@@ -28757,7 +28757,7 @@ edebiliriz:
     }
 
 Add Trait'i ile Toplama Operatörü
--------------------------------------------------------------------------------------
+---------------------------------
 
 ``+`` operatörü için ``std::ops`` modülündeki ``Add`` trait'i kullanılmaktadır. ``Add`` trait'i şöyle
 tanımlanmıştır:
@@ -28888,10 +28888,10 @@ Aşağıda ``Add`` trait'ini destekleyen ``Rational`` örneği bir bütün olara
     }
 
 Operatör Metotları: Operand'lar, Taşıma ve Farklı Türlerle İşlemler
-=====================================================================================
+===================================================================
 
 Operatör Metotlarının Çağrılma Biçimi
--------------------------------------------------------------------------------------
+-------------------------------------
 
 ``std::ops`` modülündeki bir operatöre ilişkin trait bir yapı ya da enum türü tarafından desteklendiğinde artık metot
 çağrısı yerine doğrudan metodun temsil ettiği operatör kullanılabilir. Bu durumda derleyici operatör ifadesini
@@ -28926,7 +28926,7 @@ Burada artık operatör metodunun yalnızca ``self`` parametresinin olduğuna di
 ``self`` parametresine atanmaktadır.
 
 Operatörlerin Kombine Edilmesi
--------------------------------------------------------------------------------------
+------------------------------
 
 ``op1`` ve ``op2`` iki operand'lı iki operatör belirtiyor olsun. ``a op1 b op2 c`` ifadesinde operatör önceliğine göre
 önce ``a op1 b`` işleminin yapıldığını varsayalım. Bu durumda ``a op1 b`` işleminden elde edilen değerin türü de ilgili
@@ -28947,7 +28947,7 @@ kombine edilebilmektedir. Örneğin:
 Burada ``x + y + z`` ifadesinin ``x.add(y).add(z)`` ile eşdeğer olduğuna dikkat ediniz.
 
 Taşıma ve Copy Türleri
--------------------------------------------------------------------------------------
+----------------------
 
 Yukarıda da belirttiğimiz gibi ``add`` metodunun parametrik yapısında ``self`` parametresi ve diğer parametre referans
 değildir. Dolayısıyla eğer söz konusu tür ``Copy`` türünden değilse değişkenler taşınır. Biz de artık bu değişkenleri
@@ -28980,7 +28980,7 @@ yukarıdaki kod error oluşturmaz:
     }
 
 Farklı Türlerle Toplama
--------------------------------------------------------------------------------------
+-----------------------
 
 Biz yukarıdaki örnekte iki rasyonel sayıyı toplayacak bir ``add`` metodu yazdık. Peki bir rasyonel sayı ile o rasyonel
 sayının türü ile uyumlu olan (örneğimizde ``i64``) bir tamsayıyı toplayabilir miyiz? Örneğin:
@@ -29067,7 +29067,7 @@ Peki buradaki ``add`` metodunu da generic yapabilir miydik? Biz operatör metotl
 konusunu ileride ele alacağız.
 
 Temel Türlerin Operatör Trait'lerini Desteklemesi
--------------------------------------------------------------------------------------
+-------------------------------------------------
 
 Biz Rust'taki ``i32``, ``i64``, ``f64`` gibi temel türlerin de (primitive types) birer yapı belirttiğini söylemiştik.
 Daha önceden de bu türlerle ``sqrt`` gibi ``abs`` gibi metotları çağırdığımızı anımsayınız. İşte aynı zamanda bu
@@ -29104,7 +29104,7 @@ makine komutu ile bu iki sayıyı toplayacaktır. Özetle her ne kadar Rust'taki
 üretimi bakımından bunların C'deki temel türlerden bir farkı yoktur.
 
 Değişme Özelliği
--------------------------------------------------------------------------------------
+----------------
 
 Bilindiği gibi matematikte ``+`` ve ``*`` gibi işlemlerin değişme özelliği vardır. Yani örneğin matematikte ``a + b``
 ile ``b + a`` arasında hiçbir farklılık yoktur. İşte operatör metotlarını yazarken eğer operatörün değişme özelliği
@@ -29260,7 +29260,7 @@ Aşağıda açıkladığımız durumların gerçekleştirildiği örneği bir b�
     }
 
 Operatör Metotlarında Parametre Aktarımı
--------------------------------------------------------------------------------------
+----------------------------------------
 
 Operatör metotlarına ilişkin trait'lerdeki metotların parametreleri referans değildir. Bu durumda daha önceden de
 belirttiğimiz gibi *call by value* işlemi yapılmaktadır. Tabii eğer söz konusu türler ``Copy`` türünden değilse aslında
@@ -29364,10 +29364,10 @@ yerine ``Self`` de diyebilirdik:
     }
 
 Aritmetik ve Karşılaştırma Operatörleri
-=====================================================================================
+=======================================
 
 Dört Temel Aritmetik Operatör ve Rem Operatörü
--------------------------------------------------------------------------------------
+----------------------------------------------
 
 Biz yukarıda ``+`` operatörü için operatör metodu yazdık. Ancak dört temel aritmetik operatörün yazımı birbirine çok
 benzerdir. Yalnızca trait'ler farklıdır. Örneğin çıkartma ``-`` operatörü için ``Sub`` trait'i, ``*`` operatörü için
@@ -29783,7 +29783,7 @@ Aşağıda beş operatörü destekleyen ``Rational`` yapısını bir bütün ola
     }
 
 Karşılaştırma Operatörleri: PartialEq ve PartialOrd
--------------------------------------------------------------------------------------
+---------------------------------------------------
 
 Karşılaştırma operatörlerine ilişkin operatör metotları için ``PartialEq`` ve ``PartialOrd`` trait'leri
 kullanılmaktadır. ``PartialOrd`` trait'i zaten ``PartialEq`` trait'inden türetilmiştir. Yani ``PartialOrd``
@@ -29883,7 +29883,7 @@ Aşağıda karşılaştırma işlemlerinin eşdeğer metot karşılıkları veri
 Rust'taki temel türlerin hepsi ``PartialEq`` ve ``PartialOrd`` trait'lerini desteklemektedir.
 
 Rational Yapısına Karşılaştırma Desteği
--------------------------------------------------------------------------------------
+---------------------------------------
 
 Şimdi ``Rational`` yapısı için ``PartialEq`` trait'ini destekleyerek iki ``Rational`` yapısının ``==`` ve ``!=``
 operatörleriyle karşılaştırılmasını sağlayalım. Bunun için yalnızca zorunlu ``eq`` metodunu yazmamız yeterlidir:
@@ -30187,7 +30187,7 @@ Aşağıda ``Rational`` yapısının son hali bir bütün olarak verilmiştir.
     }
 
 Eq ve Ord Trait'leri
--------------------------------------------------------------------------------------
+--------------------
 
 Biz Rust'ta kısmi sıralamanın (partial ordering) ``PartialEq`` ve ``PartialOrd`` trait'leriyle temsil edildiğini
 söyledik. Rust'ta tam sıralama da (total ordering) ``Eq`` ve ``Ord`` (başında ``Partial`` sözcüğünün olmadığına dikkat
@@ -30239,7 +30239,7 @@ durumdadır. Ancak ``f32`` ve ``f64`` türleri yukarıda da belirttiğimiz gerek
    :alt: PartialEq, PartialOrd, Eq ve Ord trait'lerinin türetme ilişkisi
 
 İşaret Operatörü: Neg Trait'i
--------------------------------------------------------------------------------------
+-----------------------------
 
 İşaret ``-`` operatörü için ``std::ops`` modülündeki ``Neg`` isimli trait kullanılmaktadır. Trait şöyle
 tanımlanmıştır:
@@ -30259,10 +30259,10 @@ hemen her zaman ``Self`` türüyle aynı olmaktadır. Yani örneğin bir ``Ratio
 ``Rational`` olarak elde ederiz.
 
 Neg, Bileşik Atama ve Index Operatör Trait'leri
-=====================================================================================
+===============================================
 
 Rational Yapısı İçin Neg Desteği
--------------------------------------------------------------------------------------
+--------------------------------
 
 ``Rational`` yapısı için ``-`` operatör metodu şöyle yazılabilir:
 
@@ -30288,7 +30288,7 @@ Bir rasyonel sayının negatifinin pay kısmının negatifi alınarak oluşturul
     y.disp();           // 0
 
 Bileşik Atama Operatörleri
--------------------------------------------------------------------------------------
+--------------------------
 
 ``+=``, ``*=``, ``/=``, ``%=`` gibi bileşik atama operatörleri için de operatör metotları yazılabilmektedir. (Ancak
 Rust'ta zaten sahiplik devri olduğu için atama operatörüne yönelik bir operatör metodu yazılamamaktadır.) Biz
@@ -30313,7 +30313,7 @@ oluşturulabilmektedir. Örneğin ``x = x + y`` işleminde ``x + y`` yeni bir de
 işleminin yapılmasını sağlayabilmektedir.
 
 Bileşik Atama Trait'leri
--------------------------------------------------------------------------------------
+------------------------
 
 Aritmetik operatörlere ilişkin bileşik operatörlerin ilişkin olduğu trait'ler şunlardır:
 
@@ -30450,7 +30450,7 @@ durumda aynı desteği bileşik atama operatörlerine de vermemiz uygun olur:
     }
 
 Rational Yapısının Son Hali
--------------------------------------------------------------------------------------
+---------------------------
 
 Geldiğimiz noktaya kadar ``Rational`` yapısının son halini aşağıda veriyoruz.
 
@@ -30740,7 +30740,7 @@ Geldiğimiz noktaya kadar ``Rational`` yapısının son halini aşağıda veriyo
     }
 
 Köşeli Parantez Operatörü
--------------------------------------------------------------------------------------
+-------------------------
 
 Bir yapı ya da enum türünden değerle ``[]`` operatörünü kullanmak isteyebiliriz. Örneğin ``x`` bizim oluşturduğumuz
 yapı türünden bir değişken olsun. Biz bu ``x`` değişkenini ``x[n]`` biçiminde ya da ``x[n] = val`` biçiminde
@@ -30751,7 +30751,7 @@ kullanılmaktadır. Örneğin dinamik büyütülen bir diziyi temsil eden bir ya
 elemanlara sıralı erişimin yapıldığı bir bağlı listede ``[]`` operatörü yanlış anlaşılmalara yol açabilir.
 
 Index ve IndexMut Trait'leri
--------------------------------------------------------------------------------------
+----------------------------
 
 Örneğin aşağıdaki gibi bir ``Date`` yapımız olsun:
 
