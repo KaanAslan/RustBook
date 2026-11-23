@@ -215,6 +215,11 @@ yorumlayıcıların da bu *shebang* yoluyla çalıştırılması sağlanmaktadı
         println!("Hello world");
     }
 
+Artık bu Rust programı *rust-script* isimli yorumlayıcı tarafından çalıştırılabilecektir. *rust-script* için aşağıdaki
+bağlantıyı kullanabilirsiniz:
+
+https://rust-script.org/
+
 *Shebang* konusunu burada ele almayacağız. Bunun için *UNIX/Linux Sistem Programlama* kitabımızın 9. Bölümüne
 başvurabilirsiniz:
 

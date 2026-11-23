@@ -5,7 +5,7 @@ Sabitler
 Statik tür sistemine sahip olan programlama dillerinde yalnızca değişkenlerin değil sabitlerin de -genel olarak tüm
 ifadelerin (*expression*) de- bir türü vardır. Bir programlama dilini öğrenirken ilk öğrenilecek konulardan birisi de o
 programlama dilindeki sabitlerin nasıl oluşturulduğu ve türlerinin nasıl belirlendiğidir. Sabitlerin türleri onların 
-yazım biçimlerine göre ve niceliklerine göre (yani değerlerine göre) belirlenmektedir.Biz de bu bölümde Rust dilindeki 
+yazım biçimlerine göre ve niceliklerine göre (yani değerlerine göre) belirlenmektedir. Biz de bu bölümde Rust dilindeki 
 sabitlerin nasıl oluşturulduğunu ve türlerinin nasıl belirlendiğini ele alacağız.
 
 Program içerisinde doğrudan yazılmış olan değerlere *sabit (literal)* denilmektedir. Örneğin:
@@ -17,6 +17,14 @@ Program içerisinde doğrudan yazılmış olan değerlere *sabit (literal)* deni
 Burada ``a`` ve ``b`` birer değişken ``10`` ise bir sabittir. Biz burada ``b``'nin içerisindeki değerle doğrudan ``10``'u 
 topluyoruz.
 
+Rust'ta sabitler (literals) şöyle sınıflandırılmaktadır:
+
+.. figure:: _static/rust-literals.png
+   :align: center
+   :width: 80%
+
+Şimdi bu su sabit türlerini tek tek ele alıp inceleyelim.
+
 Tamsayı Sabitleri 
 =================
 
@@ -27,14 +35,14 @@ türün sınırları içerisinde kalıyorsa o türden kabul edilmektedir. Örne�
 
    let a: i8 = 127;        // geçerli
 
-Burada 127 sabitinin sonunda bir tür eki yoktur. i8 türünün sınır değerlerinin [-128, +127] olduğuna dikkat ediniz. İşte
-burada 127 değeri bu sınırlar içerisinde olduğu için sanki i8 türündenmiş gibi ele alınmaktadır. Örneğin:
+Burada ``127`` sabitinin sonunda bir tür eki yoktur. ``i8`` türünün sınır değerlerinin ``[-128, +127]`` olduğuna dikkat ediniz. İşte
+burada ``127`` değeri bu sınırlar içerisinde olduğu için sanki ``i8`` türündenmiş gibi ele alınmaktadır. Örneğin:
 
 .. code-block:: rust
 
-   let a: u16 = 50000;
+   let a: u16 = 50000;     // geçerli
 
-Burada 50000 değeri içinde bulunulan bağlamda u16 türüne atanmak amacıyla kullanılmıştır. 50000 değeri u16 sınırları
+Burada ``50000`` değeri içinde bulunulan bağlamda ``u16`` türüne atanmak amacıyla kullanılmıştır. ``50000`` değeri ``u16`` sınırları
 içerisinde kaldığı için sanki u16 türünden bir sabitmiş gibi ele alınmaktadır. Örneğin:
 
 .. code-block:: rust
@@ -42,10 +50,10 @@ içerisinde kaldığı için sanki u16 türünden bir sabitmiş gibi ele alınma
    let a: i8 = 10;
    let b: i8;
 
-   b = a + 10;
+   b = a + 10;              // geçerli
 
-İki operand'lı operatörlerin operand'larının aynı türden olması gerektiğini belirtmiştik. Buradaki a + 10 işleminde 10
-sanki i8 sabit gibi ele alınacaktır. Çünkü 10 sayısı i8 türünün sınırları içerisinde kalmaktadır. Örneğin:
+İki operand'lı operatörlerin operand'larının aynı türden olması gerektiğini belirtmiştik. Buradaki ``a + 10`` işleminde ``10``
+sanki ``i8`` sabit gibi ele alınacaktır. Çünkü ``10`` sayısı ``i8`` türünün sınırları içerisinde kalmaktadır. Örneğin:
 
 .. code-block:: rust
 
@@ -53,19 +61,19 @@ sanki i8 sabit gibi ele alınacaktır. Çünkü 10 sayısı i8 türünün sını
 
    a = 70000;      // error!
 
-Burada 70000 değeri u16 sınırlarının içerisinde kalmadığı için u16 türünden bir sabit gibi ele alınmayacaktır.
+Burada ``70000`` değeri ``u16`` sınırlarının içerisinde kalmadığı için ``u16`` türünden bir sabit gibi ele alınmayacaktır.
 
-Ancak let ile bağlama yapılırken verilen ilkdeğer tür eki içermeyen bir tamsayı ise bu durumda sabit her zaman i32
+Ancak ``let`` ile bağlama yapılırken verilen ilkdeğer tür eki içermeyen bir tamsayı ise bu durumda sabit her zaman ``i32``
 türünden kabul edilmektedir. Örneğin:
 
 .. code-block:: rust
 
    let a = 3000000000;         // error!
 
-Burada 3 milyar değeri i32 türünün sınırları dışındadır. Dolayısıyla error oluşacaktır.
+Burada ``3`` milyar değeri `i32`` türünün sınırları dışındadır. Dolayısıyla error oluşacaktır.
 
-Basamak Ayıracı Olarak '_' Karakteri
-====================================
+_ Karakteri İle Basamakların Ayrıştırılması
+-------------------------------------------
 
 Rust'ta tıpkı Python'da olduğu gibi büyük sayıların daha kolay algılanabilmesi için basamaklar ``'_'`` karakteriyle
 ayrıştırılabilmektedir. Örneğin:
@@ -89,14 +97,18 @@ Sayının sonunda da ``'_'`` karakteri bulunabilir, ancak başında bulunamaz. Y
 
    a = 3___0_0_0_0_0_0_0_0_0__;        // geçerli
 
-Tabii bu ``'_'`` karakterlerinin amacı okunabilirliği artırmak olduğu için bunlar 10'luk sistemde tipik olarak binli
-basamakları ayrıştırmak için kullanılmaktadır.
+Tabii bu ``'_'`` karakterlerinin amacı okunabilirliği artırmak olduğu için bunlar ``10``'luk sistemde tipik olarak binli
+(üçerli) basamakları ayrıştırmak için kullanılmaktadır.
 
 Basamak ayıraçları eski dillerin yeni sürümlerine de zamanla eklenmiştir. Örneğin C++'a C++14 ile C'ye de C23 ile bu
-özellik eklenmiştir.
+özellik eklenmiştir. C++'ta' ve C'de basamak ayrıştırmak için ``'`` karakteri kullanılmaktadır. Örneğin:
+
+.. code-block:: c
+
+    int a = 1'000'000;       
 
 Tamsayı Sabitlerinde Tür Sonekleri
-==================================
+----------------------------------
 
 Tamsayı sabitlerinin sonlarına onların türlerini belirten ekler getirilebilmektedir. Bu sonekler tamsayı türlerinin
 isimlerinden oluşmaktadır:
