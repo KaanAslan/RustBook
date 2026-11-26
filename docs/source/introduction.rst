@@ -1,6 +1,6 @@
-=====
-Giriş
-=====
+=========
+**Giriş**
+=========
 
 Bu bölümde Rust'a bir giriş yapacağız. Rust'ta kullanılan temel kavramları açıklayacağız ve bir Rust programının nasıl derlenip 
 çalıştırıldığını göstereceğiz. 

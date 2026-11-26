@@ -1,6 +1,6 @@
-===================
-Bildirim İşlemleri
-===================
+======================
+**Bildirim İşlemleri**
+======================
 
 Bu bölümde Rust'ta değişken bildirimleri üzerinde duracağız. Rust yeni bir programlama dilidir. Bu nedenle dilin
 terminolojisi de maalesef tam olarak oturtulamamıştır. Bir değişkenin oluşturulmasına yani faaliyet alanına

@@ -1,6 +1,6 @@
-========
-Sabitler
-========
+============
+**Sabitler**
+============
 
 Statik tür sistemine sahip olan programlama dillerinde yalnızca değişkenlerin değil sabitlerin de -genel olarak tüm
 ifadelerin (*expression*) de- bir türü vardır. Bir programlama dilini öğrenirken ilk öğrenilecek konulardan birisi de o

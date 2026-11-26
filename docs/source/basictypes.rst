@@ -1,6 +1,6 @@
-============
-Temel Türler
-============
+================
+**Temel Türler**
+================
 
 Bir programlama dili öğrenilirken ilk öğrenilecek şeylerden biri o programlama dilinin temel türleridir. Biz de bu bölümde
 Rust'ın temel türlerini açıklayacağız.
